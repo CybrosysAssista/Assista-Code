@@ -1,10 +1,19 @@
-[English](../../CONTRIBUTING.md) • [Català](../ca/CONTRIBUTING.md) • [Deutsch](../de/CONTRIBUTING.md) • [Español](../es/CONTRIBUTING.md) • [Français](../fr/CONTRIBUTING.md) • [हिंदी](../hi/CONTRIBUTING.md) • [Italiano](../it/CONTRIBUTING.md) • [Nederlands](../nl/CONTRIBUTING.md) • [Русский](../ru/CONTRIBUTING.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CONTRIBUTING.md) • [한국어](../ko/CONTRIBUTING.md) • [Polski](../pl/CONTRIBUTING.md) • <b>Português (BR)</b> • [Türkçe](../tr/CONTRIBUTING.md) • [Tiếng Việt](../vi/CONTRIBUTING.md) • [简体中文](../zh-CN/CONTRIBUTING.md) • [繁體中文](../zh-TW/CONTRIBUTING.md)
+[English](../../CONTRIBUTING.md) • [Català](../ca/CONTRIBUTING.md) • [Deutsch](../de/CONTRIBUTING.md) • [Español](../es/CONTRIBUTING.md) • [Français](../fr/CONTRIBUTING.md) • [हिंदी](../hi/CONTRIBUTING.md) • [Bahasa Indonesia](../id/CONTRIBUTING.md) • [Italiano](../it/CONTRIBUTING.md) • [日本語](../ja/CONTRIBUTING.md)
 
-# Contribuindo para o Roo Code
+</sub>
+<sub>
 
-O Roo Code é um projeto impulsionado pela comunidade e valorizamos muito cada contribuição. Para simplificar a colaboração, operamos com uma abordagem [Issue-First](#abordagem-issue-first), o que significa que todos os [Pull Requests (PRs)](#enviando-um-pull-request) devem primeiro estar vinculados a uma Issue do GitHub. Por favor, leia este guia com atenção.
+[한국어](../ko/CONTRIBUTING.md) • [Nederlands](../nl/CONTRIBUTING.md) • [Polski](../pl/CONTRIBUTING.md) • <b>Português (BR)</b> • [Русский](../ru/CONTRIBUTING.md) • [Türkçe](../tr/CONTRIBUTING.md) • [Tiếng Việt](../vi/CONTRIBUTING.md) • [简体中文](../zh-CN/CONTRIBUTING.md) • [繁體中文](../zh-TW/CONTRIBUTING.md)
+
+</sub>
+</div>
+
+# Contribuindo para o Cybrosys Assista
+
+O Cybrosys Assista é um projeto impulsionado pela comunidade e valorizamos muito cada contribuição. Para simplificar a colaboração, operamos com uma abordagem [Issue-First](#abordagem-issue-first), o que significa que todos os [Pull Requests (PRs)](#enviando-um-pull-request) devem primeiro estar vinculados a uma Issue do GitHub. Por favor, leia este guia com atenção.
 
 ## Índice
 
@@ -43,10 +52,10 @@ Nosso roadmap orienta a direção do projeto. Alinhe suas contribuições com es
 
 Mencione o alinhamento com estas áreas em seus PRs.
 
-### 3. Junte-se à Comunidade Roo Code
+### 3. Junte-se à Comunidade Cybrosys Assista
 
-- **Principal:** Junte-se ao nosso [Discord](https://discord.gg/roocode) e envie um DM para **Hannes Rudolph (`hrudolph`)**.
-- **Alternativa:** Colaboradores experientes podem participar diretamente via [GitHub Projects](https://github.com/orgs/RooCodeInc/projects/1).
+- **Principal:** Junte-se ao nosso [Discord](https://discord.gg/cybrosysassista) e envie um DM para **Hannes Rudolph (`hrudolph`)**.
+- **Alternativa:** Colaboradores experientes podem participar diretamente via [GitHub Projects](https://github.com/orgs/CybrosysAssistaInc/projects/1).
 
 ## Encontrando & Planejando sua Contribuição
 
@@ -60,7 +69,7 @@ Mencione o alinhamento com estas áreas em seus PRs.
 
 Todas as contribuições devem começar com uma Issue do GitHub.
 
-- **Verificar issues existentes:** Procure em [GitHub Issues](https://github.com/RooCodeInc/Roo-Code/issues).
+- **Verificar issues existentes:** Procure em [GitHub Issues](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues).
 - **Criar uma issue:** Use os templates apropriados:
     - **Bugs:** Template "Bug Report".
     - **Recursos:** Template "Detailed Feature Proposal". Aprovação necessária antes de começar.
@@ -70,14 +79,14 @@ Todas as contribuições devem começar com uma Issue do GitHub.
 
 ### Decidindo no que Trabalhar
 
-- Confira o [Projeto GitHub](https://github.com/orgs/RooCodeInc/projects/1) para "Good First Issues" não atribuídas.
-- Para documentação, visite [Roo Code Docs](https://github.com/RooCodeInc/Roo-Code-Docs).
+- Confira o [Projeto GitHub](https://github.com/orgs/CybrosysAssistaInc/projects/1) para "Good First Issues" não atribuídas.
+- Para documentação, visite [Cybrosys Assista Docs](https://github.com/CybrosysAssistaInc/Cybrosys-Assista-Docs).
 
 ### Relatando Bugs
 
 - Verifique primeiro se já existem relatórios.
-- Crie novos relatórios de bugs usando o [template "Bug Report"](https://github.com/RooCodeInc/Roo-Code/issues/new/choose).
-- **Vulnerabilidades de segurança:** Relate de forma privada via [security advisories](https://github.com/RooCodeInc/Roo-Code/security/advisories/new).
+- Crie novos relatórios de bugs usando o [template "Bug Report"](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues/new/choose).
+- **Vulnerabilidades de segurança:** Relate de forma privada via [security advisories](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/security/advisories/new).
 
 ## Processo de Desenvolvimento & Submissão
 
@@ -86,7 +95,7 @@ Todas as contribuições devem começar com uma Issue do GitHub.
 1. **Fork & Clone:**
 
 ```
-git clone https://github.com/SEU_USUÁRIO/Roo-Code.git
+git clone https://github.com/SEU_USUÁRIO/Cybrosys-Assista.git
 ```
 
 2. **Instalar dependências:**
@@ -126,4 +135,4 @@ npm run install:all
 
 ## Legal
 
-Ao enviar um pull request, você concorda que suas contribuições serão licenciadas sob a Licença Apache 2.0, consistente com o licenciamento do Roo Code.
+Ao enviar um pull request, você concorda que suas contribuições serão licenciadas sob a Licença Apache 2.0, consistente com o licenciamento do Cybrosys Assista.

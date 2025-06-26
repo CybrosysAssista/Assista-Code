@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-import { keysOf } from "./type-fu.js"
 import { reasoningEffortsSchema, modelInfoSchema } from "./model.js"
 import { codebaseIndexProviderSchema } from "./codebase-index.js"
 
@@ -10,6 +9,7 @@ import { codebaseIndexProviderSchema } from "./codebase-index.js"
 
 export const providerNames = [
 	"anthropic",
+	"claude-code",
 	"glama",
 	"openrouter",
 	"bedrock",
@@ -75,6 +75,10 @@ const anthropicSchema = apiModelIdProviderModelSchema.extend({
 	apiKey: z.string().optional(),
 	anthropicBaseUrl: z.string().optional(),
 	anthropicUseAuthToken: z.boolean().optional(),
+})
+
+const claudeCodeSchema = apiModelIdProviderModelSchema.extend({
+	claudeCodePath: z.string().optional(),
 })
 
 const glamaSchema = baseProviderSettingsSchema.extend({
@@ -209,6 +213,7 @@ const defaultSchema = z.object({
 
 export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProvider", [
 	anthropicSchema.merge(z.object({ apiProvider: z.literal("anthropic") })),
+	claudeCodeSchema.merge(z.object({ apiProvider: z.literal("claude-code") })),
 	glamaSchema.merge(z.object({ apiProvider: z.literal("glama") })),
 	openRouterSchema.merge(z.object({ apiProvider: z.literal("openrouter") })),
 	bedrockSchema.merge(z.object({ apiProvider: z.literal("bedrock") })),
@@ -235,6 +240,7 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
 export const providerSettingsSchema = z.object({
 	apiProvider: providerNamesSchema.optional(),
 	...anthropicSchema.shape,
+	...claudeCodeSchema.shape,
 	...glamaSchema.shape,
 	...openRouterSchema.shape,
 	...bedrockSchema.shape,
@@ -259,110 +265,7 @@ export const providerSettingsSchema = z.object({
 })
 
 export type ProviderSettings = z.infer<typeof providerSettingsSchema>
-
-export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
-	"apiProvider",
-	// Anthropic
-	"apiModelId",
-	"apiKey",
-	"anthropicBaseUrl",
-	"anthropicUseAuthToken",
-	// Glama
-	"glamaModelId",
-	"glamaApiKey",
-	// OpenRouter
-	"openRouterApiKey",
-	"openRouterModelId",
-	"openRouterBaseUrl",
-	"openRouterSpecificProvider",
-	"openRouterUseMiddleOutTransform",
-	// Amazon Bedrock
-	"awsAccessKey",
-	"awsSecretKey",
-	"awsSessionToken",
-	"awsRegion",
-	"awsUseCrossRegionInference",
-	"awsUsePromptCache",
-	"awsProfile",
-	"awsUseProfile",
-	"awsCustomArn",
-	"awsModelContextWindow",
-	"awsBedrockEndpointEnabled",
-	"awsBedrockEndpoint",
-	// Google Vertex
-	"vertexKeyFile",
-	"vertexJsonCredentials",
-	"vertexProjectId",
-	"vertexRegion",
-	// OpenAI
-	"openAiBaseUrl",
-	"openAiApiKey",
-	"openAiLegacyFormat",
-	"openAiR1FormatEnabled",
-	"openAiModelId",
-	"openAiCustomModelInfo",
-	"openAiUseAzure",
-	"azureApiVersion",
-	"openAiStreamingEnabled",
-	"openAiHostHeader", // Keep temporarily for backward compatibility during migration.
-	"openAiHeaders",
-	// Ollama
-	"ollamaModelId",
-	"ollamaBaseUrl",
-	// VS Code LM
-	"vsCodeLmModelSelector",
-	"lmStudioModelId",
-	"lmStudioBaseUrl",
-	"lmStudioDraftModelId",
-	"lmStudioSpeculativeDecodingEnabled",
-	// Gemini
-	"geminiApiKey",
-	"googleGeminiBaseUrl",
-	// OpenAI Native
-	"openAiNativeApiKey",
-	"openAiNativeBaseUrl",
-	// Mistral
-	"mistralApiKey",
-	"mistralCodestralUrl",
-	// DeepSeek
-	"deepSeekBaseUrl",
-	"deepSeekApiKey",
-	// Unbound
-	"unboundApiKey",
-	"unboundModelId",
-	// Requesty
-	"requestyApiKey",
-	"requestyModelId",
-	// Code Index
-	"codeIndexOpenAiKey",
-	"codeIndexQdrantApiKey",
-	"codebaseIndexOpenAiCompatibleBaseUrl",
-	"codebaseIndexOpenAiCompatibleApiKey",
-	"codebaseIndexOpenAiCompatibleModelDimension",
-	// Reasoning
-	"enableReasoningEffort",
-	"reasoningEffort",
-	"modelMaxTokens",
-	"modelMaxThinkingTokens",
-	// Generic
-	"includeMaxTokens",
-	"diffEnabled",
-	"fuzzyMatchThreshold",
-	"modelTemperature",
-	"rateLimitSeconds",
-	// Fake AI
-	"fakeAi",
-	// X.AI (Grok)
-	"xaiApiKey",
-	// Groq
-	"groqApiKey",
-	// Chutes AI
-	"chutesApiKey",
-	// LiteLLM
-	"litellmBaseUrl",
-	"litellmApiKey",
-	"litellmModelId",
-])
+export const PROVIDER_SETTINGS_KEYS = providerSettingsSchema.keyof().options
 
 export const MODEL_ID_KEYS: Partial<keyof ProviderSettings>[] = [
 	"apiModelId",

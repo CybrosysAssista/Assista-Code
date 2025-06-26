@@ -1,0 +1,266 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+	title: "Privacy Policy - Cybrosys Assista",
+	description:
+		"Privacy policy for Cybrosys Assista Cloud and marketing website. Learn how we handle your data and protect your privacy.",
+}
+
+export default function Privacy() {
+	return (
+		<>
+			<div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+				<div className="prose prose-lg mx-auto max-w-4xl dark:prose-invert">
+					<h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+						Cybrosys Assista Cloud Privacy Policy
+					</h1>
+					<p className="text-muted-foreground">Last Updated: June 19, 2025</p>
+
+					<p className="lead">
+						This Privacy Policy explains how Cybrosys Assista, Inc. (&quot;Cybrosys Assista,&quot; &quot;we,&quot;
+						&quot;our,&quot; or &quot;us&quot;) collects, uses, and shares information when you:
+					</p>
+					<ul className="lead">
+						<li>
+							browse any page under <strong>cybrosysassista.com</strong> (the <em>Marketing Site</em>); and/or
+						</li>
+						<li>
+							create an account for, sign in to, or otherwise use <strong>Cybrosys Assista Cloud</strong> at{" "}
+							<strong>app.cybrosysassista.com</strong> or through the Cybrosys Assista extension while authenticated to
+							that Cloud account (the <em>Cloud Service</em>).
+						</li>
+					</ul>
+
+					<div className="my-8 rounded-lg border border-border bg-muted/50 p-6">
+						<h3 className="mt-0 text-lg font-semibold">Extension‑Only Usage</h3>
+						<p className="mb-0">
+							If you run the Cybrosys Assista extension <strong>without</strong> connecting to a Cloud account,
+							your data is governed by the standalone{" "}
+							<a
+								href="https://github.com/CybrosysAssistaInc/Cybrosys-Assista/blob/main/PRIVACY.md"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-primary hover:underline">
+								Cybrosys Assista Extension Privacy Policy
+							</a>
+							.
+						</p>
+					</div>
+
+					<h2 className="mt-12 text-2xl font-bold">Quick Summary</h2>
+					<ul>
+						<li>
+							<strong>Your source code never transits Cybrosys Assista servers.</strong> It stays on your device
+							and is sent <strong>directly</strong>—via a client‑to‑provider TLS connection—to the
+							third‑party AI model you select. Cybrosys Assista never stores, inspects, or trains on your code.
+						</li>
+						<li>
+							<strong>Prompts and chat snippets are collected by default</strong> in Cybrosys Assista Cloud so you
+							can search and re‑use past conversations. Organization admins can disable this collection at
+							any time.
+						</li>
+						<li>
+							We collect only the data needed to operate Cybrosys Assista Cloud, do <strong>not</strong> sell
+							customer data, and do <strong>not</strong> use your content to train models.
+						</li>
+					</ul>
+
+					<h2 className="mt-12 text-2xl font-bold">1. Information We Collect</h2>
+
+					<div className="overflow-x-auto">
+						<table className="min-w-full border-collapse border border-border">
+							<thead>
+								<tr className="bg-muted/50">
+									<th className="border border-border px-4 py-2 text-left font-semibold">Category</th>
+									<th className="border border-border px-4 py-2 text-left font-semibold">Examples</th>
+									<th className="border border-border px-4 py-2 text-left font-semibold">Source</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td className="border border-border px-4 py-2 font-medium">Account Information</td>
+									<td className="border border-border px-4 py-2">
+										Name, email, organization, auth tokens
+									</td>
+									<td className="border border-border px-4 py-2">You</td>
+								</tr>
+								<tr className="bg-muted/25">
+									<td className="border border-border px-4 py-2 font-medium">
+										Workspace Configuration
+									</td>
+									<td className="border border-border px-4 py-2">
+										Org settings, allow‑lists, rules files, modes, dashboards
+									</td>
+									<td className="border border-border px-4 py-2">You / Extension (when signed in)</td>
+								</tr>
+								<tr>
+									<td className="border border-border px-4 py-2 font-medium">
+										Prompts, Chat Snippets & Token Counts
+									</td>
+									<td className="border border-border px-4 py-2">
+										Text prompts, model outputs, token counts
+									</td>
+									<td className="border border-border px-4 py-2">Extension (when signed in)</td>
+								</tr>
+								<tr className="bg-muted/25">
+									<td className="border border-border px-4 py-2 font-medium">Usage Data</td>
+									<td className="border border-border px-4 py-2">
+										No usage or telemetry data is collected or sent outside your device.
+									</td>
+									<td className="border border-border px-4 py-2">N/A</td>
+								</tr>
+								<tr>
+									<td className="border border-border px-4 py-2 font-medium">Payment Data</td>
+									<td className="border border-border px-4 py-2">
+										Tokenized card details, billing address, invoices
+									</td>
+									<td className="border border-border px-4 py-2">Payment processor (Stripe)</td>
+								</tr>
+								<tr className="bg-muted/25">
+									<td className="border border-border px-4 py-2 font-medium">Marketing Data</td>
+									<td className="border border-border px-4 py-2">
+										Cookies, IP address, browser type, page views,{" "}
+										<strong>voluntary form submissions</strong> (e.g., newsletter or wait‑list
+										sign‑ups)
+									</td>
+									<td className="border border-border px-4 py-2">
+										Marketing Site automatically / You
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 className="mt-12 text-2xl font-bold">2. How We Use Information</h2>
+					<ul>
+						<li>
+							<strong>Operate & secure Cybrosys Assista Cloud</strong> (authentication, completions, abuse
+							prevention)
+						</li>
+						<li>
+							<strong>Provide support & improve features</strong> (debugging, product decisions)
+						</li>
+						<li>
+							<strong>Process payments & manage subscriptions</strong>
+						</li>
+						<li>
+							<strong>Send product updates and roadmap communications</strong> (opt‑out available)
+						</li>
+					</ul>
+
+					<h2 className="mt-12 text-2xl font-bold">3. Where Your Data Goes (And Doesn&apos;t)</h2>
+
+					<div className="overflow-x-auto">
+						<table className="min-w-full border-collapse border border-border">
+							<thead>
+								<tr className="bg-muted/50">
+									<th className="border border-border px-4 py-2 text-left font-semibold">Data</th>
+									<th className="border border-border px-4 py-2 text-left font-semibold">Sent To</th>
+									<th className="border border-border px-4 py-2 text-left font-semibold">
+										<strong>Not</strong> Sent To
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td className="border border-border px-4 py-2 font-medium">
+										Code & files you work on
+									</td>
+									<td className="border border-border px-4 py-2">
+										Your chosen model provider (direct client → provider TLS)
+									</td>
+									<td className="border border-border px-4 py-2">
+										Cybrosys Assista servers; ad networks; model‑training pipelines
+									</td>
+								</tr>
+								<tr className="bg-muted/25">
+									<td className="border border-border px-4 py-2 font-medium">
+										Prompts, chat snippets & token counts (Cloud)
+									</td>
+									<td className="border border-border px-4 py-2">
+										Cybrosys Assista Cloud (encrypted at rest)
+									</td>
+									<td className="border border-border px-4 py-2">Any third‑party</td>
+								</tr>
+								<tr>
+									<td className="border border-border px-4 py-2 font-medium">
+										Workspace Configuration
+									</td>
+									<td className="border border-border px-4 py-2">
+										Cybrosys Assista Cloud (encrypted at rest)
+									</td>
+									<td className="border border-border px-4 py-2">Any third-party</td>
+								</tr>
+								<tr className="bg-muted/25">
+									<td className="border border-border px-4 py-2 font-medium">Usage Data</td>
+									<td className="border border-border px-4 py-2">
+										No usage or telemetry data is collected or sent outside your device.
+									</td>
+									<td className="border border-border px-4 py-2">N/A</td>
+								</tr>
+								<tr>
+									<td className="border border-border px-4 py-2 font-medium">Payment Data</td>
+									<td className="border border-border px-4 py-2">Stripe (PCI‑DSS Level 1)</td>
+									<td className="border border-border px-4 py-2">
+										Cybrosys Assista servers (we store only the Stripe customer ID)
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 className="mt-12 text-2xl font-bold">4. Data Retention</h2>
+					<ul>
+						<li>
+							<strong>Source Code:</strong> Never stored on Cybrosys Assista servers.
+						</li>
+						<li>
+							<strong>Prompts & Chat Snippets:</strong> Persist in your Cloud workspace until you or your
+							organization admin deletes them or disables collection.
+						</li>
+						<li>
+							<strong>Operational Logs:</strong> Retained only locally as needed to operate and secure Cybrosys Assista Cloud. No analytics or telemetry is sent externally.
+						</li>
+					</ul>
+
+					<h2 className="mt-12 text-2xl font-bold">5. Your Choices</h2>
+					<ul>
+						<li>
+							<strong>Manage cookies:</strong> You can block or delete cookies in your browser settings;
+							some site features may not function without them.
+						</li>
+						<li>
+							<strong>Disable prompt collection</strong> in Organization settings.
+						</li>
+						<li>
+							<strong>Delete your Cloud account</strong> at any time from{" "}
+							<strong>Security Settings</strong> inside Cybrosys Assista Cloud.
+						</li>
+					</ul>
+
+					<h2 className="mt-12 text-2xl font-bold">6. Security Practices</h2>
+					<p>
+						We use TLS for all data in transit, AES‑256 encryption at rest, least‑privilege IAM, continuous
+						monitoring, routine penetration testing, and maintain a SOC 2 program.
+					</p>
+
+					<h2 className="mt-12 text-2xl font-bold">7. Updates to This Policy</h2>
+					<p>
+						If our privacy practices change, we will update this policy and note the new{" "}
+						<strong>Last Updated</strong> date at the top. For material changes that affect Cloud
+						workspaces, we will also email registered workspace owners before the changes take effect.
+					</p>
+
+					<h2 className="mt-12 text-2xl font-bold">8. Contact Us</h2>
+					<p>
+						Questions or concerns? Email{" "}
+						<a href="mailto:privacy@cybrosysassista.com" className="text-primary hover:underline">
+							privacy@cybrosysassista.com
+						</a>
+						.
+					</p>
+				</div>
+			</div>
+		</>
+	)
+}

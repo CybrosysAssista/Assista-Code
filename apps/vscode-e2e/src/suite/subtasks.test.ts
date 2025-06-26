@@ -1,14 +1,14 @@
 import * as assert from "assert"
 
-import type { ClineMessage } from "@roo-code/types"
+import type { AssistaMessage } from "@cybrosys-assista/types"
 
 import { sleep, waitFor, waitUntilCompleted } from "./utils"
 
-suite.skip("Roo Code Subtasks", () => {
+suite.skip("Cybrosys Assista Subtasks", () => {
 	test("Should handle subtask cancellation and resumption correctly", async () => {
 		const api = globalThis.api
 
-		const messages: Record<string, ClineMessage[]> = {}
+		const messages: Record<string, AssistaMessage[]> = {}
 
 		api.on("message", ({ taskId, message }) => {
 			if (message.type === "say" && message.partial === false) {

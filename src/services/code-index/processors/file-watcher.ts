@@ -7,7 +7,7 @@ import {
 	INITIAL_RETRY_DELAY_MS,
 } from "../constants"
 import { createHash } from "crypto"
-import { RooIgnoreController } from "../../../core/ignore/RooIgnoreController"
+import { AssistaIgnoreController } from "../../../core/ignore/AssistaIgnoreController"
 import { v5 as uuidv5 } from "uuid"
 import { Ignore } from "ignore"
 import { scannerExtensions } from "../shared/supported-extensions"
@@ -22,6 +22,7 @@ import {
 import { codeParser } from "./parser"
 import { CacheManager } from "../cache-manager"
 import { generateNormalizedAbsolutePath, generateRelativeFilePath } from "../shared/get-relative-path"
+import { isPathInIgnoredDirectory } from "../../glob/ignore-utils"
 
 /**
  * Implementation of the file watcher interface
@@ -29,7 +30,7 @@ import { generateNormalizedAbsolutePath, generateRelativeFilePath } from "../sha
 export class FileWatcher implements IFileWatcher {
 	private ignoreInstance?: Ignore
 	private fileWatcher?: vscode.FileSystemWatcher
-	private ignoreController: RooIgnoreController
+	private ignoreController: AssistaIgnoreController
 	private accumulatedEvents: Map<string, { uri: vscode.Uri; type: "create" | "change" | "delete" }> = new Map()
 	private batchProcessDebounceTimer?: NodeJS.Timeout
 	private readonly BATCH_DEBOUNCE_DELAY_MS = 500
@@ -73,9 +74,9 @@ export class FileWatcher implements IFileWatcher {
 		private embedder?: IEmbedder,
 		private vectorStore?: IVectorStore,
 		ignoreInstance?: Ignore,
-		ignoreController?: RooIgnoreController,
+		ignoreController?: AssistaIgnoreController,
 	) {
-		this.ignoreController = ignoreController || new RooIgnoreController(workspacePath)
+		this.ignoreController = ignoreController || new AssistaIgnoreController(workspacePath)
 		if (ignoreInstance) {
 			this.ignoreInstance = ignoreInstance
 		}
@@ -453,6 +454,15 @@ export class FileWatcher implements IFileWatcher {
 	 */
 	async processFile(filePath: string): Promise<FileProcessingResult> {
 		try {
+			// Check if file is in an ignored directory
+			if (isPathInIgnoredDirectory(filePath)) {
+				return {
+					path: filePath,
+					status: "skipped" as const,
+					reason: "File is in an ignored directory",
+				}
+			}
+
 			// Check if file should be ignored
 			const relativeFilePath = generateRelativeFilePath(filePath)
 			if (
@@ -462,7 +472,7 @@ export class FileWatcher implements IFileWatcher {
 				return {
 					path: filePath,
 					status: "skipped" as const,
-					reason: "File is ignored by .rooignore or .gitignore",
+					reason: "File is ignored by .assistaignore or .gitignore",
 				}
 			}
 

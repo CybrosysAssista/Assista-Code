@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 import { VSCodeBadge } from "@vscode/webview-ui-toolkit/react"
 import { CloudUpload, CloudDownload, FoldVertical } from "lucide-react"
 
-import type { ClineMessage } from "@roo-code/types"
+import type { AssistaMessage } from "@cybrosys-assista/types"
 
-import { getModelMaxOutputTokens } from "@roo/api"
+import { getModelMaxOutputTokens } from "@assista/api"
 
 import { formatLargeNumber } from "@src/utils/format"
 import { cn } from "@src/lib/utils"
@@ -21,7 +21,7 @@ import { ContextWindowProgress } from "./ContextWindowProgress"
 import { Mention } from "./Mention"
 
 export interface TaskHeaderProps {
-	task: ClineMessage
+	task: AssistaMessage
 	tokensIn: number
 	tokensOut: number
 	doesModelSupportPromptCache: boolean

@@ -1,13 +1,13 @@
 import * as vscode from "vscode"
 
-import { CloudService } from "@roo-code/cloud"
+import { CloudService } from "@cybrosys-assista/cloud"
 
-import { ClineProvider } from "../core/webview/ClineProvider"
+import { AssistaProvider } from "../core/webview/AssistaProvider"
 
 export const handleUri = async (uri: vscode.Uri) => {
 	const path = uri.path
 	const query = new URLSearchParams(uri.query.replace(/\+/g, "%2B"))
-	const visibleProvider = ClineProvider.getVisibleInstance()
+	const visibleProvider = AssistaProvider.getVisibleInstance()
 
 	if (!visibleProvider) {
 		return
@@ -38,7 +38,13 @@ export const handleUri = async (uri: vscode.Uri) => {
 		case "/auth/clerk/callback": {
 			const code = query.get("code")
 			const state = query.get("state")
-			await CloudService.instance.handleAuthCallback(code, state)
+			const organizationId = query.get("organizationId")
+
+			await CloudService.instance.handleAuthCallback(
+				code,
+				state,
+				organizationId === "null" ? null : organizationId,
+			)
 			break
 		}
 		default:

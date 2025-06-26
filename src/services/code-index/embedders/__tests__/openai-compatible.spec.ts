@@ -1,11 +1,27 @@
-import { vitest, describe, it, expect, beforeEach, afterEach } from "vitest"
 import type { MockedClass, MockedFunction } from "vitest"
 import { OpenAI } from "openai"
 import { OpenAICompatibleEmbedder } from "../openai-compatible"
-import { MAX_BATCH_TOKENS, MAX_ITEM_TOKENS, MAX_BATCH_RETRIES, INITIAL_RETRY_DELAY_MS } from "../../constants"
+import { MAX_ITEM_TOKENS, INITIAL_RETRY_DELAY_MS } from "../../constants"
 
 // Mock the OpenAI SDK
 vitest.mock("openai")
+
+// Mock i18n
+vitest.mock("../../../../i18n", () => ({
+	t: (key: string, params?: Record<string, any>) => {
+		const translations: Record<string, string> = {
+			"embeddings:authenticationFailed":
+				"Failed to create embeddings: Authentication failed. Please check your API key.",
+			"embeddings:failedWithStatus": `Failed to create embeddings after ${params?.attempts} attempts: HTTP ${params?.statusCode} - ${params?.errorMessage}`,
+			"embeddings:failedWithError": `Failed to create embeddings after ${params?.attempts} attempts: ${params?.errorMessage}`,
+			"embeddings:failedMaxAttempts": `Failed to create embeddings after ${params?.attempts} attempts`,
+			"embeddings:textExceedsTokenLimit": `Text at index ${params?.index} exceeds maximum token limit (${params?.itemTokens} > ${params?.maxTokens}). Skipping.`,
+			"embeddings:rateLimitRetry": `Rate limit hit, retrying in ${params?.delayMs}ms (attempt ${params?.attempt}/${params?.maxRetries})`,
+			"embeddings:unknownError": "Unknown error",
+		}
+		return translations[key] || key
+	},
+}))
 
 const MockedOpenAI = OpenAI as MockedClass<typeof OpenAI>
 
@@ -110,6 +126,7 @@ describe("OpenAICompatibleEmbedder", () => {
 			expect(mockEmbeddingsCreate).toHaveBeenCalledWith({
 				input: testTexts,
 				model: testModelId,
+				encoding_format: "base64",
 			})
 			expect(result).toEqual({
 				embeddings: [[0.1, 0.2, 0.3]],
@@ -130,6 +147,7 @@ describe("OpenAICompatibleEmbedder", () => {
 			expect(mockEmbeddingsCreate).toHaveBeenCalledWith({
 				input: testTexts,
 				model: testModelId,
+				encoding_format: "base64",
 			})
 			expect(result).toEqual({
 				embeddings: [
@@ -154,6 +172,7 @@ describe("OpenAICompatibleEmbedder", () => {
 			expect(mockEmbeddingsCreate).toHaveBeenCalledWith({
 				input: testTexts,
 				model: customModel,
+				encoding_format: "base64",
 			})
 		})
 
@@ -170,6 +189,97 @@ describe("OpenAICompatibleEmbedder", () => {
 			expect(result).toEqual({
 				embeddings: [[0.1, 0.2, 0.3]],
 				usage: { promptTokens: 0, totalTokens: 0 },
+			})
+		})
+
+		/**
+		 * Test base64 conversion logic
+		 */
+		describe("base64 conversion", () => {
+			it("should convert base64 encoded embeddings to float arrays", async () => {
+				const testTexts = ["Hello world"]
+
+				// Create a Float32Array with test values that can be exactly represented in Float32
+				const testEmbedding = new Float32Array([0.25, 0.5, 0.75, 1.0])
+
+				// Convert to base64 string (simulating what OpenAI API returns)
+				const buffer = Buffer.from(testEmbedding.buffer)
+				const base64String = buffer.toString("base64")
+
+				const mockResponse = {
+					data: [{ embedding: base64String }], // Base64 string instead of array
+					usage: { prompt_tokens: 10, total_tokens: 15 },
+				}
+				mockEmbeddingsCreate.mockResolvedValue(mockResponse)
+
+				const result = await embedder.createEmbeddings(testTexts)
+
+				expect(mockEmbeddingsCreate).toHaveBeenCalledWith({
+					input: testTexts,
+					model: testModelId,
+					encoding_format: "base64",
+				})
+
+				// Verify the base64 string was converted back to the original float array
+				expect(result).toEqual({
+					embeddings: [[0.25, 0.5, 0.75, 1.0]],
+					usage: { promptTokens: 10, totalTokens: 15 },
+				})
+			})
+
+			it("should handle multiple base64 encoded embeddings", async () => {
+				const testTexts = ["Hello world", "Goodbye world"]
+
+				// Create test embeddings with values that can be exactly represented in Float32
+				const embedding1 = new Float32Array([0.25, 0.5, 0.75])
+				const embedding2 = new Float32Array([1.0, 1.25, 1.5])
+
+				// Convert to base64 strings
+				const base64String1 = Buffer.from(embedding1.buffer).toString("base64")
+				const base64String2 = Buffer.from(embedding2.buffer).toString("base64")
+
+				const mockResponse = {
+					data: [{ embedding: base64String1 }, { embedding: base64String2 }],
+					usage: { prompt_tokens: 20, total_tokens: 30 },
+				}
+				mockEmbeddingsCreate.mockResolvedValue(mockResponse)
+
+				const result = await embedder.createEmbeddings(testTexts)
+
+				expect(result).toEqual({
+					embeddings: [
+						[0.25, 0.5, 0.75],
+						[1.0, 1.25, 1.5],
+					],
+					usage: { promptTokens: 20, totalTokens: 30 },
+				})
+			})
+
+			it("should handle mixed base64 and array embeddings", async () => {
+				const testTexts = ["Hello world", "Goodbye world"]
+
+				// Create one base64 embedding and one regular array (edge case)
+				const embedding1 = new Float32Array([0.25, 0.5, 0.75])
+				const base64String1 = Buffer.from(embedding1.buffer).toString("base64")
+
+				const mockResponse = {
+					data: [
+						{ embedding: base64String1 }, // Base64 string
+						{ embedding: [1.0, 1.25, 1.5] }, // Regular array
+					],
+					usage: { prompt_tokens: 20, total_tokens: 30 },
+				}
+				mockEmbeddingsCreate.mockResolvedValue(mockResponse)
+
+				const result = await embedder.createEmbeddings(testTexts)
+
+				expect(result).toEqual({
+					embeddings: [
+						[0.25, 0.5, 0.75],
+						[1.0, 1.25, 1.5],
+					],
+					usage: { promptTokens: 20, totalTokens: 30 },
+				})
 			})
 		})
 
@@ -249,11 +359,15 @@ describe("OpenAICompatibleEmbedder", () => {
 				const testTexts = ["Hello world"]
 				const rateLimitError = { status: 429, message: "Rate limit exceeded" }
 
+				// Create base64 encoded embedding for successful response
+				const testEmbedding = new Float32Array([0.25, 0.5, 0.75])
+				const base64String = Buffer.from(testEmbedding.buffer).toString("base64")
+
 				mockEmbeddingsCreate
 					.mockRejectedValueOnce(rateLimitError)
 					.mockRejectedValueOnce(rateLimitError)
 					.mockResolvedValueOnce({
-						data: [{ embedding: [0.1, 0.2, 0.3] }],
+						data: [{ embedding: base64String }],
 						usage: { prompt_tokens: 10, total_tokens: 15 },
 					})
 
@@ -268,7 +382,7 @@ describe("OpenAICompatibleEmbedder", () => {
 				expect(mockEmbeddingsCreate).toHaveBeenCalledTimes(3)
 				expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("Rate limit hit, retrying in"))
 				expect(result).toEqual({
-					embeddings: [[0.1, 0.2, 0.3]],
+					embeddings: [[0.25, 0.5, 0.75]],
 					usage: { promptTokens: 10, totalTokens: 15 },
 				})
 			})
@@ -281,7 +395,7 @@ describe("OpenAICompatibleEmbedder", () => {
 				mockEmbeddingsCreate.mockRejectedValue(authError)
 
 				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
-					"Failed to create embeddings: batch processing error",
+					"Failed to create embeddings: Authentication failed. Please check your API key.",
 				)
 
 				expect(mockEmbeddingsCreate).toHaveBeenCalledTimes(1)
@@ -296,7 +410,7 @@ describe("OpenAICompatibleEmbedder", () => {
 				mockEmbeddingsCreate.mockRejectedValue(serverError)
 
 				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
-					"Failed to create embeddings: batch processing error",
+					"Failed to create embeddings after 3 attempts: HTTP 500 - Internal server error",
 				)
 
 				expect(mockEmbeddingsCreate).toHaveBeenCalledTimes(1)
@@ -314,11 +428,11 @@ describe("OpenAICompatibleEmbedder", () => {
 				mockEmbeddingsCreate.mockRejectedValue(apiError)
 
 				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
-					"Failed to create embeddings: batch processing error",
+					"Failed to create embeddings after 3 attempts: API connection failed",
 				)
 
 				expect(console.error).toHaveBeenCalledWith(
-					expect.stringContaining("Failed to process batch"),
+					expect.stringContaining("OpenAI Compatible embedder error"),
 					expect.any(Error),
 				)
 			})
@@ -330,10 +444,13 @@ describe("OpenAICompatibleEmbedder", () => {
 				mockEmbeddingsCreate.mockRejectedValue(batchError)
 
 				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
-					"Failed to create embeddings: batch processing error",
+					"Failed to create embeddings after 3 attempts: Batch processing failed",
 				)
 
-				expect(console.error).toHaveBeenCalledWith("Failed to process batch:", batchError)
+				expect(console.error).toHaveBeenCalledWith(
+					expect.stringContaining("OpenAI Compatible embedder error"),
+					batchError,
+				)
 			})
 
 			it("should handle empty text arrays", async () => {
@@ -358,6 +475,142 @@ describe("OpenAICompatibleEmbedder", () => {
 				mockEmbeddingsCreate.mockResolvedValue(malformedResponse)
 
 				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow()
+			})
+
+			it("should provide specific authentication error message", async () => {
+				const testTexts = ["Hello world"]
+				const authError = new Error("Invalid API key")
+				;(authError as any).status = 401
+
+				mockEmbeddingsCreate.mockRejectedValue(authError)
+
+				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
+					"Failed to create embeddings: Authentication failed. Please check your API key.",
+				)
+			})
+
+			it("should provide detailed error message for HTTP errors", async () => {
+				const testTexts = ["Hello world"]
+				const httpError = new Error("Bad request")
+				;(httpError as any).status = 400
+
+				mockEmbeddingsCreate.mockRejectedValue(httpError)
+
+				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
+					"Failed to create embeddings after 3 attempts: HTTP 400 - Bad request",
+				)
+			})
+
+			it("should handle errors without status codes", async () => {
+				const testTexts = ["Hello world"]
+				const networkError = new Error("Network timeout")
+
+				mockEmbeddingsCreate.mockRejectedValue(networkError)
+
+				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
+					"Failed to create embeddings after 3 attempts: Network timeout",
+				)
+			})
+
+			it("should handle errors without message property", async () => {
+				const testTexts = ["Hello world"]
+				const weirdError = { toString: () => "Custom error object" }
+
+				mockEmbeddingsCreate.mockRejectedValue(weirdError)
+
+				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
+					"Failed to create embeddings after 3 attempts: Custom error object",
+				)
+			})
+
+			it("should handle completely unknown error types", async () => {
+				const testTexts = ["Hello world"]
+				const unknownError = null
+
+				mockEmbeddingsCreate.mockRejectedValue(unknownError)
+
+				await expect(embedder.createEmbeddings(testTexts)).rejects.toThrow(
+					"Failed to create embeddings after 3 attempts: Unknown error",
+				)
+			})
+		})
+
+		/**
+		 * Test to confirm OpenAI package bug with base64 encoding
+		 * This test verifies that when we request encoding_format: "base64",
+		 * the OpenAI package returns unparsed base64 strings as expected.
+		 * This is the behavior we rely on in our workaround.
+		 */
+		describe("OpenAI package base64 behavior verification", () => {
+			it("should return unparsed base64 when encoding_format is base64", async () => {
+				const testTexts = ["Hello world"]
+
+				// Create a real OpenAI instance to test the actual package behavior
+				const realOpenAI = new ((await vi.importActual("openai")) as any).OpenAI({
+					baseURL: testBaseUrl,
+					apiKey: testApiKey,
+				})
+
+				// Create test embedding data as base64 using values that can be exactly represented in Float32
+				const testEmbedding = new Float32Array([0.25, 0.5, 0.75, 1.0])
+				const buffer = Buffer.from(testEmbedding.buffer)
+				const base64String = buffer.toString("base64")
+
+				// Mock the raw API response that would come from OpenAI
+				const mockApiResponse = {
+					data: [
+						{
+							object: "embedding",
+							embedding: base64String, // Raw base64 string from API
+							index: 0,
+						},
+					],
+					model: "text-embedding-3-small",
+					object: "list",
+					usage: {
+						prompt_tokens: 2,
+						total_tokens: 2,
+					},
+				}
+
+				// Mock the methodRequest method which is called by post()
+				const mockMethodRequest = vi.fn()
+				const mockAPIPromise = {
+					then: vi.fn().mockImplementation((callback) => {
+						return Promise.resolve(callback(mockApiResponse))
+					}),
+					catch: vi.fn(),
+					finally: vi.fn(),
+				}
+				mockMethodRequest.mockReturnValue(mockAPIPromise)
+
+				// Replace the methodRequest method on the client
+				;(realOpenAI as any).post = vi.fn().mockImplementation((path, opts) => {
+					return mockMethodRequest("post", path, opts)
+				})
+
+				// Call the embeddings.create method with base64 encoding
+				const response = await realOpenAI.embeddings.create({
+					input: testTexts,
+					model: "text-embedding-3-small",
+					encoding_format: "base64",
+				})
+
+				// Verify that the response contains the raw base64 string
+				// This confirms the OpenAI package doesn't parse base64 when explicitly requested
+				expect(response.data[0].embedding).toBe(base64String)
+				expect(typeof response.data[0].embedding).toBe("string")
+
+				// Verify we can manually convert it back to the original float array
+				const returnedBuffer = Buffer.from(response.data[0].embedding as string, "base64")
+				const returnedFloat32Array = new Float32Array(
+					returnedBuffer.buffer,
+					returnedBuffer.byteOffset,
+					returnedBuffer.byteLength / 4,
+				)
+				const returnedArray = Array.from(returnedFloat32Array)
+
+				expect(returnedArray).toEqual([0.25, 0.5, 0.75, 1.0])
 			})
 		})
 	})

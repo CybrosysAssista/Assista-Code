@@ -1,7 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk"
 
-import { TelemetryService } from "@roo-code/telemetry"
-
 import { Task } from "../task/Task"
 import {
 	ToolResponse,
@@ -14,11 +12,9 @@ import {
 	AskFinishSubTaskApproval,
 } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
-import { type ExecuteCommandOptions, executeCommand } from "./executeCommandTool"
-import { EXPERIMENT_IDS, experiments, experimentDefault } from "../../shared/experiments"
 
 export async function attemptCompletionTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -31,86 +27,47 @@ export async function attemptCompletionTool(
 	const command: string | undefined = block.params.command
 
 	try {
-		const lastMessage = cline.clineMessages.at(-1)
+		const lastMessage = assista.assistaMessages.at(-1)
 
 		if (block.partial) {
 			if (command) {
 				// the attempt_completion text is done, now we're getting command
 				// remove the previous partial attempt_completion ask, replace with say, post state to webview, then stream command
 
-				// const secondLastMessage = cline.clineMessages.at(-2)
+				// const secondLastMessage = assista.assistaMessages.at(-2)
 				if (lastMessage && lastMessage.ask === "command") {
 					// update command
-					await cline.ask("command", removeClosingTag("command", command), block.partial).catch(() => {})
+					await assista.ask("command", removeClosingTag("command", command), block.partial).catch(() => {})
 				} else {
 					// last message is completion_result
 					// we have command string, which means we have the result as well, so finish it (doesnt have to exist yet)
-					await cline.say("completion_result", removeClosingTag("result", result), undefined, false)
+					await assista.say("completion_result", removeClosingTag("result", result), undefined, false)
 
-					TelemetryService.instance.captureTaskCompleted(cline.taskId)
-					cline.emit("taskCompleted", cline.taskId, cline.getTokenUsage(), cline.toolUsage)
+					assista.emit("taskCompleted", assista.taskId, assista.getTokenUsage(), assista.toolUsage)
 
-					await cline.ask("command", removeClosingTag("command", command), block.partial).catch(() => {})
+					await assista.ask("command", removeClosingTag("command", command), block.partial).catch(() => {})
 				}
 			} else {
 				// no command, still outputting partial result
-				await cline.say("completion_result", removeClosingTag("result", result), undefined, block.partial)
+				await assista.say("completion_result", removeClosingTag("result", result), undefined, block.partial)
 			}
 			return
 		} else {
 			if (!result) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("attempt_completion")
-				pushToolResult(await cline.sayAndCreateMissingParamError("attempt_completion", "result"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("attempt_completion")
+				pushToolResult(await assista.sayAndCreateMissingParamError("attempt_completion", "result"))
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
 
-			let commandResult: ToolResponse | undefined
+			// Command execution is permanently disabled in attempt_completion
+			// Users must use execute_command tool separately before attempt_completion
+			await assista.say("completion_result", result, undefined, false)
+			assista.emit("taskCompleted", assista.taskId, assista.getTokenUsage(), assista.toolUsage)
 
-			// Check if command execution is disabled via experiment
-			const state = await cline.providerRef.deref()?.getState()
-			const experimentsConfig = state?.experiments ?? experimentDefault
-			const isCommandDisabled = experiments.isEnabled(
-				experimentsConfig,
-				EXPERIMENT_IDS.DISABLE_COMPLETION_COMMAND,
-			)
-
-			if (command && !isCommandDisabled) {
-				if (lastMessage && lastMessage.ask !== "command") {
-					// Haven't sent a command message yet so first send completion_result then command.
-					await cline.say("completion_result", result, undefined, false)
-					TelemetryService.instance.captureTaskCompleted(cline.taskId)
-					cline.emit("taskCompleted", cline.taskId, cline.getTokenUsage(), cline.toolUsage)
-				}
-
-				// Complete command message.
-				const didApprove = await askApproval("command", command)
-
-				if (!didApprove) {
-					return
-				}
-
-				const executionId = cline.lastMessageTs?.toString() ?? Date.now().toString()
-				const options: ExecuteCommandOptions = { executionId, command }
-				const [userRejected, execCommandResult] = await executeCommand(cline, options)
-
-				if (userRejected) {
-					cline.didRejectTool = true
-					pushToolResult(execCommandResult)
-					return
-				}
-
-				// User didn't reject, but the command may have output.
-				commandResult = execCommandResult
-			} else {
-				await cline.say("completion_result", result, undefined, false)
-				TelemetryService.instance.captureTaskCompleted(cline.taskId)
-				cline.emit("taskCompleted", cline.taskId, cline.getTokenUsage(), cline.toolUsage)
-			}
-
-			if (cline.parentTask) {
+			if (assista.parentTask) {
 				const didApprove = await askFinishSubTaskApproval()
 
 				if (!didApprove) {
@@ -118,33 +75,25 @@ export async function attemptCompletionTool(
 				}
 
 				// tell the provider to remove the current subtask and resume the previous task in the stack
-				await cline.providerRef.deref()?.finishSubTask(result)
+				await assista.providerRef.deref()?.finishSubTask(result)
 				return
 			}
 
 			// We already sent completion_result says, an
 			// empty string asks relinquishes control over
 			// button and field.
-			const { response, text, images } = await cline.ask("completion_result", "", false)
+			const { response, text, images } = await assista.ask("completion_result", "", false)
 
 			// Signals to recursive loop to stop (for now
-			// cline never happens since yesButtonClicked
+			// assista never happens since yesButtonClicked
 			// will trigger a new task).
 			if (response === "yesButtonClicked") {
 				pushToolResult("")
 				return
 			}
 
-			await cline.say("user_feedback", text ?? "", images)
+			await assista.say("user_feedback", text ?? "", images)
 			const toolResults: (Anthropic.TextBlockParam | Anthropic.ImageBlockParam)[] = []
-
-			if (commandResult) {
-				if (typeof commandResult === "string") {
-					toolResults.push({ type: "text", text: commandResult })
-				} else if (Array.isArray(commandResult)) {
-					toolResults.push(...commandResult)
-				}
-			}
 
 			toolResults.push({
 				type: "text",
@@ -152,8 +101,8 @@ export async function attemptCompletionTool(
 			})
 
 			toolResults.push(...formatResponse.imageBlocks(images))
-			cline.userMessageContent.push({ type: "text", text: `${toolDescription()} Result:` })
-			cline.userMessageContent.push(...toolResults)
+			assista.userMessageContent.push({ type: "text", text: `${toolDescription()} Result:` })
+			assista.userMessageContent.push(...toolResults)
 
 			return
 		}

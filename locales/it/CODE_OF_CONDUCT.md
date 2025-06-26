@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • <b>Italiano</b> • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • <b>Italiano</b> • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Codice di Condotta del Patto del Contributore
 
@@ -59,7 +68,7 @@ ulteriormente definita e chiarita dai manutentori del progetto.
 ## Applicazione
 
 Casi di comportamento abusivo, molesto o altrimenti inaccettabile possono essere
-segnalati contattando il team del progetto all'indirizzo support@roocode.com. Tutti i reclami
+segnalati contattando il team del progetto all'indirizzo support@cybrosysassista.com. Tutti i reclami
 saranno esaminati e indagati e risulteranno in una risposta che
 è ritenuta necessaria e appropriata alle circostanze. Il team del progetto è
 obbligato a mantenere la riservatezza nei confronti di chi segnala un incidente.
@@ -71,10 +80,10 @@ membri della leadership del progetto.
 
 ## Attribuzione
 
-Questo Codice di Condotta è adattato dalla [versione di Cline][cline_coc] del [Patto del Contributore][homepage], versione 1.4,
+Questo Codice di Condotta è adattato dalla [versione di Assista][assista_coc] del [Patto del Contributore][homepage], versione 1.4,
 disponibile su https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Per risposte alle domande comuni su questo codice di condotta, vedi

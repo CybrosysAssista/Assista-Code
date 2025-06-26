@@ -1,7 +1,7 @@
 import NodeCache from "node-cache"
 import getFolderSize from "get-folder-size"
 
-import type { ClineMessage, HistoryItem } from "@roo-code/types"
+import type { AssistaMessage, HistoryItem } from "@cybrosys-assista/types"
 
 import { combineApiRequests } from "../../shared/combineApiRequests"
 import { combineCommandSequences } from "../../shared/combineCommandSequences"
@@ -12,7 +12,7 @@ import { getTaskDirectoryPath } from "../../utils/storage"
 const taskSizeCache = new NodeCache({ stdTTL: 30, checkperiod: 5 * 60 })
 
 export type TaskMetadataOptions = {
-	messages: ClineMessage[]
+	messages: AssistaMessage[]
 	taskId: string
 	taskNumber: number
 	globalStoragePath: string

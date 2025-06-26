@@ -6,8 +6,8 @@
 		"createNewMode": "Crea nuova modalità",
 		"editModesConfig": "Modifica configurazione modalità",
 		"editGlobalModes": "Modifica modalità globali",
-		"editProjectModes": "Modifica modalità di progetto (.roomodes)",
-		"createModeHelpText": "Le modalità sono personas specializzate che personalizzano il comportamento di Roo. <0>Scopri di più sull'uso delle modalità</0> o <1>sulla personalizzazione delle modalità.</1>",
+		"editProjectModes": "Modifica modalità di progetto (.assistamodes)",
+		"createModeHelpText": "Le modalità sono personas specializzate che personalizzano il comportamento di Assista. <0>Scopri di più sull'uso delle modalità</0> o <1>sulla personalizzazione delle modalità.</1>",
 		"selectMode": "Cerca modalità"
 	},
 	"apiConfiguration": {
@@ -32,7 +32,7 @@
 	"roleDefinition": {
 		"title": "Definizione del ruolo",
 		"resetToDefault": "Ripristina predefiniti",
-		"description": "Definisci l'esperienza e la personalità di Roo per questa modalità. Questa descrizione modella come Roo si presenta e affronta i compiti."
+		"description": "Definisci l'esperienza e la personalità di Assista per questa modalità. Questa descrizione modella come Assista si presenta e affronta i compiti."
 	},
 	"whenToUse": {
 		"title": "Quando utilizzare (opzionale)",
@@ -43,12 +43,12 @@
 		"title": "Istruzioni personalizzate specifiche per la modalità (opzionale)",
 		"resetToDefault": "Ripristina predefiniti",
 		"description": "Aggiungi linee guida comportamentali specifiche per la modalità {{modeName}}.",
-		"loadFromFile": "Le istruzioni personalizzate specifiche per la modalità {{mode}} possono essere caricate anche dalla cartella <span>.roo/rules-{{slug}}/</span> nel tuo spazio di lavoro (.roorules-{{slug}} e .clinerules-{{slug}} sono obsoleti e smetteranno di funzionare presto)."
+		"loadFromFile": "Le istruzioni personalizzate specifiche per la modalità {{mode}} possono essere caricate anche dalla cartella <span>.assista/rules-{{slug}}/</span> nel tuo spazio di lavoro (.assistarules-{{slug}} e .assistarules-{{slug}} sono obsoleti e smetteranno di funzionare presto)."
 	},
 	"globalCustomInstructions": {
 		"title": "Istruzioni personalizzate per tutte le modalità",
 		"description": "Queste istruzioni si applicano a tutte le modalità. Forniscono un insieme base di comportamenti che possono essere migliorati dalle istruzioni specifiche per modalità qui sotto. <0>Scopri di più</0>",
-		"loadFromFile": "Le istruzioni possono essere caricate anche dalla cartella <span>.roo/rules/</span> nel tuo spazio di lavoro (.roorules e .clinerules sono obsoleti e smetteranno di funzionare presto)."
+		"loadFromFile": "Le istruzioni possono essere caricate anche dalla cartella <span>.assista/rules/</span> nel tuo spazio di lavoro (.assistarules e .assistarules sono obsoleti e smetteranno di funzionare presto)."
 	},
 	"systemPrompt": {
 		"preview": "Anteprima prompt di sistema",
@@ -70,7 +70,7 @@
 		"types": {
 			"ENHANCE": {
 				"label": "Migliora prompt",
-				"description": "Utilizza il miglioramento dei prompt per ottenere suggerimenti o miglioramenti personalizzati per i tuoi input. Questo assicura che Roo comprenda la tua intenzione e fornisca le migliori risposte possibili. Disponibile tramite l'icona ✨ nella chat."
+				"description": "Utilizza il miglioramento dei prompt per ottenere suggerimenti o miglioramenti personalizzati per i tuoi input. Questo assicura che Assista comprenda la tua intenzione e fornisca le migliori risposte possibili. Disponibile tramite l'icona ✨ nella chat."
 			},
 			"EXPLAIN": {
 				"label": "Spiega codice",
@@ -108,7 +108,7 @@
 	},
 	"advancedSystemPrompt": {
 		"title": "Avanzato: Sovrascrivi prompt di sistema",
-		"description": "<2>⚠️ Attenzione:</2> Questa funzionalità avanzata bypassa le misure di sicurezza. <1>LEGGI QUESTO PRIMA DI USARE!</1>Sovrascrivi il prompt di sistema predefinito creando un file in <span>.roo/system-prompt-{{slug}}</span>."
+		"description": "<2>⚠️ Attenzione:</2> Questa funzionalità avanzata bypassa le misure di sicurezza. <1>LEGGI QUESTO PRIMA DI USARE!</1>Sovrascrivi il prompt di sistema predefinito creando un file in <span>.assista/system-prompt-{{slug}}</span>."
 	},
 	"createModeDialog": {
 		"title": "Crea nuova modalità",
@@ -129,13 +129,13 @@
 				"description": "Disponibile in tutti gli spazi di lavoro"
 			},
 			"project": {
-				"label": "Specifico del progetto (.roomodes)",
+				"label": "Specifico del progetto (.assistamodes)",
 				"description": "Disponibile solo in questo spazio di lavoro, ha la precedenza sul globale"
 			}
 		},
 		"roleDefinition": {
 			"label": "Definizione del ruolo",
-			"description": "Definisci l'esperienza e la personalità di Roo per questa modalità."
+			"description": "Definisci l'esperienza e la personalità di Assista per questa modalità."
 		},
 		"whenToUse": {
 			"label": "Quando utilizzare (opzionale)",

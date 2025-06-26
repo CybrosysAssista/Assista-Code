@@ -1,12 +1,17 @@
 import { z } from "zod"
 
-import type { ProviderSettings, PromptComponent, ModeConfig } from "@roo-code/types"
-import { InstallMarketplaceItemOptions, MarketplaceItem } from "../services/marketplace/types"
-import { marketplaceItemSchema } from "../services/marketplace/schemas"
+import type {
+	ProviderSettings,
+	PromptComponent,
+	ModeConfig,
+	InstallMarketplaceItemOptions,
+	MarketplaceItem,
+} from "@cybrosys-assista/types"
+import { marketplaceItemSchema } from "@cybrosys-assista/types"
 
 import { Mode } from "./modes"
 
-export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse" | "objectResponse"
+export type AssistaAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse" | "objectResponse"
 
 export type PromptMode = Mode | "enhance"
 
@@ -29,6 +34,7 @@ export interface WebviewMessage {
 		| "alwaysAllowReadOnlyOutsideWorkspace"
 		| "alwaysAllowWrite"
 		| "alwaysAllowWriteOutsideWorkspace"
+		| "alwaysAllowWriteProtected"
 		| "alwaysAllowExecute"
 		| "webviewDidLaunch"
 		| "newTask"
@@ -52,6 +58,7 @@ export interface WebviewMessage {
 		| "requestLmStudioModels"
 		| "requestVsCodeLmModels"
 		| "openImage"
+		| "saveImage"
 		| "openFile"
 		| "openMention"
 		| "cancelTask"
@@ -84,6 +91,7 @@ export interface WebviewMessage {
 		| "restartMcpServer"
 		| "refreshAllMcpServers"
 		| "toggleToolAlwaysAllow"
+		| "toggleToolEnabledForPrompt"
 		| "toggleMcpServer"
 		| "updateMcpTimeout"
 		| "fuzzyMatchThreshold"
@@ -111,7 +119,6 @@ export interface WebviewMessage {
 		| "mode"
 		| "updatePrompt"
 		| "updateSupportPrompt"
-		| "resetSupportPrompt"
 		| "getSystemPrompt"
 		| "copySystemPrompt"
 		| "systemPrompt"
@@ -130,8 +137,7 @@ export interface WebviewMessage {
 		| "humanRelayResponse"
 		| "humanRelayCancel"
 		| "browserToolEnabled"
-		| "telemetrySetting"
-		| "showRooIgnoredFiles"
+		| "showAssistaIgnoredFiles"
 		| "testBrowserConnection"
 		| "browserConnectionResult"
 		| "remoteBrowserEnabled"
@@ -142,8 +148,8 @@ export interface WebviewMessage {
 		| "toggleApiConfigPin"
 		| "setHistoryPreviewCollapsed"
 		| "accountButtonClicked"
-		| "rooCloudSignIn"
-		| "rooCloudSignOut"
+		| "assistaCloudSignIn"
+		| "assistaCloudSignOut"
 		| "condenseTaskContextRequest"
 		| "requestIndexingStatus"
 		| "startIndexing"
@@ -152,6 +158,7 @@ export interface WebviewMessage {
 		| "indexCleared"
 		| "focusPanelRequest"
 		| "codebaseIndexConfig"
+		| "profileThresholds"
 		| "setHistoryPreviewCollapsed"
 		| "openExternal"
 		| "filterMarketplaceItems"
@@ -161,11 +168,14 @@ export interface WebviewMessage {
 		| "cancelMarketplaceInstall"
 		| "removeInstalledMarketplaceItem"
 		| "marketplaceInstallResult"
+		| "fetchMarketplaceData"
 		| "switchTab"
+		| "profileThresholds"
 	text?: string
 	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace" | "account"
 	disabled?: boolean
-	askResponse?: ClineAskResponse
+	dataUri?: string
+	askResponse?: AssistaAskResponse
 	apiConfiguration?: ProviderSettings
 	images?: string[]
 	bool?: boolean
@@ -175,6 +185,7 @@ export interface WebviewMessage {
 	serverName?: string
 	toolName?: string
 	alwaysAllow?: boolean
+	isEnabled?: boolean
 	mode?: Mode
 	promptMode?: PromptMode
 	customPrompt?: PromptComponent
@@ -197,6 +208,7 @@ export interface WebviewMessage {
 	mpItem?: MarketplaceItem
 	mpInstallOptions?: InstallMarketplaceItemOptions
 	config?: Record<string, any> // Add config to the payload
+	visibility?: "organization" | "public" // For share visibility
 }
 
 export const checkoutDiffPayloadSchema = z.object({
@@ -227,7 +239,7 @@ export interface IndexClearedPayload {
 }
 
 export const installMarketplaceItemWithParametersPayloadSchema = z.object({
-	item: marketplaceItemSchema.strict(),
+	item: marketplaceItemSchema,
 	parameters: z.record(z.string(), z.any()),
 })
 

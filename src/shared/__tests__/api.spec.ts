@@ -1,7 +1,6 @@
 // npx vitest run src/shared/__tests__/api.spec.ts
 
-import { describe, it, expect, test } from "vitest"
-import { type ModelInfo, type ProviderSettings, ANTHROPIC_DEFAULT_MAX_TOKENS } from "@roo-code/types"
+import { type ModelInfo, type ProviderSettings, ANTHROPIC_DEFAULT_MAX_TOKENS } from "@cybrosys-assista/types"
 
 import { getModelMaxOutputTokens, shouldUseReasoningBudget, shouldUseReasoningEffort } from "../api"
 

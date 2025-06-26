@@ -1,6 +1,5 @@
 // npx vitest run api/providers/__tests__/requesty.spec.ts
 
-import { vitest, describe, it, expect, beforeEach } from "vitest"
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 
@@ -58,8 +57,8 @@ describe("RequestyHandler", () => {
 			baseURL: "https://router.requesty.ai/v1",
 			apiKey: mockOptions.requestyApiKey,
 			defaultHeaders: {
-				"HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline",
-				"X-Title": "Roo Code",
+				"HTTP-Referer": "https://github.com/AssistaVetGit/Cybrosys-Assista",
+				"X-Title": "Cybrosys Assista",
 			},
 		})
 	})

@@ -1,6 +1,6 @@
 {
-	"name": "@roo-code/evals",
-	"description": "Roo Code evals.",
+	"name": "@cybrosys-assista/evals",
+	"description": "Cybrosys Assista evals.",
 	"version": "0.0.0",
 	"type": "module",
 	"exports": "./src/index.ts",
@@ -25,8 +25,8 @@
 		"services:start": "docker compose up -d db redis"
 	},
 	"dependencies": {
-		"@roo-code/ipc": "workspace:^",
-		"@roo-code/types": "workspace:^",
+		"@cybrosys-assista/ipc": "workspace:^",
+		"@cybrosys-assista/types": "workspace:^",
 		"cmd-ts": "^0.13.0",
 		"drizzle-orm": "^0.44.1",
 		"execa": "^9.6.0",
@@ -40,13 +40,13 @@
 		"zod": "^3.25.61"
 	},
 	"devDependencies": {
-		"@roo-code/config-eslint": "workspace:^",
-		"@roo-code/config-typescript": "workspace:^",
+		"@cybrosys-assista/config-eslint": "workspace:^",
+		"@cybrosys-assista/config-typescript": "workspace:^",
 		"@types/node": "20.x",
 		"@types/node-ipc": "^9.2.3",
 		"@types/ps-tree": "^1.1.6",
 		"drizzle-kit": "^0.31.1",
 		"tsx": "^4.19.3",
-		"vitest": "^3.2.0"
+		"vitest": "^3.2.3"
 	}
 }

@@ -6,30 +6,30 @@ import { fileExistsAtPath } from "../../utils/fs"
 import fs from "fs/promises"
 import { ContextProxy } from "../config/ContextProxy"
 import type { FileMetadataEntry, RecordSource, TaskMetadata } from "./FileContextTrackerTypes"
-import { ClineProvider } from "../webview/ClineProvider"
+import { AssistaProvider } from "../webview/AssistaProvider"
 
 // This class is responsible for tracking file operations that may result in stale context.
-// If a user modifies a file outside of Roo, the context may become stale and need to be updated.
-// We do not want Roo to reload the context every time a file is modified, so we use this class merely
-// to inform Roo that the change has occurred, and tell Roo to reload the file before making
-// any changes to it. This fixes an issue with diff editing, where Roo was unable to complete a diff edit.
+// If a user modifies a file outside of Assista, the context may become stale and need to be updated.
+// We do not want Assista to reload the context every time a file is modified, so we use this class merely
+// to inform Assista that the change has occurred, and tell Assista to reload the file before making
+// any changes to it. This fixes an issue with diff editing, where Assista was unable to complete a diff edit.
 
 // FileContextTracker
 //
 // This class is responsible for tracking file operations.
-// If the full contents of a file are passed to Roo via a tool, mention, or edit, the file is marked as active.
-// If a file is modified outside of Roo, we detect and track this change to prevent stale context.
+// If the full contents of a file are passed to Assista via a tool, mention, or edit, the file is marked as active.
+// If a file is modified outside of Assista, we detect and track this change to prevent stale context.
 export class FileContextTracker {
 	readonly taskId: string
-	private providerRef: WeakRef<ClineProvider>
+	private providerRef: WeakRef<AssistaProvider>
 
 	// File tracking and watching
 	private fileWatchers = new Map<string, vscode.FileSystemWatcher>()
 	private recentlyModifiedFiles = new Set<string>()
-	private recentlyEditedByRoo = new Set<string>()
+	private recentlyEditedByAssista = new Set<string>()
 	private checkpointPossibleFiles = new Set<string>()
 
-	constructor(provider: ClineProvider, taskId: string) {
+	constructor(provider: AssistaProvider, taskId: string) {
 		this.providerRef = new WeakRef(provider)
 		this.taskId = taskId
 	}
@@ -63,10 +63,10 @@ export class FileContextTracker {
 
 		// Track file changes
 		watcher.onDidChange(() => {
-			if (this.recentlyEditedByRoo.has(filePath)) {
-				this.recentlyEditedByRoo.delete(filePath) // This was an edit by Roo, no need to inform Roo
+			if (this.recentlyEditedByAssista.has(filePath)) {
+				this.recentlyEditedByAssista.delete(filePath) // This was an edit by Assista, no need to inform Assista
 			} else {
-				this.recentlyModifiedFiles.add(filePath) // This was a user edit, we will inform Roo
+				this.recentlyModifiedFiles.add(filePath) // This was a user edit, we will inform Assista
 				this.trackFileContext(filePath, "user_edited") // Update the task metadata with file tracking
 			}
 		})
@@ -76,7 +76,7 @@ export class FileContextTracker {
 	}
 
 	// Tracks a file operation in metadata and sets up a watcher for the file
-	// This is the main entry point for FileContextTracker and is called when a file is passed to Roo via a tool, mention, or edit.
+	// This is the main entry point for FileContextTracker and is called when a file is passed to Assista via a tool, mention, or edit.
 	async trackFileContext(filePath: string, operation: RecordSource) {
 		try {
 			const cwd = this.getCwd()
@@ -96,7 +96,7 @@ export class FileContextTracker {
 	public getContextProxy(): ContextProxy | undefined {
 		const provider = this.providerRef.deref()
 		if (!provider) {
-			console.error("ClineProvider reference is no longer valid")
+			console.error("AssistaProvider reference is no longer valid")
 			return undefined
 		}
 		const context = provider.contextProxy
@@ -164,8 +164,8 @@ export class FileContextTracker {
 				path: filePath,
 				record_state: "active",
 				record_source: source,
-				roo_read_date: getLatestDateForField(filePath, "roo_read_date"),
-				roo_edit_date: getLatestDateForField(filePath, "roo_edit_date"),
+				assista_read_date: getLatestDateForField(filePath, "assista_read_date"),
+				assista_edit_date: getLatestDateForField(filePath, "assista_edit_date"),
 				user_edit_date: getLatestDateForField(filePath, "user_edit_date"),
 			}
 
@@ -176,18 +176,18 @@ export class FileContextTracker {
 					this.recentlyModifiedFiles.add(filePath)
 					break
 
-				// roo_edited: Roo has edited the file
-				case "roo_edited":
-					newEntry.roo_read_date = now
-					newEntry.roo_edit_date = now
+				// assista_edited: Assista has edited the file
+				case "assista_edited":
+					newEntry.assista_read_date = now
+					newEntry.assista_edit_date = now
 					this.checkpointPossibleFiles.add(filePath)
-					this.markFileAsEditedByRoo(filePath)
+					this.markFileAsEditedByAssista(filePath)
 					break
 
-				// read_tool/file_mentioned: Roo has read the file via a tool or file mention
+				// read_tool/file_mentioned: Assista has read the file via a tool or file mention
 				case "read_tool":
 				case "file_mentioned":
-					newEntry.roo_read_date = now
+					newEntry.assista_read_date = now
 					break
 			}
 
@@ -211,9 +211,9 @@ export class FileContextTracker {
 		return files
 	}
 
-	// Marks a file as edited by Roo to prevent false positives in file watchers
-	markFileAsEditedByRoo(filePath: string): void {
-		this.recentlyEditedByRoo.add(filePath)
+	// Marks a file as edited by Assista to prevent false positives in file watchers
+	markFileAsEditedByAssista(filePath: string): void {
+		this.recentlyEditedByAssista.add(filePath)
 	}
 
 	// Disposes all file watchers

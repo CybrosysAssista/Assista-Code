@@ -1,15 +1,15 @@
 import type { EventEmitter } from "events"
 import type { Socket } from "net"
 
-import type { RooCodeSettings } from "./global-settings.js"
+import type { CybrosysAssistaSettings } from "./global-settings.js"
 import type { ProviderSettingsEntry, ProviderSettings } from "./provider-settings.js"
-import type { ClineMessage, TokenUsage } from "./message.js"
+import type { AssistaMessage, TokenUsage } from "./message.js"
 import type { ToolUsage, ToolName } from "./tool.js"
-import type { IpcMessage, IpcServerEvents } from "./ipc.js"
+import type { IpcMessage, IpcServerEvents, IsSubtask } from "./ipc.js"
 
-// TODO: Make sure this matches `RooCodeEvents` from `@roo-code/types`.
-export interface RooCodeAPIEvents {
-	message: [data: { taskId: string; action: "created" | "updated"; message: ClineMessage }]
+// TODO: Make sure this matches `CybrosysAssistaEvents` from `@cybrosys-assista/types`.
+export interface CybrosysAssistaAPIEvents {
+	message: [data: { taskId: string; action: "created" | "updated"; message: AssistaMessage }]
 	taskCreated: [taskId: string]
 	taskStarted: [taskId: string]
 	taskModeSwitched: [taskId: string, mode: string]
@@ -18,12 +18,12 @@ export interface RooCodeAPIEvents {
 	taskAskResponded: [taskId: string]
 	taskAborted: [taskId: string]
 	taskSpawned: [parentTaskId: string, childTaskId: string]
-	taskCompleted: [taskId: string, tokenUsage: TokenUsage, toolUsage: ToolUsage]
+	taskCompleted: [taskId: string, tokenUsage: TokenUsage, toolUsage: ToolUsage, isSubtask: IsSubtask]
 	taskTokenUsageUpdated: [taskId: string, tokenUsage: TokenUsage]
 	taskToolFailed: [taskId: string, toolName: ToolName, error: string]
 }
 
-export interface RooCodeAPI extends EventEmitter<RooCodeAPIEvents> {
+export interface CybrosysAssistaAPI extends EventEmitter<CybrosysAssistaAPIEvents> {
 	/**
 	 * Starts a new task with an optional initial message and images.
 	 * @param task Optional initial task message.
@@ -36,7 +36,7 @@ export interface RooCodeAPI extends EventEmitter<RooCodeAPIEvents> {
 		images,
 		newTab,
 	}: {
-		configuration?: RooCodeSettings
+		configuration?: CybrosysAssistaSettings
 		text?: string
 		images?: string[]
 		newTab?: boolean
@@ -88,12 +88,12 @@ export interface RooCodeAPI extends EventEmitter<RooCodeAPIEvents> {
 	 * Returns the current configuration.
 	 * @returns The current configuration.
 	 */
-	getConfiguration(): RooCodeSettings
+	getConfiguration(): CybrosysAssistaSettings
 	/**
 	 * Sets the configuration for the current task.
 	 * @param values An object containing key-value pairs to set.
 	 */
-	setConfiguration(values: RooCodeSettings): Promise<void>
+	setConfiguration(values: CybrosysAssistaSettings): Promise<void>
 	/**
 	 * Returns a list of all configured profile names
 	 * @returns Array of profile names
@@ -150,7 +150,7 @@ export interface RooCodeAPI extends EventEmitter<RooCodeAPIEvents> {
 	setActiveProfile(name: string): Promise<string | undefined>
 }
 
-export interface RooCodeIpcServer extends EventEmitter<IpcServerEvents> {
+export interface CybrosysAssistaIpcServer extends EventEmitter<IpcServerEvents> {
 	listen(): void
 	broadcast(message: IpcMessage): void
 	send(client: string | Socket, message: IpcMessage): void

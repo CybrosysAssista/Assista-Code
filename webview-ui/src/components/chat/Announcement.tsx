@@ -2,7 +2,7 @@ import { useState, memo } from "react"
 import { Trans } from "react-i18next"
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 
-import { Package } from "@roo/package"
+import { Package } from "@assista/package"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@src/components/ui"
@@ -12,7 +12,7 @@ interface AnnouncementProps {
 }
 
 /**
- * You must update the `latestAnnouncementId` in ClineProvider for new
+ * You must update the `latestAnnouncementId` in AssistaProvider for new
  * announcements to show to users. This new id will be compared with what's in
  * state for the 'last announcement shown', and if it's different then the
  * announcement will render. As soon as an announcement is shown, the id will be
@@ -46,16 +46,36 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 					<ul className="space-y-2">
 						<li>
 							•{" "}
-							<Trans i18nKey="chat:announcement.feature1" components={{ bold: <b />, code: <code /> }} />
-						</li>
-						<li>
-							•{" "}
-							<Trans i18nKey="chat:announcement.feature2" components={{ bold: <b />, code: <code /> }} />
+							<Trans
+								i18nKey="chat:announcement.feature1"
+								components={{
+									bold: <b />,
+									code: <code />,
+									experimentalSettingsLink: (
+										<VSCodeLink
+											href="#"
+											onClick={(e) => {
+												e.preventDefault()
+												setOpen(false)
+												hideAnnouncement()
+												window.postMessage(
+													{
+														type: "action",
+														action: "settingsButtonClicked",
+														values: { section: "experimental" },
+													},
+													"*",
+												)
+											}}
+										/>
+									),
+								}}
+							/>
 						</li>
 						<li>
 							•{" "}
 							<Trans
-								i18nKey="chat:announcement.feature3"
+								i18nKey="chat:announcement.feature2"
 								components={{
 									bold: <b />,
 									code: <code />,
@@ -80,6 +100,10 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 								}}
 							/>
 						</li>
+						<li>
+							•{" "}
+							<Trans i18nKey="chat:announcement.feature3" components={{ bold: <b />, code: <code /> }} />
+						</li>
 					</ul>
 					<Trans
 						i18nKey="chat:announcement.detailsDiscussLinks"
@@ -93,11 +117,11 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 
 const DiscordLink = () => (
 	<VSCodeLink
-		href="https://discord.gg/roocode"
+		href="https://discord.gg/cybrosysassista"
 		onClick={(e) => {
 			e.preventDefault()
 			window.postMessage(
-				{ type: "action", action: "openExternal", data: { url: "https://discord.gg/roocode" } },
+				{ type: "action", action: "openExternal", data: { url: "https://discord.gg/cybrosysassista" } },
 				"*",
 			)
 		}}>
@@ -107,11 +131,11 @@ const DiscordLink = () => (
 
 const RedditLink = () => (
 	<VSCodeLink
-		href="https://reddit.com/r/RooCode"
+		href="https://reddit.com/r/CybrosysAssista"
 		onClick={(e) => {
 			e.preventDefault()
 			window.postMessage(
-				{ type: "action", action: "openExternal", data: { url: "https://reddit.com/r/RooCode" } },
+				{ type: "action", action: "openExternal", data: { url: "https://reddit.com/r/CybrosysAssista" } },
 				"*",
 			)
 		}}>

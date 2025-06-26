@@ -4,19 +4,38 @@ import type {
 	ProviderSettings,
 	HistoryItem,
 	ModeConfig,
-	TelemetrySetting,
-	ExperimentId,
-	ClineMessage,
+	Experiments,
+	AssistaMessage,
 	OrganizationAllowList,
 	CloudUserInfo,
-} from "@roo-code/types"
+} from "@cybrosys-assista/types"
 
 import { GitCommit } from "../utils/git"
 
 import { McpServer } from "./mcp"
 import { Mode } from "./modes"
 import { RouterModels } from "./api"
-import { MarketplaceItem } from "../services/marketplace/types"
+import type { MarketplaceItem } from "@cybrosys-assista/types"
+
+// Type for marketplace installed metadata
+export interface MarketplaceInstalledMetadata {
+	project: Record<string, { type: string }>
+	global: Record<string, { type: string }>
+}
+
+// Indexing status types
+export interface IndexingStatus {
+	systemStatus: string
+	message?: string
+	processedItems: number
+	totalItems: number
+	currentItemUnit?: string
+}
+
+export interface IndexingStatusUpdateMessage {
+	type: "indexingStatusUpdate"
+	values: IndexingStatus
+}
 
 export interface LanguageModelChatSelector {
 	vendor?: string
@@ -67,6 +86,7 @@ export interface ExtensionMessage {
 		| "acceptInput"
 		| "setHistoryPreviewCollapsed"
 		| "commandExecutionStatus"
+		| "mcpExecutionStatus"
 		| "vsCodeSetting"
 		| "authenticatedUser"
 		| "condenseTaskContextResponse"
@@ -75,6 +95,7 @@ export interface ExtensionMessage {
 		| "indexCleared"
 		| "codebaseIndexConfig"
 		| "marketplaceInstallResult"
+		| "marketplaceData"
 	text?: string
 	payload?: any // Add a generic payload for now, can refine later
 	action?:
@@ -97,7 +118,7 @@ export interface ExtensionMessage {
 		isActive: boolean
 		path?: string
 	}>
-	clineMessage?: ClineMessage
+	assistaMessage?: AssistaMessage
 	routerModels?: RouterModels
 	openAiModels?: string[]
 	ollamaModels?: string[]
@@ -121,6 +142,8 @@ export interface ExtensionMessage {
 	userInfo?: CloudUserInfo
 	organizationAllowList?: OrganizationAllowList
 	tab?: string
+	marketplaceItems?: MarketplaceItem[]
+	marketplaceInstalledMetadata?: MarketplaceInstalledMetadata
 }
 
 export type ExtensionState = Pick<
@@ -136,6 +159,7 @@ export type ExtensionState = Pick<
 	| "alwaysAllowReadOnlyOutsideWorkspace"
 	| "alwaysAllowWrite"
 	| "alwaysAllowWriteOutsideWorkspace"
+	| "alwaysAllowWriteProtected"
 	// | "writeDelayMs" // Optional in GlobalSettings, required here.
 	| "alwaysAllowBrowser"
 	| "alwaysApproveResubmit"
@@ -158,7 +182,7 @@ export type ExtensionState = Pick<
 	| "soundVolume"
 	// | "maxOpenTabsContext" // Optional in GlobalSettings, required here.
 	// | "maxWorkspaceFiles" // Optional in GlobalSettings, required here.
-	// | "showRooIgnoredFiles" // Optional in GlobalSettings, required here.
+	// | "showAssistaIgnoredFiles" // Optional in GlobalSettings, required here.
 	// | "maxReadFileLine" // Optional in GlobalSettings, required here.
 	| "maxConcurrentFileReads" // Optional in GlobalSettings, required here.
 	| "terminalOutputLineLimit"
@@ -173,9 +197,8 @@ export type ExtensionState = Pick<
 	| "terminalCompressProgressBar"
 	| "diffEnabled"
 	| "fuzzyMatchThreshold"
-	// | "experiments" // Optional in GlobalSettings, required here.
+	| "experiments"
 	| "language"
-	// | "telemetrySetting" // Optional in GlobalSettings, required here.
 	// | "mcpEnabled" // Optional in GlobalSettings, required here.
 	// | "enableMcpServerCreation" // Optional in GlobalSettings, required here.
 	// | "mode" // Optional in GlobalSettings, required here.
@@ -188,9 +211,10 @@ export type ExtensionState = Pick<
 	| "customCondensingPrompt"
 	| "codebaseIndexConfig"
 	| "codebaseIndexModels"
+	| "profileThresholds"
 > & {
 	version: string
-	clineMessages: ClineMessage[]
+	assistaMessages: AssistaMessage[]
 	currentTaskItem?: HistoryItem
 	apiConfiguration?: ProviderSettings
 	uriScheme?: string
@@ -204,10 +228,10 @@ export type ExtensionState = Pick<
 	enableCheckpoints: boolean
 	maxOpenTabsContext: number // Maximum number of VSCode open tabs to include in context (0-500)
 	maxWorkspaceFiles: number // Maximum number of files to include in current working directory details (0-500)
-	showRooIgnoredFiles: boolean // Whether to show .rooignore'd files in listings
+	showAssistaIgnoredFiles: boolean // Whether to show .assistaignore'd files in listings
 	maxReadFileLine: number // Maximum number of lines to read from a file before truncating
 
-	experiments: Record<ExperimentId, boolean> // Map of experiment IDs to their enabled state
+	experiments: Experiments // Map of experiment IDs to their enabled state
 
 	mcpEnabled: boolean
 	enableMcpServerCreation: boolean
@@ -217,9 +241,6 @@ export type ExtensionState = Pick<
 	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true} if diffEnabled)
 
 	cwd?: string // Current working directory
-	telemetrySetting: TelemetrySetting
-	telemetryKey?: string
-	machineId?: string
 
 	renderContext: "sidebar" | "editor"
 	settingsImportedAt?: number
@@ -234,9 +255,10 @@ export type ExtensionState = Pick<
 	autoCondenseContextPercent: number
 	marketplaceItems?: MarketplaceItem[]
 	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
+	profileThresholds: Record<string, number>
 }
 
-export interface ClineSayTool {
+export interface AssistaSayTool {
 	tool:
 		| "editedExistingFile"
 		| "appliedDiff"
@@ -261,6 +283,7 @@ export interface ClineSayTool {
 	mode?: string
 	reason?: string
 	isOutsideWorkspace?: boolean
+	isProtected?: boolean
 	additionalFileCount?: number // Number of additional files in the same read_file request
 	search?: string
 	replace?: string
@@ -275,6 +298,17 @@ export interface ClineSayTool {
 		lineSnippet: string
 		isOutsideWorkspace?: boolean
 		key: string
+		content?: string
+	}>
+	batchDiffs?: Array<{
+		path: string
+		changeCount: number
+		key: string
+		content: string
+		diffs?: Array<{
+			content: string
+			startLine?: number
+		}>
 	}>
 	question?: string
 }
@@ -293,7 +327,7 @@ export const browserActions = [
 
 export type BrowserAction = (typeof browserActions)[number]
 
-export interface ClineSayBrowserAction {
+export interface AssistaSayBrowserAction {
 	action: BrowserAction
 	coordinate?: string
 	size?: string
@@ -307,23 +341,24 @@ export type BrowserActionResult = {
 	currentMousePosition?: string
 }
 
-export interface ClineAskUseMcpServer {
+export interface AssistaAskUseMcpServer {
 	serverName: string
 	type: "use_mcp_tool" | "access_mcp_resource"
 	toolName?: string
 	arguments?: string
 	uri?: string
+	response?: string
 }
 
-export interface ClineApiReqInfo {
+export interface AssistaApiReqInfo {
 	request?: string
 	tokensIn?: number
 	tokensOut?: number
 	cacheWrites?: number
 	cacheReads?: number
 	cost?: number
-	cancelReason?: ClineApiReqCancelReason
+	cancelReason?: AssistaApiReqCancelReason
 	streamingFailedMessage?: string
 }
 
-export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled"
+export type AssistaApiReqCancelReason = "streaming_failed" | "user_cancelled"

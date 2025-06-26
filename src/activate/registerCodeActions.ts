@@ -1,10 +1,10 @@
 import * as vscode from "vscode"
 
-import { CodeActionId, CodeActionName } from "@roo-code/types"
+import { CodeActionId, CodeActionName } from "@cybrosys-assista/types"
 
 import { getCodeActionCommand } from "../utils/commands"
 import { EditorUtils } from "../integrations/editor/EditorUtils"
-import { ClineProvider } from "../core/webview/ClineProvider"
+import { AssistaProvider } from "../core/webview/AssistaProvider"
 
 export const registerCodeActions = (context: vscode.ExtensionContext) => {
 	registerCodeAction(context, "explainCode", "EXPLAIN")
@@ -47,7 +47,7 @@ const registerCodeAction = (context: vscode.ExtensionContext, command: CodeActio
 				...(userInput ? { userInput } : {}),
 			}
 
-			await ClineProvider.handleCodeAction(command, promptType, params)
+			await AssistaProvider.handleCodeAction(command, promptType, params)
 		}),
 	)
 }

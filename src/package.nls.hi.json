@@ -1,5 +1,5 @@
 {
-	"extension.displayName": "Cybrosys Assista (पहले Roo Cline)",
+	"extension.displayName": "Cybrosys Assista",
 	"extension.description": "आपके एडिटर में एआई एजेंट्स की पूरी डेवलपमेंट टीम।",
 	"command.newTask.title": "नया कार्य",
 	"command.explainCode.title": "कोड समझाएं",
@@ -29,6 +29,7 @@
 	"settings.vsCodeLmModelSelector.description": "VSCode भाषा मॉडल API के लिए सेटिंग्स",
 	"settings.vsCodeLmModelSelector.vendor.description": "भाषा मॉडल का विक्रेता (उदा. copilot)",
 	"settings.vsCodeLmModelSelector.family.description": "भाषा मॉडल का परिवार (उदा. gpt-4)",
-	"settings.customStoragePath.description": "कस्टम स्टोरेज पाथ। डिफ़ॉल्ट स्थान का उपयोग करने के लिए खाली छोड़ें। पूर्ण पथ का समर्थन करता है (उदा. 'D:\\RooCodeStorage')",
-	"settings.rooCodeCloudEnabled.description": "Cybrosys Assista Cloud सक्षम करें।"
+	"settings.customStoragePath.description": "कस्टम स्टोरेज पाथ। डिफ़ॉल्ट स्थान का उपयोग करने के लिए खाली छोड़ें। पूर्ण पथ का समर्थन करता है (उदा. 'D:\\CybrosysAssistaStorage')",
+	"settings.cybrosysAssistaCloudEnabled.description": "Cybrosys Assista Cloud सक्षम करें।",
+	"settings.enableCodeActions.description": "Cybrosys Assista त्वरित सुधार सक्षम करें"
 }

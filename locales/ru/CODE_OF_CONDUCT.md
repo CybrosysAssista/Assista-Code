@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • <b>Русский</b>
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • <b>Русский</b> • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Кодекс поведения участников
 
@@ -53,7 +62,7 @@
 ## Правоприменение
 
 О случаях оскорбительного, притесняющего или иного неприемлемого поведения можно
-сообщить, связавшись с командой проекта по адресу support@roocode.com. Все жалобы
+сообщить, связавшись с командой проекта по адресу support@cybrosysassista.com. Все жалобы
 будут рассмотрены и расследованы, что приведет к ответу, который
 будет считаться необходимым и соответствующим обстоятельствам. Команда проекта
 обязана сохранять конфиденциальность в отношении лица, сообщившего об инциденте.
@@ -65,10 +74,10 @@
 
 ## Атрибуция
 
-Этот Кодекс поведения адаптирован из [версии Cline][cline_coc] [Соглашения о поведении участников][homepage], версия 1.4,
+Этот Кодекс поведения адаптирован из [версии Assista][assista_coc] [Соглашения о поведении участников][homepage], версия 1.4,
 доступной по адресу https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Ответы на часто задаваемые вопросы об этом кодексе поведения см. на

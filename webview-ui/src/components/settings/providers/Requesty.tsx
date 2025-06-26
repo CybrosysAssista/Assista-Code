@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type ProviderSettings, type OrganizationAllowList, requestyDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, requestyDefaultModelId } from "@cybrosys-assista/types"
 
-import type { RouterModels } from "@roo/api"
+import type { RouterModels } from "@assista/api"
 
 import { vscode } from "@src/utils/vscode"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
@@ -20,6 +20,7 @@ type RequestyProps = {
 	routerModels?: RouterModels
 	refetchRouterModels: () => void
 	organizationAllowList: OrganizationAllowList
+	modelValidationError?: string
 }
 
 export const Requesty = ({
@@ -28,6 +29,7 @@ export const Requesty = ({
 	routerModels,
 	refetchRouterModels,
 	organizationAllowList,
+	modelValidationError,
 }: RequestyProps) => {
 	const { t } = useAppTranslation()
 
@@ -96,6 +98,7 @@ export const Requesty = ({
 				serviceName="Requesty"
 				serviceUrl="https://requesty.ai"
 				organizationAllowList={organizationAllowList}
+				errorMessage={modelValidationError}
 			/>
 		</>
 	)

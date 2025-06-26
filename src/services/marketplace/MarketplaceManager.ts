@@ -4,11 +4,10 @@ import * as path from "path"
 import * as yaml from "yaml"
 import { RemoteConfigLoader } from "./RemoteConfigLoader"
 import { SimpleInstaller } from "./SimpleInstaller"
-import { MarketplaceItem, MarketplaceItemType } from "./types"
+import type { MarketplaceItem, MarketplaceItemType } from "@cybrosys-assista/types"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 import { ensureSettingsDirectoryExists } from "../../utils/globalContext"
 import { t } from "../../i18n"
-import { TelemetryService } from "@roo-code/telemetry"
 
 export class MarketplaceManager {
 	private configLoader: RemoteConfigLoader
@@ -96,27 +95,6 @@ export class MarketplaceManager {
 			const result = await this.installer.installItem(item, { target, parameters })
 			vscode.window.showInformationMessage(t("marketplace:installation.installSuccess", { itemName: item.name }))
 
-			// Capture telemetry for successful installation
-			const telemetryProperties: Record<string, any> = {}
-			if (parameters && Object.keys(parameters).length > 0) {
-				telemetryProperties.hasParameters = true
-				// For MCP items with multiple installation methods, track which one was used
-				if (item.type === "mcp" && parameters._selectedIndex !== undefined && Array.isArray(item.content)) {
-					const selectedMethod = item.content[parameters._selectedIndex]
-					if (selectedMethod && selectedMethod.name) {
-						telemetryProperties.installationMethodName = selectedMethod.name
-					}
-				}
-			}
-
-			TelemetryService.instance.captureMarketplaceItemInstalled(
-				item.id,
-				item.type,
-				item.name,
-				target,
-				telemetryProperties,
-			)
-
 			// Open the config file that was modified, optionally at the specific line
 			const document = await vscode.workspace.openTextDocument(result.filePath)
 			const options: vscode.TextDocumentShowOptions = {}
@@ -149,9 +127,6 @@ export class MarketplaceManager {
 		try {
 			await this.installer.removeItem(item, { target })
 			vscode.window.showInformationMessage(t("marketplace:installation.removeSuccess", { itemName: item.name }))
-
-			// Capture telemetry for successful removal
-			TelemetryService.instance.captureMarketplaceItemRemoved(item.id, item.type, item.name, target)
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
 			vscode.window.showErrorMessage(
@@ -197,8 +172,8 @@ export class MarketplaceManager {
 				return // No workspace, no project installations
 			}
 
-			// Check modes in .roomodes
-			const projectModesPath = path.join(workspaceFolder.uri.fsPath, ".roomodes")
+			// Check modes in .assistamodes
+			const projectModesPath = path.join(workspaceFolder.uri.fsPath, ".assistamodes")
 			try {
 				const content = await fs.readFile(projectModesPath, "utf-8")
 				const data = yaml.parse(content)
@@ -215,8 +190,8 @@ export class MarketplaceManager {
 				// File doesn't exist or can't be read, skip
 			}
 
-			// Check MCPs in .roo/mcp.json
-			const projectMcpPath = path.join(workspaceFolder.uri.fsPath, ".roo", "mcp.json")
+			// Check MCPs in .assista/mcp.json
+			const projectMcpPath = path.join(workspaceFolder.uri.fsPath, ".assista", "mcp.json")
 			try {
 				const content = await fs.readFile(projectMcpPath, "utf-8")
 				const data = JSON.parse(content)

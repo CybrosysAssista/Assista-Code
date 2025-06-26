@@ -6,8 +6,8 @@
 		"createNewMode": "Créer un nouveau mode",
 		"editModesConfig": "Modifier la configuration des modes",
 		"editGlobalModes": "Modifier les modes globaux",
-		"editProjectModes": "Modifier les modes du projet (.roomodes)",
-		"createModeHelpText": "Les modes sont des personas spécialisés qui adaptent le comportement de Roo. <0>En savoir plus sur l'utilisation des modes</0> ou <1>la personnalisation des modes.</1>",
+		"editProjectModes": "Modifier les modes du projet (.assistamodes)",
+		"createModeHelpText": "Les modes sont des personas spécialisés qui adaptent le comportement de Assista. <0>En savoir plus sur l'utilisation des modes</0> ou <1>la personnalisation des modes.</1>",
 		"selectMode": "Rechercher les modes"
 	},
 	"apiConfiguration": {
@@ -32,7 +32,7 @@
 	"roleDefinition": {
 		"title": "Définition du rôle",
 		"resetToDefault": "Réinitialiser aux valeurs par défaut",
-		"description": "Définissez l'expertise et la personnalité de Roo pour ce mode. Cette description façonne la manière dont Roo se présente et aborde les tâches."
+		"description": "Définissez l'expertise et la personnalité de Assista pour ce mode. Cette description façonne la manière dont Assista se présente et aborde les tâches."
 	},
 	"whenToUse": {
 		"title": "Quand utiliser (optionnel)",
@@ -43,12 +43,12 @@
 		"title": "Instructions personnalisées spécifiques au mode (optionnel)",
 		"resetToDefault": "Réinitialiser aux valeurs par défaut",
 		"description": "Ajoutez des directives comportementales spécifiques au mode {{modeName}}.",
-		"loadFromFile": "Les instructions personnalisées spécifiques au mode {{mode}} peuvent également être chargées depuis le dossier <span>.roo/rules-{{slug}}/</span> dans votre espace de travail (.roorules-{{slug}} et .clinerules-{{slug}} sont obsolètes et cesseront de fonctionner bientôt)."
+		"loadFromFile": "Les instructions personnalisées spécifiques au mode {{mode}} peuvent également être chargées depuis le dossier <span>.assista/rules-{{slug}}/</span> dans votre espace de travail (.assistarules-{{slug}} et .assistarules-{{slug}} sont obsolètes et cesseront de fonctionner bientôt)."
 	},
 	"globalCustomInstructions": {
 		"title": "Instructions personnalisées pour tous les modes",
 		"description": "Ces instructions s'appliquent à tous les modes. Elles fournissent un ensemble de comportements de base qui peuvent être améliorés par des instructions spécifiques au mode ci-dessous. <0>En savoir plus</0>",
-		"loadFromFile": "Les instructions peuvent également être chargées depuis le dossier <span>.roo/rules/</span> dans votre espace de travail (.roorules et .clinerules sont obsolètes et cesseront de fonctionner bientôt)."
+		"loadFromFile": "Les instructions peuvent également être chargées depuis le dossier <span>.assista/rules/</span> dans votre espace de travail (.assistarules et .assistarules sont obsolètes et cesseront de fonctionner bientôt)."
 	},
 	"systemPrompt": {
 		"preview": "Aperçu du prompt système",
@@ -70,7 +70,7 @@
 		"types": {
 			"ENHANCE": {
 				"label": "Améliorer le prompt",
-				"description": "Utilisez l'amélioration de prompt pour obtenir des suggestions ou des améliorations personnalisées pour vos entrées. Cela garantit que Roo comprend votre intention et fournit les meilleures réponses possibles. Disponible via l'icône ✨ dans le chat."
+				"description": "Utilisez l'amélioration de prompt pour obtenir des suggestions ou des améliorations personnalisées pour vos entrées. Cela garantit que Assista comprend votre intention et fournit les meilleures réponses possibles. Disponible via l'icône ✨ dans le chat."
 			},
 			"EXPLAIN": {
 				"label": "Expliquer le code",
@@ -108,7 +108,7 @@
 	},
 	"advancedSystemPrompt": {
 		"title": "Avancé : Remplacer le prompt système",
-		"description": "<2>⚠️ Attention :</2> Cette fonctionnalité avancée contourne les mesures de protection. <1>LISEZ CECI AVANT UTILISATION !</1>Remplacez le prompt système par défaut en créant un fichier à l'emplacement <span>.roo/system-prompt-{{slug}}</span>."
+		"description": "<2>⚠️ Attention :</2> Cette fonctionnalité avancée contourne les mesures de protection. <1>LISEZ CECI AVANT UTILISATION !</1>Remplacez le prompt système par défaut en créant un fichier à l'emplacement <span>.assista/system-prompt-{{slug}}</span>."
 	},
 	"createModeDialog": {
 		"title": "Créer un nouveau mode",
@@ -129,13 +129,13 @@
 				"description": "Disponible dans tous les espaces de travail"
 			},
 			"project": {
-				"label": "Spécifique au projet (.roomodes)",
+				"label": "Spécifique au projet (.assistamodes)",
 				"description": "Disponible uniquement dans cet espace de travail, a priorité sur le global"
 			}
 		},
 		"roleDefinition": {
 			"label": "Définition du rôle",
-			"description": "Définissez l'expertise et la personnalité de Roo pour ce mode."
+			"description": "Définissez l'expertise et la personnalité de Assista pour ce mode."
 		},
 		"whenToUse": {
 			"label": "Quand utiliser (optionnel)",

@@ -1,4 +1,3 @@
-import { vitest, describe, it, expect, beforeEach } from "vitest"
 import type { Mock } from "vitest"
 import * as vscode from "vscode"
 import { createHash } from "crypto"
@@ -52,7 +51,7 @@ describe("CacheManager", () => {
 
 			expect(vscode.Uri.joinPath).toHaveBeenCalledWith(
 				mockContext.globalStorageUri,
-				`roo-index-cache-${expectedHash}.json`,
+				`assista-index-cache-${expectedHash}.json`,
 			)
 		})
 

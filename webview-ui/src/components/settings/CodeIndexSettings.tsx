@@ -4,9 +4,9 @@ import * as ProgressPrimitive from "@radix-ui/react-progress"
 import { VSCodeCheckbox, VSCodeTextField, VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { Trans } from "react-i18next"
 
-import { CodebaseIndexConfig, CodebaseIndexModels, ProviderSettings } from "@roo-code/types"
+import { CodebaseIndexConfig, CodebaseIndexModels, ProviderSettings } from "@cybrosys-assista/types"
 
-import { EmbedderProvider } from "@roo/embeddingModels"
+import { EmbedderProvider } from "@assista/embeddingModels"
 
 import { vscode } from "@src/utils/vscode"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
@@ -40,16 +40,7 @@ interface CodeIndexSettingsProps {
 	areSettingsCommitted: boolean
 }
 
-interface IndexingStatusUpdateMessage {
-	type: "indexingStatusUpdate"
-	values: {
-		systemStatus: string
-		message?: string
-		processedItems: number
-		totalItems: number
-		currentItemUnit?: string
-	}
-}
+import type { IndexingStatusUpdateMessage } from "@assista/ExtensionMessage"
 
 export const CodeIndexSettings: React.FC<CodeIndexSettingsProps> = ({
 	codebaseIndexModels,

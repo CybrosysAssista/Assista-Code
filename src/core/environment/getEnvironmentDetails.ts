@@ -5,7 +5,7 @@ import * as vscode from "vscode"
 import pWaitFor from "p-wait-for"
 import delay from "delay"
 
-import type { ExperimentId } from "@roo-code/types"
+import type { ExperimentId } from "@cybrosys-assista/types"
 
 import { EXPERIMENT_IDS, experiments as Experiments } from "../../shared/experiments"
 import { formatLanguage } from "../../shared/language"
@@ -19,26 +19,26 @@ import { formatResponse } from "../prompts/responses"
 
 import { Task } from "../task/Task"
 
-export async function getEnvironmentDetails(cline: Task, includeFileDetails: boolean = false) {
+export async function getEnvironmentDetails(assista: Task, includeFileDetails: boolean = false) {
 	let details = ""
 
-	const clineProvider = cline.providerRef.deref()
-	const state = await clineProvider?.getState()
+	const assistaProvider = assista.providerRef.deref()
+	const state = await assistaProvider?.getState()
 	const { terminalOutputLineLimit = 500, maxWorkspaceFiles = 200 } = state ?? {}
 
-	// It could be useful for cline to know if the user went from one or no
+	// It could be useful for assista to know if the user went from one or no
 	// file to another between messages, so we always include this context.
 	details += "\n\n# VSCode Visible Files"
 
 	const visibleFilePaths = vscode.window.visibleTextEditors
 		?.map((editor) => editor.document?.uri?.fsPath)
 		.filter(Boolean)
-		.map((absolutePath) => path.relative(cline.cwd, absolutePath))
+		.map((absolutePath) => path.relative(assista.cwd, absolutePath))
 		.slice(0, maxWorkspaceFiles)
 
-	// Filter paths through rooIgnoreController
-	const allowedVisibleFiles = cline.rooIgnoreController
-		? cline.rooIgnoreController.filterPaths(visibleFilePaths)
+	// Filter paths through assistaIgnoreController
+	const allowedVisibleFiles = assista.assistaIgnoreController
+		? assista.assistaIgnoreController.filterPaths(visibleFilePaths)
 		: visibleFilePaths.map((p) => p.toPosix()).join("\n")
 
 	if (allowedVisibleFiles) {
@@ -54,12 +54,12 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 		.flatMap((group) => group.tabs)
 		.map((tab) => (tab.input as vscode.TabInputText)?.uri?.fsPath)
 		.filter(Boolean)
-		.map((absolutePath) => path.relative(cline.cwd, absolutePath).toPosix())
+		.map((absolutePath) => path.relative(assista.cwd, absolutePath).toPosix())
 		.slice(0, maxTabs)
 
-	// Filter paths through rooIgnoreController
-	const allowedOpenTabs = cline.rooIgnoreController
-		? cline.rooIgnoreController.filterPaths(openTabPaths)
+	// Filter paths through assistaIgnoreController
+	const allowedOpenTabs = assista.assistaIgnoreController
+		? assista.assistaIgnoreController.filterPaths(openTabPaths)
 		: openTabPaths.map((p) => p.toPosix()).join("\n")
 
 	if (allowedOpenTabs) {
@@ -70,17 +70,17 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 
 	// Get task-specific and background terminals.
 	const busyTerminals = [
-		...TerminalRegistry.getTerminals(true, cline.taskId),
+		...TerminalRegistry.getTerminals(true, assista.taskId),
 		...TerminalRegistry.getBackgroundTerminals(true),
 	]
 
 	const inactiveTerminals = [
-		...TerminalRegistry.getTerminals(false, cline.taskId),
+		...TerminalRegistry.getTerminals(false, assista.taskId),
 		...TerminalRegistry.getBackgroundTerminals(false),
 	]
 
 	if (busyTerminals.length > 0) {
-		if (cline.didEditFile) {
+		if (assista.didEditFile) {
 			await delay(300) // Delay after saving file to let terminals catch up.
 		}
 
@@ -92,7 +92,7 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 	}
 
 	// Reset, this lets us know when to wait for saved files to update terminals.
-	cline.didEditFile = false
+	assista.didEditFile = false
 
 	// Waiting for updated diagnostics lets terminal output be the most
 	// up-to-date possible.
@@ -103,7 +103,10 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 		terminalDetails += "\n\n# Actively Running Terminals"
 
 		for (const busyTerminal of busyTerminals) {
-			terminalDetails += `\n## Original command: \`${busyTerminal.getLastCommand()}\``
+			const cwd = busyTerminal.getCurrentWorkingDirectory()
+			terminalDetails += `\n## Terminal ${busyTerminal.id} (Active)`
+			terminalDetails += `\n### Working Directory: \`${cwd}\``
+			terminalDetails += `\n### Original command: \`${busyTerminal.getLastCommand()}\``
 			let newOutput = TerminalRegistry.getUnretrievedOutput(busyTerminal.id)
 
 			if (newOutput) {
@@ -145,7 +148,9 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 
 			// Add this terminal's outputs to the details.
 			if (terminalOutputs.length > 0) {
-				terminalDetails += `\n## Terminal ${inactiveTerminal.id}`
+				const cwd = inactiveTerminal.getCurrentWorkingDirectory()
+				terminalDetails += `\n## Terminal ${inactiveTerminal.id} (Inactive)`
+				terminalDetails += `\n### Working Directory: \`${cwd}\``
 				terminalOutputs.forEach((output) => {
 					terminalDetails += `\n### New Output\n${output}`
 				})
@@ -156,7 +161,7 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 	// console.log(`[Task#getEnvironmentDetails] terminalDetails: ${terminalDetails}`)
 
 	// Add recently modified files section.
-	const recentlyModifiedFiles = cline.fileContextTracker.getAndClearRecentlyModifiedFiles()
+	const recentlyModifiedFiles = assista.fileContextTracker.getAndClearRecentlyModifiedFiles()
 
 	if (recentlyModifiedFiles.length > 0) {
 		details +=
@@ -191,8 +196,8 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 	details += `\n\n# Current Time\n${formatter.format(now)} (${timeZone}, UTC${timeZoneOffsetStr})`
 
 	// Add context tokens information.
-	const { contextTokens, totalCost } = getApiMetrics(cline.clineMessages)
-	const { id: modelId, info: modelInfo } = cline.api.getModel()
+	const { contextTokens, totalCost } = getApiMetrics(assista.assistaMessages)
+	const { id: modelId, info: modelInfo } = assista.api.getModel()
 	const contextWindow = modelInfo.contextWindow
 
 	const contextPercentage =
@@ -214,7 +219,7 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 	const currentMode = mode ?? defaultModeSlug
 
 	const modeDetails = await getFullModeDetails(currentMode, customModes, customModePrompts, {
-		cwd: cline.cwd,
+		cwd: assista.cwd,
 		globalCustomInstructions,
 		language: language ?? formatLanguage(vscode.env.language),
 	})
@@ -234,8 +239,8 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 
 	// Add warning if not in code mode.
 	if (
-		!isToolAllowedForMode("write_to_file", currentMode, customModes ?? [], { apply_diff: cline.diffEnabled }) &&
-		!isToolAllowedForMode("apply_diff", currentMode, customModes ?? [], { apply_diff: cline.diffEnabled })
+		!isToolAllowedForMode("write_to_file", currentMode, customModes ?? [], { apply_diff: assista.diffEnabled }) &&
+		!isToolAllowedForMode("apply_diff", currentMode, customModes ?? [], { apply_diff: assista.diffEnabled })
 	) {
 		const currentModeName = getModeBySlug(currentMode, customModes)?.name ?? currentMode
 		const defaultModeName = getModeBySlug(defaultModeSlug, customModes)?.name ?? defaultModeSlug
@@ -243,8 +248,8 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 	}
 
 	if (includeFileDetails) {
-		details += `\n\n# Current Workspace Directory (${cline.cwd.toPosix()}) Files\n`
-		const isDesktop = arePathsEqual(cline.cwd, path.join(os.homedir(), "Desktop"))
+		details += `\n\n# Current Workspace Directory (${assista.cwd.toPosix()}) Files\n`
+		const isDesktop = arePathsEqual(assista.cwd, path.join(os.homedir(), "Desktop"))
 
 		if (isDesktop) {
 			// Don't want to immediately access desktop since it would show
@@ -252,15 +257,15 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 			details += "(Desktop files not shown automatically. Use list_files to explore if needed.)"
 		} else {
 			const maxFiles = maxWorkspaceFiles ?? 200
-			const [files, didHitLimit] = await listFiles(cline.cwd, true, maxFiles)
-			const { showRooIgnoredFiles = true } = state ?? {}
+			const [files, didHitLimit] = await listFiles(assista.cwd, true, maxFiles)
+			const { showAssistaIgnoredFiles = true } = state ?? {}
 
 			const result = formatResponse.formatFilesList(
-				cline.cwd,
+				assista.cwd,
 				files,
 				didHitLimit,
-				cline.rooIgnoreController,
-				showRooIgnoredFiles,
+				assista.assistaIgnoreController,
+				showAssistaIgnoredFiles,
 			)
 
 			details += result

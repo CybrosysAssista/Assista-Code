@@ -1,5 +1,4 @@
 // npx vitest run integrations/terminal/__tests__/ExecaTerminalProcess.spec.ts
-import { vitest, describe, it, expect, beforeEach, afterEach } from "vitest"
 
 const mockPid = 12345
 
@@ -24,10 +23,10 @@ vitest.mock("ps-tree", () => ({
 
 import { execa } from "execa"
 import { ExecaTerminalProcess } from "../ExecaTerminalProcess"
-import type { RooTerminal } from "../types"
+import type { AssistaTerminal } from "../types"
 
 describe("ExecaTerminalProcess", () => {
-	let mockTerminal: RooTerminal
+	let mockTerminal: AssistaTerminal
 	let terminalProcess: ExecaTerminalProcess
 	let originalEnv: NodeJS.ProcessEnv
 
@@ -47,7 +46,7 @@ describe("ExecaTerminalProcess", () => {
 			getUnretrievedOutput: vitest.fn().mockReturnValue(""),
 			getLastCommand: vitest.fn().mockReturnValue(""),
 			cleanCompletedProcessQueue: vitest.fn(),
-		} as unknown as RooTerminal
+		} as unknown as AssistaTerminal
 		terminalProcess = new ExecaTerminalProcess(mockTerminal)
 	})
 

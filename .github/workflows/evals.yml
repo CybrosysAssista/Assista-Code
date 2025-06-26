@@ -41,7 +41,7 @@ jobs:
                   EOF
 
             - name: Build image
-              uses: docker/build-push-action@v5
+              uses: docker/build-push-action@v6
               with:
                   context: .
                   file: packages/evals/Dockerfile.runner
@@ -64,10 +64,10 @@ jobs:
                   docker compose run --rm runner docker ps
 
             - name: Run database migrations
-              run: docker compose run --rm runner pnpm --filter @roo-code/evals db:migrate
+              run: docker compose run --rm runner pnpm --filter @cybrosys-assista/evals db:migrate
 
             - name: Run evals
-              run: docker compose run --rm runner pnpm --filter @roo-code/evals cli --ci
+              run: docker compose run --rm runner pnpm --filter @cybrosys-assista/evals cli --ci
 
             - name: Cleanup
               if: always()

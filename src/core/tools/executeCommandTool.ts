@@ -3,22 +3,21 @@ import * as path from "path"
 
 import delay from "delay"
 
-import { CommandExecutionStatus } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+import { CommandExecutionStatus } from "@cybrosys-assista/types"
 
 import { Task } from "../task/Task"
 
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag, ToolResponse } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
 import { unescapeHtmlEntities } from "../../utils/text-normalization"
-import { ExitCodeDetails, RooTerminalCallbacks, RooTerminalProcess } from "../../integrations/terminal/types"
+import { ExitCodeDetails, AssistaTerminalCallbacks, AssistaTerminalProcess } from "../../integrations/terminal/types"
 import { TerminalRegistry } from "../../integrations/terminal/TerminalRegistry"
 import { Terminal } from "../../integrations/terminal/Terminal"
 
 class ShellIntegrationError extends Error {}
 
 export async function executeCommandTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -30,25 +29,25 @@ export async function executeCommandTool(
 
 	try {
 		if (block.partial) {
-			await cline.ask("command", removeClosingTag("command", command), block.partial).catch(() => {})
+			await assista.ask("command", removeClosingTag("command", command), block.partial).catch(() => {})
 			return
 		} else {
 			if (!command) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("execute_command")
-				pushToolResult(await cline.sayAndCreateMissingParamError("execute_command", "command"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("execute_command")
+				pushToolResult(await assista.sayAndCreateMissingParamError("execute_command", "command"))
 				return
 			}
 
-			const ignoredFileAttemptedToAccess = cline.rooIgnoreController?.validateCommand(command)
+			const ignoredFileAttemptedToAccess = assista.assistaIgnoreController?.validateCommand(command)
 
 			if (ignoredFileAttemptedToAccess) {
-				await cline.say("rooignore_error", ignoredFileAttemptedToAccess)
-				pushToolResult(formatResponse.toolError(formatResponse.rooIgnoreError(ignoredFileAttemptedToAccess)))
+				await assista.say("assistaignore_error", ignoredFileAttemptedToAccess)
+				pushToolResult(formatResponse.toolError(formatResponse.assistaIgnoreError(ignoredFileAttemptedToAccess)))
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
 
 			command = unescapeHtmlEntities(command) // Unescape HTML entities.
 			const didApprove = await askApproval("command", command)
@@ -57,10 +56,10 @@ export async function executeCommandTool(
 				return
 			}
 
-			const executionId = cline.lastMessageTs?.toString() ?? Date.now().toString()
-			const clineProvider = await cline.providerRef.deref()
-			const clineProviderState = await clineProvider?.getState()
-			const { terminalOutputLineLimit = 500, terminalShellIntegrationDisabled = false } = clineProviderState ?? {}
+			const executionId = assista.lastMessageTs?.toString() ?? Date.now().toString()
+			const assistaProvider = await assista.providerRef.deref()
+			const assistaProviderState = await assistaProvider?.getState()
+			const { terminalOutputLineLimit = 500, terminalShellIntegrationDisabled = false } = assistaProviderState ?? {}
 
 			const options: ExecuteCommandOptions = {
 				executionId,
@@ -71,26 +70,26 @@ export async function executeCommandTool(
 			}
 
 			try {
-				const [rejected, result] = await executeCommand(cline, options)
+				const [rejected, result] = await executeCommand(assista, options)
 
 				if (rejected) {
-					cline.didRejectTool = true
+					assista.didRejectTool = true
 				}
 
 				pushToolResult(result)
 			} catch (error: unknown) {
 				const status: CommandExecutionStatus = { executionId, status: "fallback" }
-				clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
-				await cline.say("shell_integration_warning")
+				assistaProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+				await assista.say("shell_integration_warning")
 
 				if (error instanceof ShellIntegrationError) {
-					const [rejected, result] = await executeCommand(cline, {
+					const [rejected, result] = await executeCommand(assista, {
 						...options,
 						terminalShellIntegrationDisabled: true,
 					})
 
 					if (rejected) {
-						cline.didRejectTool = true
+						assista.didRejectTool = true
 					}
 
 					pushToolResult(result)
@@ -116,7 +115,7 @@ export type ExecuteCommandOptions = {
 }
 
 export async function executeCommand(
-	cline: Task,
+	assista: Task,
 	{
 		executionId,
 		command,
@@ -128,11 +127,11 @@ export async function executeCommand(
 	let workingDir: string
 
 	if (!customCwd) {
-		workingDir = cline.cwd
+		workingDir = assista.cwd
 	} else if (path.isAbsolute(customCwd)) {
 		workingDir = customCwd
 	} else {
-		workingDir = path.resolve(cline.cwd, customCwd)
+		workingDir = path.resolve(assista.cwd, customCwd)
 	}
 
 	try {
@@ -149,22 +148,22 @@ export async function executeCommand(
 	let shellIntegrationError: string | undefined
 
 	const terminalProvider = terminalShellIntegrationDisabled ? "execa" : "vscode"
-	const clineProvider = await cline.providerRef.deref()
+	const assistaProvider = await assista.providerRef.deref()
 
 	let accumulatedOutput = ""
-	const callbacks: RooTerminalCallbacks = {
-		onLine: async (lines: string, process: RooTerminalProcess) => {
+	const callbacks: AssistaTerminalCallbacks = {
+		onLine: async (lines: string, process: AssistaTerminalProcess) => {
 			accumulatedOutput += lines
 			const compressedOutput = Terminal.compressTerminalOutput(accumulatedOutput, terminalOutputLineLimit)
 			const status: CommandExecutionStatus = { executionId, status: "output", output: compressedOutput }
-			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+			assistaProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
 
 			if (runInBackground) {
 				return
 			}
 
 			try {
-				const { response, text, images } = await cline.ask("command_output", "")
+				const { response, text, images } = await assista.ask("command_output", "")
 				runInBackground = true
 
 				if (response === "messageResponse") {
@@ -175,29 +174,28 @@ export async function executeCommand(
 		},
 		onCompleted: (output: string | undefined) => {
 			result = Terminal.compressTerminalOutput(output ?? "", terminalOutputLineLimit)
-			cline.say("command_output", result)
+			assista.say("command_output", result)
 			completed = true
 		},
 		onShellExecutionStarted: (pid: number | undefined) => {
 			console.log(`[executeCommand] onShellExecutionStarted: ${pid}`)
 			const status: CommandExecutionStatus = { executionId, status: "started", pid, command }
-			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+			assistaProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
 		},
 		onShellExecutionComplete: (details: ExitCodeDetails) => {
 			const status: CommandExecutionStatus = { executionId, status: "exited", exitCode: details.exitCode }
-			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+			assistaProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
 			exitDetails = details
 		},
 	}
 
 	if (terminalProvider === "vscode") {
 		callbacks.onNoShellIntegration = async (error: string) => {
-			TelemetryService.instance.captureShellIntegrationError(cline.taskId)
 			shellIntegrationError = error
 		}
 	}
 
-	const terminal = await TerminalRegistry.getOrCreateTerminal(workingDir, !!customCwd, cline.taskId, terminalProvider)
+	const terminal = await TerminalRegistry.getOrCreateTerminal(workingDir, !!customCwd, assista.taskId, terminalProvider)
 
 	if (terminal instanceof Terminal) {
 		terminal.terminal.show(true)
@@ -209,10 +207,10 @@ export async function executeCommand(
 	}
 
 	const process = terminal.runCommand(command, callbacks)
-	cline.terminalProcess = process
+	assista.terminalProcess = process
 
 	await process
-	cline.terminalProcess = undefined
+	assista.terminalProcess = undefined
 
 	if (shellIntegrationError) {
 		throw new ShellIntegrationError(shellIntegrationError)
@@ -227,7 +225,7 @@ export async function executeCommand(
 
 	if (message) {
 		const { text, images } = message
-		await cline.say("user_feedback", text, images)
+		await assista.say("user_feedback", text, images)
 
 		return [
 			true,
@@ -268,10 +266,6 @@ export async function executeCommand(
 
 		let workingDirInfo = ` within working directory '${workingDir.toPosix()}'`
 		const newWorkingDir = terminal.getCurrentWorkingDirectory()
-
-		if (newWorkingDir !== workingDir) {
-			workingDirInfo += `\nNOTICE: Your command changed the working directory for this terminal to '${newWorkingDir.toPosix()}' so you MUST adjust future commands accordingly because they will be executed in this directory`
-		}
 
 		return [false, `Command executed in terminal ${workingDirInfo}. ${exitStatus}\nOutput:\n${result}`]
 	} else {

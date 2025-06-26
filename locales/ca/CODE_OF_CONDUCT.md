@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • <b>Català</b> • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • <b>Català</b> • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Codi de Conducta del Pacte de Col·laboradors
 
@@ -59,7 +68,7 @@ definida i clarificada addicionalment pels mantenidors del projecte.
 ## Aplicació
 
 Els casos de comportament abusiu, assetjador o altrament inacceptable poden ser
-reportats contactant amb l'equip del projecte a support@roocode.com. Totes les queixes
+reportats contactant amb l'equip del projecte a support@cybrosysassista.com. Totes les queixes
 seran revisades i investigades i resultaran en una resposta que
 es consideri necessària i adequada a les circumstàncies. L'equip del projecte està
 obligat a mantenir la confidencialitat respecte al reportador d'un incident.
@@ -71,10 +80,10 @@ membres del lideratge del projecte.
 
 ## Atribució
 
-Aquest Codi de Conducta està adaptat de la [versió de Cline][cline_coc] del [Pacte de Col·laboradors][homepage], versió 1.4,
+Aquest Codi de Conducta està adaptat de la [versió de Assista][assista_coc] del [Pacte de Col·laboradors][homepage], versió 1.4,
 disponible a https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Per a respostes a preguntes freqüents sobre aquest codi de conducta, vegeu

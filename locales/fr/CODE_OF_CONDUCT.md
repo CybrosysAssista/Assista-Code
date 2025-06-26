@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • <b>Français</b> • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • <b>Français</b> • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Code de Conduite des Contributeurs
 
@@ -59,7 +68,7 @@ La représentation d'un projet peut être définie et clarifiée davantage par l
 ## Application
 
 Les cas de comportement abusif, harcelant ou autrement inacceptable peuvent être
-signalés en contactant l'équipe du projet à support@roocode.com. Toutes les plaintes
+signalés en contactant l'équipe du projet à support@cybrosysassista.com. Toutes les plaintes
 seront examinées et étudiées et donneront lieu à une réponse qui
 est jugée nécessaire et appropriée aux circonstances. L'équipe du projet est
 obligée de maintenir la confidentialité concernant la personne qui signale un incident.
@@ -71,10 +80,10 @@ membres de la direction du projet.
 
 ## Attribution
 
-Ce Code de Conduite est adapté de la [version de Cline][cline_coc] du [Contributor Covenant][homepage], version 1.4,
+Ce Code de Conduite est adapté de la [version de Assista][assista_coc] du [Contributor Covenant][homepage], version 1.4,
 disponible à https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Pour obtenir des réponses aux questions courantes sur ce code de conduite, voir

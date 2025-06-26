@@ -12,8 +12,7 @@ try {
 	console.warn("Failed to load environment variables:", e)
 }
 
-import { CloudService } from "@roo-code/cloud"
-import { TelemetryService, PostHogTelemetryClient } from "@roo-code/telemetry"
+import { CloudService } from "@cybrosys-assista/cloud"
 
 import "./utils/path" // Necessary to have access to String.prototype.toPosix.
 import { createOutputChannelLogger, createDualLogger } from "./utils/outputChannelLogger"
@@ -21,11 +20,12 @@ import { createOutputChannelLogger, createDualLogger } from "./utils/outputChann
 import { Package } from "./shared/package"
 import { formatLanguage } from "./shared/language"
 import { ContextProxy } from "./core/config/ContextProxy"
-import { ClineProvider } from "./core/webview/ClineProvider"
+import { AssistaProvider } from "./core/webview/AssistaProvider"
 import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
 import { TerminalRegistry } from "./integrations/terminal/TerminalRegistry"
 import { McpServerManager } from "./services/mcp/McpServerManager"
 import { CodeIndexManager } from "./services/code-index/manager"
+import { MdmService } from "./services/mdm/MdmService"
 import { migrateSettings } from "./utils/migrateSettings"
 import { API } from "./extension/api"
 
@@ -60,23 +60,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Migrate old settings to new
 	await migrateSettings(context, outputChannel)
 
-	// Initialize telemetry service.
-	const telemetryService = TelemetryService.createInstance()
-
-	try {
-		telemetryService.register(new PostHogTelemetryClient())
-	} catch (error) {
-		console.warn("Failed to register PostHogTelemetryClient:", error)
-	}
-
 	// Create logger for cloud services
 	const cloudLogger = createDualLogger(createOutputChannelLogger(outputChannel))
 
-	// Initialize Roo Code Cloud service.
+	// Initialize Cybrosys Assista Cloud service.
 	await CloudService.createInstance(context, {
-		stateChanged: () => ClineProvider.getVisibleInstance()?.postStateToWebview(),
+		stateChanged: () => AssistaProvider.getVisibleInstance()?.postStateToWebview(),
 		log: cloudLogger,
 	})
+
+	// Initialize MDM service
+	const mdmService = await MdmService.createInstance(cloudLogger)
 
 	// Initialize i18n for internationalization support
 	initializeI18n(context.globalState.get("language") ?? formatLanguage(vscode.env.language))
@@ -103,15 +97,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	}
 
-	const provider = new ClineProvider(context, outputChannel, "sidebar", contextProxy, codeIndexManager)
-	TelemetryService.instance.setProvider(provider)
+	const provider = new AssistaProvider(context, outputChannel, "sidebar", contextProxy, codeIndexManager, mdmService)
 
 	if (codeIndexManager) {
 		context.subscriptions.push(codeIndexManager)
 	}
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(ClineProvider.sideBarId, provider, {
+		vscode.window.registerWebviewViewProvider(AssistaProvider.sideBarId, provider, {
 			webviewOptions: { retainContextWhenHidden: true },
 		}),
 	)
@@ -156,11 +149,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	registerCodeActions(context)
 	registerTerminalActions(context)
 
-	// Allows other extensions to activate once Roo is ready.
+	// Allows other extensions to activate once Assista is ready.
 	vscode.commands.executeCommand(`${Package.name}.activationCompleted`)
 
-	// Implements the `RooCodeAPI` interface.
-	const socketPath = process.env.ROO_CODE_IPC_SOCKET_PATH
+	// Implements the `CybrosysAssistaAPI` interface.
+	const socketPath = process.env.CYBROSYS_ASSISTA_IPC_SOCKET_PATH
 	const enableLogging = typeof socketPath === "string"
 
 	// Watch the core files and automatically reload the extension host.
@@ -170,7 +163,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		const watchPaths = [
 			{ path: context.extensionPath, name: "extension" },
 			{ path: path.join(context.extensionPath, "../packages/types"), name: "types" },
-			{ path: path.join(context.extensionPath, "../packages/telemetry"), name: "telemetry" },
 			{ path: path.join(context.extensionPath, "../packages/cloud"), name: "cloud" },
 		]
 
@@ -197,6 +189,5 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function deactivate() {
 	outputChannel.appendLine(`${Package.name} extension deactivated`)
 	await McpServerManager.cleanup(extensionContext)
-	TelemetryService.instance.shutdown()
 	TerminalRegistry.cleanup()
 }

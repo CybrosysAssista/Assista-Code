@@ -7,7 +7,7 @@ import delay from "delay"
 import { Task } from "../task/Task"
 import { AskApproval, HandleError, PushToolResult, RemoveClosingTag, ToolUse } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
-import { ClineSayTool } from "../../shared/ExtensionMessage"
+import { AssistaSayTool } from "../../shared/ExtensionMessage"
 import { getReadablePath } from "../../utils/path"
 import { fileExistsAtPath } from "../../utils/fs"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
@@ -21,30 +21,30 @@ import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
  * Validates required parameters for search and replace operation
  */
 async function validateParams(
-	cline: Task,
+	assista: Task,
 	relPath: string | undefined,
 	search: string | undefined,
 	replace: string | undefined,
 	pushToolResult: PushToolResult,
 ): Promise<boolean> {
 	if (!relPath) {
-		cline.consecutiveMistakeCount++
-		cline.recordToolError("search_and_replace")
-		pushToolResult(await cline.sayAndCreateMissingParamError("search_and_replace", "path"))
+		assista.consecutiveMistakeCount++
+		assista.recordToolError("search_and_replace")
+		pushToolResult(await assista.sayAndCreateMissingParamError("search_and_replace", "path"))
 		return false
 	}
 
 	if (!search) {
-		cline.consecutiveMistakeCount++
-		cline.recordToolError("search_and_replace")
-		pushToolResult(await cline.sayAndCreateMissingParamError("search_and_replace", "search"))
+		assista.consecutiveMistakeCount++
+		assista.recordToolError("search_and_replace")
+		pushToolResult(await assista.sayAndCreateMissingParamError("search_and_replace", "search"))
 		return false
 	}
 
 	if (replace === undefined) {
-		cline.consecutiveMistakeCount++
-		cline.recordToolError("search_and_replace")
-		pushToolResult(await cline.sayAndCreateMissingParamError("search_and_replace", "replace"))
+		assista.consecutiveMistakeCount++
+		assista.recordToolError("search_and_replace")
+		pushToolResult(await assista.sayAndCreateMissingParamError("search_and_replace", "replace"))
 		return false
 	}
 
@@ -53,7 +53,7 @@ async function validateParams(
 
 /**
  * Performs search and replace operations on a file
- * @param cline - Cline instance
+ * @param assista - Assista instance
  * @param block - Tool use parameters
  * @param askApproval - Function to request user approval
  * @param handleError - Function to handle errors
@@ -61,7 +61,7 @@ async function validateParams(
  * @param removeClosingTag - Function to remove closing tags
  */
 export async function searchAndReplaceTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -82,7 +82,7 @@ export async function searchAndReplaceTool(
 		if (block.partial) {
 			const partialMessageProps = {
 				tool: "searchAndReplace" as const,
-				path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
+				path: getReadablePath(assista.cwd, removeClosingTag("path", relPath)),
 				search: removeClosingTag("search", search),
 				replace: removeClosingTag("replace", replace),
 				useRegex: block.params.use_regex === "true",
@@ -90,12 +90,12 @@ export async function searchAndReplaceTool(
 				startLine,
 				endLine,
 			}
-			await cline.ask("tool", JSON.stringify(partialMessageProps), block.partial).catch(() => {})
+			await assista.ask("tool", JSON.stringify(partialMessageProps), block.partial).catch(() => {})
 			return
 		}
 
 		// Validate required parameters
-		if (!(await validateParams(cline, relPath, search, replace, pushToolResult))) {
+		if (!(await validateParams(assista, relPath, search, replace, pushToolResult))) {
 			return
 		}
 
@@ -104,9 +104,9 @@ export async function searchAndReplaceTool(
 		const validSearch = search as string
 		const validReplace = replace as string
 
-		const sharedMessageProps: ClineSayTool = {
+		const sharedMessageProps: AssistaSayTool = {
 			tool: "searchAndReplace",
-			path: getReadablePath(cline.cwd, validRelPath),
+			path: getReadablePath(assista.cwd, validRelPath),
 			search: validSearch,
 			replace: validReplace,
 			useRegex: useRegex,
@@ -115,43 +115,46 @@ export async function searchAndReplaceTool(
 			endLine: endLine,
 		}
 
-		const accessAllowed = cline.rooIgnoreController?.validateAccess(validRelPath)
+		const accessAllowed = assista.assistaIgnoreController?.validateAccess(validRelPath)
 
 		if (!accessAllowed) {
-			await cline.say("rooignore_error", validRelPath)
-			pushToolResult(formatResponse.toolError(formatResponse.rooIgnoreError(validRelPath)))
+			await assista.say("assistaignore_error", validRelPath)
+			pushToolResult(formatResponse.toolError(formatResponse.assistaIgnoreError(validRelPath)))
 			return
 		}
 
-		const absolutePath = path.resolve(cline.cwd, validRelPath)
+		// Check if file is write-protected
+		const isWriteProtected = assista.assistaProtectedController?.isWriteProtected(validRelPath) || false
+
+		const absolutePath = path.resolve(assista.cwd, validRelPath)
 		const fileExists = await fileExistsAtPath(absolutePath)
 
 		if (!fileExists) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("search_and_replace")
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("search_and_replace")
 			const formattedError = formatResponse.toolError(
 				`File does not exist at path: ${absolutePath}\nThe specified file could not be found. Please verify the file path and try again.`,
 			)
-			await cline.say("error", formattedError)
+			await assista.say("error", formattedError)
 			pushToolResult(formattedError)
 			return
 		}
 
 		// Reset consecutive mistakes since all validations passed
-		cline.consecutiveMistakeCount = 0
+		assista.consecutiveMistakeCount = 0
 
 		// Read and process file content
 		let fileContent: string
 		try {
 			fileContent = await fs.readFile(absolutePath, "utf-8")
 		} catch (error) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("search_and_replace")
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("search_and_replace")
 			const errorMessage = `Error reading file: ${absolutePath}\nFailed to read the file content: ${
 				error instanceof Error ? error.message : String(error)
 			}\nPlease verify file permissions and try again.`
 			const formattedError = formatResponse.toolError(errorMessage)
-			await cline.say("error", formattedError)
+			await assista.say("error", formattedError)
 			pushToolResult(formattedError)
 			return
 		}
@@ -184,66 +187,70 @@ export async function searchAndReplaceTool(
 		}
 
 		// Initialize diff view
-		cline.diffViewProvider.editType = "modify"
-		cline.diffViewProvider.originalContent = fileContent
+		assista.diffViewProvider.editType = "modify"
+		assista.diffViewProvider.originalContent = fileContent
 
 		// Generate and validate diff
 		const diff = formatResponse.createPrettyPatch(validRelPath, fileContent, newContent)
 		if (!diff) {
 			pushToolResult(`No changes needed for '${relPath}'`)
-			await cline.diffViewProvider.reset()
+			await assista.diffViewProvider.reset()
 			return
 		}
 
 		// Show changes in diff view
-		if (!cline.diffViewProvider.isEditing) {
-			await cline.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => {})
-			await cline.diffViewProvider.open(validRelPath)
-			await cline.diffViewProvider.update(fileContent, false)
-			cline.diffViewProvider.scrollToFirstDiff()
+		if (!assista.diffViewProvider.isEditing) {
+			await assista.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => {})
+			await assista.diffViewProvider.open(validRelPath)
+			await assista.diffViewProvider.update(fileContent, false)
+			assista.diffViewProvider.scrollToFirstDiff()
 			await delay(200)
 		}
 
-		await cline.diffViewProvider.update(newContent, true)
+		await assista.diffViewProvider.update(newContent, true)
 
 		// Request user approval for changes
-		const completeMessage = JSON.stringify({ ...sharedMessageProps, diff } satisfies ClineSayTool)
-		const didApprove = await cline
-			.ask("tool", completeMessage, false)
+		const completeMessage = JSON.stringify({
+			...sharedMessageProps,
+			diff,
+			isProtected: isWriteProtected,
+		} satisfies AssistaSayTool)
+		const didApprove = await assista
+			.ask("tool", completeMessage, isWriteProtected)
 			.then((response) => response.response === "yesButtonClicked")
 
 		if (!didApprove) {
-			await cline.diffViewProvider.revertChanges()
+			await assista.diffViewProvider.revertChanges()
 			pushToolResult("Changes were rejected by the user.")
-			await cline.diffViewProvider.reset()
+			await assista.diffViewProvider.reset()
 			return
 		}
 
 		// Call saveChanges to update the DiffViewProvider properties
-		await cline.diffViewProvider.saveChanges()
+		await assista.diffViewProvider.saveChanges()
 
 		// Track file edit operation
 		if (relPath) {
-			await cline.fileContextTracker.trackFileContext(relPath, "roo_edited" as RecordSource)
+			await assista.fileContextTracker.trackFileContext(relPath, "assista_edited" as RecordSource)
 		}
 
-		cline.didEditFile = true
+		assista.didEditFile = true
 
 		// Get the formatted response message
-		const message = await cline.diffViewProvider.pushToolWriteResult(
-			cline,
-			cline.cwd,
+		const message = await assista.diffViewProvider.pushToolWriteResult(
+			assista,
+			assista.cwd,
 			false, // Always false for search_and_replace
 		)
 
 		pushToolResult(message)
 
 		// Record successful tool usage and cleanup
-		cline.recordToolUsage("search_and_replace")
-		await cline.diffViewProvider.reset()
+		assista.recordToolUsage("search_and_replace")
+		await assista.diffViewProvider.reset()
 	} catch (error) {
 		handleError("search and replace", error)
-		await cline.diffViewProvider.reset()
+		await assista.diffViewProvider.reset()
 	}
 }
 

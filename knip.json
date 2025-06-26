@@ -18,7 +18,7 @@
 			"entry": ["src/index.tsx"],
 			"project": ["src/**/*.{ts,tsx}"]
 		},
-		"packages/{build,cloud,evals,ipc,telemetry,types}": {
+		"packages/{build,cloud,evals,ipc,types}": {
 			"project": ["src/**/*.ts"]
 		}
 	}

@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • <b>Tiếng Việt</b> • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • <b>Tiếng Việt</b> • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Quy Tắc Ứng Xử theo Giao Ước Người Đóng Góp
 
@@ -59,7 +68,7 @@ tại một sự kiện trực tuyến hoặc ngoại tuyến. Đại diện c�
 ## Thực Thi
 
 Các trường hợp hành vi lạm dụng, quấy rối, hoặc không thể chấp nhận khác có thể được
-báo cáo bằng cách liên hệ với nhóm dự án tại support@roocode.com. Tất cả khiếu nại
+báo cáo bằng cách liên hệ với nhóm dự án tại support@cybrosysassista.com. Tất cả khiếu nại
 sẽ được xem xét và điều tra và sẽ dẫn đến phản hồi được
 cho là cần thiết và phù hợp với hoàn cảnh. Nhóm dự án có
 nghĩa vụ duy trì tính bảo mật đối với người báo cáo về một sự cố.
@@ -71,10 +80,10 @@ của ban lãnh đạo dự án quyết định.
 
 ## Ghi Công
 
-Quy Tắc Ứng Xử này được chuyển thể từ [phiên bản của Cline][cline_coc] của [Giao Ước Người Đóng Góp][homepage], phiên bản 1.4,
+Quy Tắc Ứng Xử này được chuyển thể từ [phiên bản của Assista][assista_coc] của [Giao Ước Người Đóng Góp][homepage], phiên bản 1.4,
 có sẵn tại https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Để biết câu trả lời cho các câu hỏi thường gặp về quy tắc ứng xử này, xem tại

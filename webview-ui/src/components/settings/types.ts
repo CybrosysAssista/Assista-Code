@@ -1,4 +1,4 @@
-import type { ExperimentId } from "@roo-code/types"
+import type { ExperimentId } from "@cybrosys-assista/types"
 
 import { ExtensionStateContextType } from "@/context/ExtensionStateContext"
 

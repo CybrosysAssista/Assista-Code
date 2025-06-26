@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • <b>Türkçe</b> • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • <b>Türkçe</b> • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Katkıda Bulunan Sözleşmesi Davranış Kuralları
 
@@ -55,7 +64,7 @@ tanımlanabilir ve netleştirilebilir.
 ## Uygulama
 
 Taciz edici veya başka türlü kabul edilemez davranış örnekleri,
-support@roocode.com adresinden proje ekibiyle iletişime geçilerek bildirilebilir. Tüm şikayetler
+support@cybrosysassista.com adresinden proje ekibiyle iletişime geçilerek bildirilebilir. Tüm şikayetler
 incelenecek ve araştırılacak ve koşullara
 göre gerekli ve uygun görülen bir yanıtla sonuçlanacaktır. Proje ekibi,
 bir olayı bildiren kişiye ilişkin gizliliği korumakla yükümlüdür.
@@ -67,10 +76,10 @@ liderliğinin diğer üyeleri tarafından belirlenen geçici veya kalıcı yapt�
 
 ## Atıf
 
-Bu Davranış Kuralları, [Cline'ın versiyonundan][cline_coc] [Katkıda Bulunan Sözleşmesi][homepage], versiyon 1.4'ten uyarlanmıştır,
+Bu Davranış Kuralları, [Assista'ın versiyonundan][assista_coc] [Katkıda Bulunan Sözleşmesi][homepage], versiyon 1.4'ten uyarlanmıştır,
 https://www.contributor-covenant.org/version/1/4/code-of-conduct.html adresinde mevcuttur
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Bu davranış kuralları hakkında sık sorulan sorulara yanıtlar için

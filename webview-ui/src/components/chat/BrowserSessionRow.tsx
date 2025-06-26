@@ -4,9 +4,9 @@ import deepEqual from "fast-deep-equal"
 import { useTranslation } from "react-i18next"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 
-import type { ClineMessage } from "@roo-code/types"
+import type { AssistaMessage } from "@cybrosys-assista/types"
 
-import { BrowserAction, BrowserActionResult, ClineSayBrowserAction } from "@roo/ExtensionMessage"
+import { BrowserAction, BrowserActionResult, AssistaSayBrowserAction } from "@assista/ExtensionMessage"
 
 import { vscode } from "@src/utils/vscode"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
@@ -16,10 +16,10 @@ import { ChatRowContent } from "./ChatRow"
 import { ProgressIndicator } from "./ProgressIndicator"
 
 interface BrowserSessionRowProps {
-	messages: ClineMessage[]
+	messages: AssistaMessage[]
 	isExpanded: (messageTs: number) => boolean
 	onToggleExpand: (messageTs: number) => void
-	lastModifiedMessage?: ClineMessage
+	lastModifiedMessage?: AssistaMessage
 	isLast: boolean
 	onHeightChange: (isTaller: boolean) => void
 	isStreaming: boolean
@@ -65,15 +65,15 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 				screenshot?: string
 				mousePosition?: string
 				consoleLogs?: string
-				messages: ClineMessage[] // messages up to and including the result
+				messages: AssistaMessage[] // messages up to and including the result
 			}
 			nextAction?: {
-				messages: ClineMessage[] // messages leading to next result
+				messages: AssistaMessage[] // messages leading to next result
 			}
 		}[] = []
 
-		let currentStateMessages: ClineMessage[] = []
-		let nextActionMessages: ClineMessage[] = []
+		let currentStateMessages: AssistaMessage[] = []
+		let nextActionMessages: AssistaMessage[] = []
 
 		messages.forEach((message) => {
 			if (message.ask === "browser_action_launch") {
@@ -220,7 +220,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 		for (let i = actions.length - 1; i >= 0; i--) {
 			const message = actions[i]
 			if (message.say === "browser_action") {
-				const browserAction = JSON.parse(message.text || "{}") as ClineSayBrowserAction
+				const browserAction = JSON.parse(message.text || "{}") as AssistaSayBrowserAction
 				if (browserAction.action === "click" && browserAction.coordinate) {
 					return browserAction.coordinate
 				}
@@ -245,7 +245,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 						style={{ color: "var(--vscode-foreground)", marginBottom: "-1.5px" }}></span>
 				)}
 				<span style={{ fontWeight: "bold" }}>
-					<>{t("chat:browser.rooWantsToUse")}</>
+					<>{t("chat:browser.assistaWantsToUse")}</>
 				</span>
 			</div>
 			<div
@@ -413,7 +413,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 }, deepEqual)
 
 interface BrowserSessionRowContentProps extends Omit<BrowserSessionRowProps, "messages"> {
-	message: ClineMessage
+	message: AssistaMessage
 	setMaxActionHeight: (height: number) => void
 	isStreaming: boolean
 }
@@ -460,7 +460,7 @@ const BrowserSessionRowContent = ({
 					)
 
 				case "browser_action":
-					const browserAction = JSON.parse(message.text || "{}") as ClineSayBrowserAction
+					const browserAction = JSON.parse(message.text || "{}") as AssistaSayBrowserAction
 					return (
 						<BrowserActionBox
 							action={browserAction.action}

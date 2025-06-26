@@ -32,6 +32,7 @@ docs/_site/
 
 # Logging
 logs
+*.log
 
 # Vite development
 .vite-port
@@ -43,4 +44,4 @@ logs
 .idea/
 .qodo/
 .vercel
-.roo/mcp.json
+.assista/mcp.json

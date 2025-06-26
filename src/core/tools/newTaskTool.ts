@@ -4,9 +4,10 @@ import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } f
 import { Task } from "../task/Task"
 import { defaultModeSlug, getModeBySlug } from "../../shared/modes"
 import { formatResponse } from "../prompts/responses"
+import { t } from "../../i18n"
 
 export async function newTaskTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -24,27 +25,30 @@ export async function newTaskTool(
 				message: removeClosingTag("message", message),
 			})
 
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+			await assista.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
 			if (!mode) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("new_task")
-				pushToolResult(await cline.sayAndCreateMissingParamError("new_task", "mode"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("new_task")
+				pushToolResult(await assista.sayAndCreateMissingParamError("new_task", "mode"))
 				return
 			}
 
 			if (!message) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("new_task")
-				pushToolResult(await cline.sayAndCreateMissingParamError("new_task", "message"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("new_task")
+				pushToolResult(await assista.sayAndCreateMissingParamError("new_task", "message"))
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
+			// Un-escape one level of backslashes before '@' for hierarchical subtasks
+			// Un-escape one level: \\@ -> \@ (removes one backslash for hierarchical subtasks)
+			const unescapedMessage = message.replace(/\\\\@/g, "\\@")
 
 			// Verify the mode exists
-			const targetMode = getModeBySlug(mode, (await cline.providerRef.deref()?.getState())?.customModes)
+			const targetMode = getModeBySlug(mode, (await assista.providerRef.deref()?.getState())?.customModes)
 
 			if (!targetMode) {
 				pushToolResult(formatResponse.toolError(`Invalid mode: ${mode}`))
@@ -63,18 +67,18 @@ export async function newTaskTool(
 				return
 			}
 
-			const provider = cline.providerRef.deref()
+			const provider = assista.providerRef.deref()
 
 			if (!provider) {
 				return
 			}
 
-			if (cline.enableCheckpoints) {
-				cline.checkpointSave(true)
+			if (assista.enableCheckpoints) {
+				assista.checkpointSave(true)
 			}
 
 			// Preserve the current mode so we can resume with it later.
-			cline.pausedModeSlug = (await provider.getState()).mode ?? defaultModeSlug
+			assista.pausedModeSlug = (await provider.getState()).mode ?? defaultModeSlug
 
 			// Switch mode first, then create new task instance.
 			await provider.handleModeSwitch(mode)
@@ -82,15 +86,19 @@ export async function newTaskTool(
 			// Delay to allow mode change to take effect before next tool is executed.
 			await delay(500)
 
-			const newCline = await provider.initClineWithTask(message, undefined, cline)
-			cline.emit("taskSpawned", newCline.taskId)
+			const newAssista = await provider.initAssistaWithTask(unescapedMessage, undefined, assista)
+			if (!newAssista) {
+				pushToolResult(t("tools:newTask.errors.policy_restriction"))
+				return
+			}
+			assista.emit("taskSpawned", newAssista.taskId)
 
-			pushToolResult(`Successfully created new task in ${targetMode.name} mode with message: ${message}`)
+			pushToolResult(`Successfully created new task in ${targetMode.name} mode with message: ${unescapedMessage}`)
 
 			// Set the isPaused flag to true so the parent
 			// task can wait for the sub-task to finish.
-			cline.isPaused = true
-			cline.emit("taskPaused")
+			assista.isPaused = true
+			assista.emit("taskPaused")
 
 			return
 		}

@@ -2,7 +2,7 @@ import fs from "fs/promises"
 import path from "path"
 import { Dirent } from "fs"
 
-import { isLanguage } from "@roo-code/types"
+import { isLanguage } from "@cybrosys-assista/types"
 
 import { LANGUAGES } from "../../../shared/language"
 
@@ -158,17 +158,17 @@ function formatDirectoryContent(dirPath: string, files: Array<{ filename: string
  * Load rule files from the specified directory
  */
 export async function loadRuleFiles(cwd: string): Promise<string> {
-	// Check for .roo/rules/ directory
-	const rooRulesDir = path.join(cwd, ".roo", "rules")
-	if (await directoryExists(rooRulesDir)) {
-		const files = await readTextFilesFromDirectory(rooRulesDir)
+	// Check for .assista/rules/ directory
+	const assistaRulesDir = path.join(cwd, ".assista", "rules")
+	if (await directoryExists(assistaRulesDir)) {
+		const files = await readTextFilesFromDirectory(assistaRulesDir)
 		if (files.length > 0) {
-			return formatDirectoryContent(rooRulesDir, files)
+			return formatDirectoryContent(assistaRulesDir, files)
 		}
 	}
 
 	// Fall back to existing behavior
-	const ruleFiles = [".roorules", ".clinerules"]
+	const ruleFiles = [".assistarules", ".assistarules"]
 
 	for (const file of ruleFiles) {
 		const content = await safeReadFile(path.join(cwd, file))
@@ -185,7 +185,7 @@ export async function addCustomInstructions(
 	globalCustomInstructions: string,
 	cwd: string,
 	mode: string,
-	options: { language?: string; rooIgnoreInstructions?: string } = {},
+	options: { language?: string; assistaIgnoreInstructions?: string } = {},
 ): Promise<string> {
 	const sections = []
 
@@ -194,8 +194,8 @@ export async function addCustomInstructions(
 	let usedRuleFile = ""
 
 	if (mode) {
-		// Check for .roo/rules-${mode}/ directory
-		const modeRulesDir = path.join(cwd, ".roo", `rules-${mode}`)
+		// Check for .assista/rules-${mode}/ directory
+		const modeRulesDir = path.join(cwd, ".assista", `rules-${mode}`)
 		if (await directoryExists(modeRulesDir)) {
 			const files = await readTextFilesFromDirectory(modeRulesDir)
 			if (files.length > 0) {
@@ -206,15 +206,15 @@ export async function addCustomInstructions(
 
 		// If no directory exists, fall back to existing behavior
 		if (!modeRuleContent) {
-			const rooModeRuleFile = `.roorules-${mode}`
-			modeRuleContent = await safeReadFile(path.join(cwd, rooModeRuleFile))
+			const assistaModeRuleFile = `.assistarules-${mode}`
+			modeRuleContent = await safeReadFile(path.join(cwd, assistaModeRuleFile))
 			if (modeRuleContent) {
-				usedRuleFile = rooModeRuleFile
+				usedRuleFile = assistaModeRuleFile
 			} else {
-				const clineModeRuleFile = `.clinerules-${mode}`
-				modeRuleContent = await safeReadFile(path.join(cwd, clineModeRuleFile))
+				const assistaModeRuleFile = `.assistarules-${mode}`
+				modeRuleContent = await safeReadFile(path.join(cwd, assistaModeRuleFile))
 				if (modeRuleContent) {
-					usedRuleFile = clineModeRuleFile
+					usedRuleFile = assistaModeRuleFile
 				}
 			}
 		}
@@ -243,15 +243,15 @@ export async function addCustomInstructions(
 
 	// Add mode-specific rules first if they exist
 	if (modeRuleContent && modeRuleContent.trim()) {
-		if (usedRuleFile.includes(path.join(".roo", `rules-${mode}`))) {
+		if (usedRuleFile.includes(path.join(".assista", `rules-${mode}`))) {
 			rules.push(modeRuleContent.trim())
 		} else {
 			rules.push(`# Rules from ${usedRuleFile}:\n${modeRuleContent}`)
 		}
 	}
 
-	if (options.rooIgnoreInstructions) {
-		rules.push(options.rooIgnoreInstructions)
+	if (options.assistaIgnoreInstructions) {
+		rules.push(options.assistaIgnoreInstructions)
 	}
 
 	// Add generic rules

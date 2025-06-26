@@ -1,14 +1,15 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { McpExecution } from "./McpExecution"
 import { useSize } from "react-use"
 import { useTranslation, Trans } from "react-i18next"
 import deepEqual from "fast-deep-equal"
 import { VSCodeBadge, VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 
-import type { ClineMessage } from "@roo-code/types"
+import type { AssistaMessage } from "@cybrosys-assista/types"
 
-import { ClineApiReqInfo, ClineAskUseMcpServer, ClineSayTool } from "@roo/ExtensionMessage"
-import { COMMAND_OUTPUT_STRING } from "@roo/combineCommandSequences"
-import { safeJsonParse } from "@roo/safeJsonParse"
+import { AssistaApiReqInfo, AssistaAskUseMcpServer, AssistaSayTool } from "@assista/ExtensionMessage"
+import { COMMAND_OUTPUT_STRING } from "@assista/combineCommandSequences"
+import { safeJsonParse } from "@assista/safeJsonParse"
 
 import { useCopyToClipboard } from "@src/utils/clipboard"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
@@ -25,12 +26,12 @@ import MarkdownBlock from "../common/MarkdownBlock"
 import { ReasoningBlock } from "./ReasoningBlock"
 import Thumbnails from "../common/Thumbnails"
 import McpResourceRow from "../mcp/McpResourceRow"
-import McpToolRow from "../mcp/McpToolRow"
 
 import { Mention } from "./Mention"
 import { CheckpointSaved } from "./checkpoints/CheckpointSaved"
 import { FollowUpSuggest } from "./FollowUpSuggest"
 import { BatchFilePermission } from "./BatchFilePermission"
+import { BatchDiffApproval } from "./BatchDiffApproval"
 import { ProgressIndicator } from "./ProgressIndicator"
 import { Markdown } from "./Markdown"
 import { CommandExecution } from "./CommandExecution"
@@ -40,8 +41,8 @@ import { CondenseContextErrorRow, CondensingContextRow, ContextCondenseRow } fro
 import CodebaseSearchResultsDisplay from "./CodebaseSearchResultsDisplay"
 
 interface ChatRowProps {
-	message: ClineMessage
-	lastModifiedMessage?: ClineMessage
+	message: AssistaMessage
+	lastModifiedMessage?: AssistaMessage
 	isExpanded: boolean
 	isLast: boolean
 	isStreaming: boolean
@@ -113,7 +114,7 @@ export const ChatRowContent = ({
 
 	const [cost, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
 		if (message.text !== null && message.text !== undefined && message.say === "api_req_started") {
-			const info = safeJsonParse<ClineApiReqInfo>(message.text)
+			const info = safeJsonParse<AssistaApiReqInfo>(message.text)
 			return [info?.cost, info?.cancelReason, info?.streamingFailedMessage]
 		}
 
@@ -168,7 +169,7 @@ export const ChatRowContent = ({
 					<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat:runCommand.title")}:</span>,
 				]
 			case "use_mcp_server":
-				const mcpServerUse = safeJsonParse<ClineAskUseMcpServer>(message.text)
+				const mcpServerUse = safeJsonParse<AssistaAskUseMcpServer>(message.text)
 				if (mcpServerUse === undefined) {
 					return [null, null]
 				}
@@ -272,7 +273,7 @@ export const ChatRowContent = ({
 	}
 
 	const tool = useMemo(
-		() => (message.ask === "tool" ? safeJsonParse<ClineSayTool>(message.text) : null),
+		() => (message.ask === "tool" ? safeJsonParse<AssistaSayTool>(message.text) : null),
 		[message.ask, message.text],
 	)
 
@@ -293,14 +294,39 @@ export const ChatRowContent = ({
 		switch (tool.tool) {
 			case "editedExistingFile":
 			case "appliedDiff":
+				// Check if this is a batch diff request
+				if (message.type === "ask" && tool.batchDiffs && Array.isArray(tool.batchDiffs)) {
+					return (
+						<>
+							<div style={headerStyle}>
+								{toolIcon("diff")}
+								<span style={{ fontWeight: "bold" }}>
+									{t("chat:fileOperations.wantsToApplyBatchChanges")}
+								</span>
+							</div>
+							<BatchDiffApproval files={tool.batchDiffs} ts={message.ts} />
+						</>
+					)
+				}
+
+				// Regular single file diff
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon(tool.tool === "appliedDiff" ? "diff" : "edit")}
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon(tool.tool === "appliedDiff" ? "diff" : "edit")
+							)}
 							<span style={{ fontWeight: "bold" }}>
-								{tool.isOutsideWorkspace
-									? t("chat:fileOperations.wantsToEditOutsideWorkspace")
-									: t("chat:fileOperations.wantsToEdit")}
+								{tool.isProtected
+									? t("chat:fileOperations.wantsToEditProtected")
+									: tool.isOutsideWorkspace
+										? t("chat:fileOperations.wantsToEditOutsideWorkspace")
+										: t("chat:fileOperations.wantsToEdit")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -318,15 +344,24 @@ export const ChatRowContent = ({
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("insert")}
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon("insert")
+							)}
 							<span style={{ fontWeight: "bold" }}>
-								{tool.isOutsideWorkspace
-									? t("chat:fileOperations.wantsToEditOutsideWorkspace")
-									: tool.lineNumber === 0
-										? t("chat:fileOperations.wantsToInsertAtEnd")
-										: t("chat:fileOperations.wantsToInsertWithLineNumber", {
-												lineNumber: tool.lineNumber,
-											})}
+								{tool.isProtected
+									? t("chat:fileOperations.wantsToEditProtected")
+									: tool.isOutsideWorkspace
+										? t("chat:fileOperations.wantsToEditOutsideWorkspace")
+										: tool.lineNumber === 0
+											? t("chat:fileOperations.wantsToInsertAtEnd")
+											: t("chat:fileOperations.wantsToInsertWithLineNumber", {
+													lineNumber: tool.lineNumber,
+												})}
 							</span>
 						</div>
 						<CodeAccordian
@@ -344,11 +379,20 @@ export const ChatRowContent = ({
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("replace")}
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon("replace")
+							)}
 							<span style={{ fontWeight: "bold" }}>
-								{message.type === "ask"
-									? t("chat:fileOperations.wantsToSearchReplace")
-									: t("chat:fileOperations.didSearchReplace")}
+								{tool.isProtected && message.type === "ask"
+									? t("chat:fileOperations.wantsToEditProtected")
+									: message.type === "ask"
+										? t("chat:fileOperations.wantsToSearchReplace")
+										: t("chat:fileOperations.didSearchReplace")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -388,8 +432,19 @@ export const ChatRowContent = ({
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("new-file")}
-							<span style={{ fontWeight: "bold" }}>{t("chat:fileOperations.wantsToCreate")}</span>
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon("new-file")
+							)}
+							<span style={{ fontWeight: "bold" }}>
+								{tool.isProtected
+									? t("chat:fileOperations.wantsToEditProtected")
+									: t("chat:fileOperations.wantsToCreate")}
+							</span>
 						</div>
 						<CodeAccordian
 							path={tool.path}
@@ -482,8 +537,12 @@ export const ChatRowContent = ({
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? t("chat:directoryOperations.wantsToViewTopLevel")
-									: t("chat:directoryOperations.didViewTopLevel")}
+									? tool.isOutsideWorkspace
+										? t("chat:directoryOperations.wantsToViewTopLevelOutsideWorkspace")
+										: t("chat:directoryOperations.wantsToViewTopLevel")
+									: tool.isOutsideWorkspace
+										? t("chat:directoryOperations.didViewTopLevelOutsideWorkspace")
+										: t("chat:directoryOperations.didViewTopLevel")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -502,8 +561,12 @@ export const ChatRowContent = ({
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? t("chat:directoryOperations.wantsToViewRecursive")
-									: t("chat:directoryOperations.didViewRecursive")}
+									? tool.isOutsideWorkspace
+										? t("chat:directoryOperations.wantsToViewRecursiveOutsideWorkspace")
+										: t("chat:directoryOperations.wantsToViewRecursive")
+									: tool.isOutsideWorkspace
+										? t("chat:directoryOperations.didViewRecursiveOutsideWorkspace")
+										: t("chat:directoryOperations.didViewRecursive")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -522,8 +585,12 @@ export const ChatRowContent = ({
 							{toolIcon("file-code")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? t("chat:directoryOperations.wantsToViewDefinitions")
-									: t("chat:directoryOperations.didViewDefinitions")}
+									? tool.isOutsideWorkspace
+										? t("chat:directoryOperations.wantsToViewDefinitionsOutsideWorkspace")
+										: t("chat:directoryOperations.wantsToViewDefinitions")
+									: tool.isOutsideWorkspace
+										? t("chat:directoryOperations.didViewDefinitionsOutsideWorkspace")
+										: t("chat:directoryOperations.didViewDefinitions")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -543,13 +610,21 @@ export const ChatRowContent = ({
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask" ? (
 									<Trans
-										i18nKey="chat:directoryOperations.wantsToSearch"
+										i18nKey={
+											tool.isOutsideWorkspace
+												? "chat:directoryOperations.wantsToSearchOutsideWorkspace"
+												: "chat:directoryOperations.wantsToSearch"
+										}
 										components={{ code: <code>{tool.regex}</code> }}
 										values={{ regex: tool.regex }}
 									/>
 								) : (
 									<Trans
-										i18nKey="chat:directoryOperations.didSearch"
+										i18nKey={
+											tool.isOutsideWorkspace
+												? "chat:directoryOperations.didSearchOutsideWorkspace"
+												: "chat:directoryOperations.didSearch"
+										}
 										components={{ code: <code>{tool.regex}</code> }}
 										values={{ regex: tool.regex }}
 									/>
@@ -871,7 +946,7 @@ export const ChatRowContent = ({
 												<br />
 												{t("chat:powershell.issues")}{" "}
 												<a
-													href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
+													href="https://github.com/assista/assista/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
 													style={{ color: "inherit", textDecoration: "underline" }}>
 													troubleshooting guide
 												</a>
@@ -927,7 +1002,7 @@ export const ChatRowContent = ({
 						</div>
 					)
 				case "user_feedback_diff":
-					const tool = safeJsonParse<ClineSayTool>(message.text)
+					const tool = safeJsonParse<AssistaSayTool>(message.text)
 					return (
 						<div style={{ marginTop: -10, width: "100%" }}>
 							<CodeAccordian
@@ -965,28 +1040,6 @@ export const ChatRowContent = ({
 					)
 				case "shell_integration_warning":
 					return <CommandExecutionError />
-				case "mcp_server_response":
-					return (
-						<>
-							<div style={{ paddingTop: 0 }}>
-								<div
-									style={{
-										marginBottom: "4px",
-										opacity: 0.8,
-										fontSize: "12px",
-										textTransform: "uppercase",
-									}}>
-									{t("chat:response")}
-								</div>
-								<CodeAccordian
-									code={message.text}
-									language="json"
-									isExpanded={true}
-									onToggleExpand={handleToggleExpand}
-								/>
-							</div>
-						</>
-					)
 				case "checkpoint_saved":
 					return (
 						<CheckpointSaved
@@ -1070,7 +1123,17 @@ export const ChatRowContent = ({
 						/>
 					)
 				case "use_mcp_server":
-					const useMcpServer = safeJsonParse<ClineAskUseMcpServer>(message.text)
+					// Parse the message text to get the MCP server request
+					const messageJson = safeJsonParse<any>(message.text, {})
+
+					// Extract the response field if it exists
+					const { response, ...mcpServerRequest } = messageJson
+
+					// Create the useMcpServer object with the response field
+					const useMcpServer: AssistaAskUseMcpServer = {
+						...mcpServerRequest,
+						response,
+					}
 
 					if (!useMcpServer) {
 						return null
@@ -1084,13 +1147,7 @@ export const ChatRowContent = ({
 								{icon}
 								{title}
 							</div>
-							<div
-								style={{
-									background: "var(--vscode-textCodeBlock-background)",
-									borderRadius: "3px",
-									padding: "8px 10px",
-									marginTop: "8px",
-								}}>
+							<div className="w-full bg-vscode-editor-background border border-vscode-border rounded-xs p-2 mt-2">
 								{useMcpServer.type === "access_mcp_resource" && (
 									<McpResourceRow
 										item={{
@@ -1110,45 +1167,16 @@ export const ChatRowContent = ({
 									/>
 								)}
 								{useMcpServer.type === "use_mcp_tool" && (
-									<>
-										<div onClick={(e) => e.stopPropagation()}>
-											<McpToolRow
-												tool={{
-													name: useMcpServer.toolName || "",
-													description:
-														server?.tools?.find(
-															(tool) => tool.name === useMcpServer.toolName,
-														)?.description || "",
-													alwaysAllow:
-														server?.tools?.find(
-															(tool) => tool.name === useMcpServer.toolName,
-														)?.alwaysAllow || false,
-												}}
-												serverName={useMcpServer.serverName}
-												serverSource={server?.source}
-												alwaysAllowMcp={alwaysAllowMcp}
-											/>
-										</div>
-										{useMcpServer.arguments && useMcpServer.arguments !== "{}" && (
-											<div style={{ marginTop: "8px" }}>
-												<div
-													style={{
-														marginBottom: "4px",
-														opacity: 0.8,
-														fontSize: "12px",
-														textTransform: "uppercase",
-													}}>
-													{t("chat:arguments")}
-												</div>
-												<CodeAccordian
-													code={useMcpServer.arguments}
-													language="json"
-													isExpanded={true}
-													onToggleExpand={handleToggleExpand}
-												/>
-											</div>
-										)}
-									</>
+									<McpExecution
+										executionId={message.ts.toString()}
+										text={useMcpServer.arguments !== "{}" ? useMcpServer.arguments : undefined}
+										serverName={useMcpServer.serverName}
+										toolName={useMcpServer.toolName}
+										isArguments={true}
+										server={server}
+										useMcpServer={useMcpServer}
+										alwaysAllowMcp={alwaysAllowMcp}
+									/>
 								)}
 							</div>
 						</>

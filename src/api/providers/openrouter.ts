@@ -7,7 +7,7 @@ import {
 	OPENROUTER_DEFAULT_PROVIDER_NAME,
 	OPEN_ROUTER_PROMPT_CACHING_MODELS,
 	DEEP_SEEK_DEFAULT_TEMPERATURE,
-} from "@roo-code/types"
+} from "@cybrosys-assista/types"
 
 import type { ApiHandlerOptions, ModelRecord } from "../../shared/api"
 
@@ -84,7 +84,10 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 		// other providers (including Gemini), so we need to explicitly disable
 		// i We should generalize this using the logic in `getModelParams`, but
 		// this is easier for now.
-		if (modelId === "google/gemini-2.5-pro-preview" && typeof reasoning === "undefined") {
+		if (
+			(modelId === "google/gemini-2.5-pro-preview" || modelId === "google/gemini-2.5-pro") &&
+			typeof reasoning === "undefined"
+		) {
 			reasoning = { exclude: true }
 		}
 

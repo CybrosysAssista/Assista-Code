@@ -8,12 +8,12 @@ import { execa } from "execa"
 import {
 	type TaskEvent,
 	TaskCommandName,
-	RooCodeEventName,
+	CybrosysAssistaEventName,
 	IpcMessageType,
 	EVALS_SETTINGS,
 	EVALS_TIMEOUT,
-} from "@roo-code/types"
-import { IpcClient } from "@roo-code/ipc"
+} from "@cybrosys-assista/types"
+import { IpcClient } from "@cybrosys-assista/ipc"
 
 import {
 	type Run,
@@ -68,7 +68,7 @@ export const processTask = async ({ taskId, logger }: { taskId: number; logger?:
 		await updateTask(task.id, { passed })
 
 		await publish({
-			eventName: passed ? RooCodeEventName.EvalPass : RooCodeEventName.EvalFail,
+			eventName: passed ? CybrosysAssistaEventName.EvalPass : CybrosysAssistaEventName.EvalFail,
 			taskId: task.id,
 		})
 	} finally {
@@ -93,7 +93,7 @@ export const processTaskInContainer = async ({
 		"-e HOST_EXECUTION_METHOD=docker",
 	]
 
-	const command = `pnpm --filter @roo-code/evals cli --taskId ${taskId}`
+	const command = `pnpm --filter @cybrosys-assista/evals cli --taskId ${taskId}`
 	logger.info(command)
 
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -151,13 +151,13 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 	const prompt = fs.readFileSync(path.resolve(EVALS_REPO_PATH, `prompts/${language}.md`), "utf-8")
 	const workspacePath = path.resolve(EVALS_REPO_PATH, language, exercise)
 	const ipcSocketPath = path.resolve(os.tmpdir(), `evals-${run.id}-${task.id}.sock`)
-	const env = { ROO_CODE_IPC_SOCKET_PATH: ipcSocketPath }
+	const env = { CYBROSYS_ASSISTA_IPC_SOCKET_PATH: ipcSocketPath }
 	const controller = new AbortController()
 	const cancelSignal = controller.signal
 	const containerized = isDockerContainer()
 
 	const codeCommand = containerized
-		? `xvfb-run --auto-servernum --server-num=1 code --wait --log trace --disable-workspace-trust --disable-gpu --disable-lcd-text --no-sandbox --user-data-dir /roo/.vscode --password-store="basic" -n ${workspacePath}`
+		? `xvfb-run --auto-servernum --server-num=1 code --wait --log trace --disable-workspace-trust --disable-gpu --disable-lcd-text --no-sandbox --user-data-dir /assista/.vscode --password-store="basic" -n ${workspacePath}`
 		: `code --disable-workspace-trust -n ${workspacePath}`
 
 	logger.info(codeCommand)
@@ -200,12 +200,12 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 	let taskAbortedAt: number | undefined
 	let taskTimedOut: boolean = false
 	let taskMetricsId: number | undefined
-	let rooTaskId: string | undefined
+	let assistaTaskId: string | undefined
 	let isClientDisconnected = false
 
-	const ignoreEvents: Record<"broadcast" | "log", RooCodeEventName[]> = {
-		broadcast: [RooCodeEventName.Message],
-		log: [RooCodeEventName.TaskTokenUsageUpdated, RooCodeEventName.TaskAskResponded],
+	const ignoreEvents: Record<"broadcast" | "log", CybrosysAssistaEventName[]> = {
+		broadcast: [CybrosysAssistaEventName.Message],
+		log: [CybrosysAssistaEventName.TaskTokenUsageUpdated, CybrosysAssistaEventName.TaskAskResponded],
 	}
 
 	client.on(IpcMessageType.TaskEvent, async (taskEvent) => {
@@ -220,12 +220,12 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 		// For message events we only log non-partial messages.
 		if (
 			!ignoreEvents.log.includes(eventName) &&
-			(eventName !== RooCodeEventName.Message || payload[0].message.partial !== true)
+			(eventName !== CybrosysAssistaEventName.Message || payload[0].message.partial !== true)
 		) {
 			logger.info(`${eventName} ->`, payload)
 		}
 
-		if (eventName === RooCodeEventName.TaskStarted) {
+		if (eventName === CybrosysAssistaEventName.TaskStarted) {
 			taskStartedAt = Date.now()
 
 			const taskMetrics = await createTaskMetrics({
@@ -242,16 +242,16 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 
 			taskStartedAt = Date.now()
 			taskMetricsId = taskMetrics.id
-			rooTaskId = payload[0]
+			assistaTaskId = payload[0]
 		}
 
-		if (eventName === RooCodeEventName.TaskToolFailed) {
+		if (eventName === CybrosysAssistaEventName.TaskToolFailed) {
 			const [_taskId, toolName, error] = payload
 			await createToolError({ taskId: task.id, toolName, error })
 		}
 
 		if (
-			(eventName === RooCodeEventName.TaskTokenUsageUpdated || eventName === RooCodeEventName.TaskCompleted) &&
+			(eventName === CybrosysAssistaEventName.TaskTokenUsageUpdated || eventName === CybrosysAssistaEventName.TaskCompleted) &&
 			taskMetricsId
 		) {
 			const duration = Date.now() - taskStartedAt
@@ -270,16 +270,16 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 			})
 		}
 
-		if (eventName === RooCodeEventName.TaskCompleted && taskMetricsId) {
+		if (eventName === CybrosysAssistaEventName.TaskCompleted && taskMetricsId) {
 			const toolUsage = payload[2]
 			await updateTaskMetrics(taskMetricsId, { toolUsage })
 		}
 
-		if (eventName === RooCodeEventName.TaskAborted) {
+		if (eventName === CybrosysAssistaEventName.TaskAborted) {
 			taskAbortedAt = Date.now()
 		}
 
-		if (eventName === RooCodeEventName.TaskCompleted) {
+		if (eventName === CybrosysAssistaEventName.TaskCompleted) {
 			taskFinishedAt = Date.now()
 		}
 	})
@@ -294,8 +294,8 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 		data: {
 			configuration: {
 				...EVALS_SETTINGS,
-				...run.settings,
 				openRouterApiKey: process.env.OPENROUTER_API_KEY,
+				...run.settings, // Allow the provided settings to override `openRouterApiKey`.
 			},
 			text: prompt,
 			newTab: true,
@@ -311,9 +311,9 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 		taskTimedOut = true
 		logger.error("time limit reached")
 
-		if (rooTaskId && !isClientDisconnected) {
+		if (assistaTaskId && !isClientDisconnected) {
 			logger.info("cancelling task")
-			client.sendCommand({ commandName: TaskCommandName.CancelTask, data: rooTaskId })
+			client.sendCommand({ commandName: TaskCommandName.CancelTask, data: assistaTaskId })
 			await new Promise((resolve) => setTimeout(resolve, 5_000)) // Allow some time for the task to cancel.
 		}
 
@@ -330,9 +330,9 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 	logger.info("setting task finished at")
 	await updateTask(task.id, { finishedAt: new Date() })
 
-	if (rooTaskId && !isClientDisconnected) {
+	if (assistaTaskId && !isClientDisconnected) {
 		logger.info("closing task")
-		client.sendCommand({ commandName: TaskCommandName.CloseTask, data: rooTaskId })
+		client.sendCommand({ commandName: TaskCommandName.CloseTask, data: assistaTaskId })
 		await new Promise((resolve) => setTimeout(resolve, 2_000)) // Allow some time for the window to close.
 	}
 

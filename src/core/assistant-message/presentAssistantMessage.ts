@@ -1,8 +1,7 @@
 import cloneDeep from "clone-deep"
 import { serializeError } from "serialize-error"
 
-import type { ToolName, ClineAsk, ToolProgressStatus } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+import type { ToolName, AssistaAsk, ToolProgressStatus } from "@cybrosys-assista/types"
 
 import { defaultModeSlug, getModeBySlug } from "../../shared/modes"
 import type { ToolParamName, ToolResponse } from "../../shared/tools"
@@ -11,7 +10,7 @@ import { fetchInstructionsTool } from "../tools/fetchInstructionsTool"
 import { listFilesTool } from "../tools/listFilesTool"
 import { getReadFileToolDescription, readFileTool } from "../tools/readFileTool"
 import { writeToFileTool } from "../tools/writeToFileTool"
-import { applyDiffTool } from "../tools/applyDiffTool"
+import { applyDiffTool } from "../tools/multiApplyDiffTool"
 import { insertContentTool } from "../tools/insertContentTool"
 import { searchAndReplaceTool } from "../tools/searchAndReplaceTool"
 import { listCodeDefinitionNamesTool } from "../tools/listCodeDefinitionNamesTool"
@@ -31,6 +30,8 @@ import { formatResponse } from "../prompts/responses"
 import { validateToolUse } from "../tools/validateToolUse"
 import { Task } from "../task/Task"
 import { codebaseSearchTool } from "../tools/codebaseSearchTool"
+import { experiments, EXPERIMENT_IDS } from "../../shared/experiments"
+import { applyDiffToolLegacy } from "../tools/applyDiffTool"
 
 /**
  * Processes and presents assistant message content to the user interface.
@@ -49,37 +50,37 @@ import { codebaseSearchTool } from "../tools/codebaseSearchTool"
  * as it becomes available.
  */
 
-export async function presentAssistantMessage(cline: Task) {
-	if (cline.abort) {
-		throw new Error(`[Task#presentAssistantMessage] task ${cline.taskId}.${cline.instanceId} aborted`)
+export async function presentAssistantMessage(assista: Task) {
+	if (assista.abort) {
+		throw new Error(`[Task#presentAssistantMessage] task ${assista.taskId}.${assista.instanceId} aborted`)
 	}
 
-	if (cline.presentAssistantMessageLocked) {
-		cline.presentAssistantMessageHasPendingUpdates = true
+	if (assista.presentAssistantMessageLocked) {
+		assista.presentAssistantMessageHasPendingUpdates = true
 		return
 	}
 
-	cline.presentAssistantMessageLocked = true
-	cline.presentAssistantMessageHasPendingUpdates = false
+	assista.presentAssistantMessageLocked = true
+	assista.presentAssistantMessageHasPendingUpdates = false
 
-	if (cline.currentStreamingContentIndex >= cline.assistantMessageContent.length) {
+	if (assista.currentStreamingContentIndex >= assista.assistantMessageContent.length) {
 		// This may happen if the last content block was completed before
 		// streaming could finish. If streaming is finished, and we're out of
 		// bounds then this means we already  presented/executed the last
 		// content block and are ready to continue to next request.
-		if (cline.didCompleteReadingStream) {
-			cline.userMessageContentReady = true
+		if (assista.didCompleteReadingStream) {
+			assista.userMessageContentReady = true
 		}
 
-		cline.presentAssistantMessageLocked = false
+		assista.presentAssistantMessageLocked = false
 		return
 	}
 
-	const block = cloneDeep(cline.assistantMessageContent[cline.currentStreamingContentIndex]) // need to create copy bc while stream is updating the array, it could be updating the reference block properties too
+	const block = cloneDeep(assista.assistantMessageContent[assista.currentStreamingContentIndex]) // need to create copy bc while stream is updating the array, it could be updating the reference block properties too
 
 	switch (block.type) {
 		case "text": {
-			if (cline.didRejectTool || cline.didAlreadyUseTool) {
+			if (assista.didRejectTool || assista.didAlreadyUseTool) {
 				break
 			}
 
@@ -144,7 +145,7 @@ export async function presentAssistantMessage(cline: Task) {
 				}
 			}
 
-			await cline.say("text", content, undefined, block.partial)
+			await assista.say("text", content, undefined, block.partial)
 			break
 		}
 		case "tool_use":
@@ -159,7 +160,24 @@ export async function presentAssistantMessage(cline: Task) {
 					case "write_to_file":
 						return `[${block.name} for '${block.params.path}']`
 					case "apply_diff":
-						return `[${block.name} for '${block.params.path}']`
+						// Handle both legacy format and new multi-file format
+						if (block.params.path) {
+							return `[${block.name} for '${block.params.path}']`
+						} else if (block.params.args) {
+							// Try to extract first file path from args for display
+							const match = block.params.args.match(/<file>.*?<path>([^<]+)<\/path>/s)
+							if (match) {
+								const firstPath = match[1]
+								// Check if there are multiple files
+								const fileCount = (block.params.args.match(/<file>/g) || []).length
+								if (fileCount > 1) {
+									return `[${block.name} for '${firstPath}' and ${fileCount - 1} more file${fileCount > 2 ? "s" : ""}]`
+								} else {
+									return `[${block.name} for '${firstPath}']`
+								}
+							}
+						}
+						return `[${block.name}]`
 					case "search_files":
 						return `[${block.name} for '${block.params.regex}'${
 							block.params.file_pattern ? ` in '${block.params.file_pattern}'` : ""
@@ -195,16 +213,16 @@ export async function presentAssistantMessage(cline: Task) {
 				}
 			}
 
-			if (cline.didRejectTool) {
+			if (assista.didRejectTool) {
 				// Ignore any tool content after user has rejected tool once.
 				if (!block.partial) {
-					cline.userMessageContent.push({
+					assista.userMessageContent.push({
 						type: "text",
 						text: `Skipping tool ${toolDescription()} due to user rejecting a previous tool.`,
 					})
 				} else {
 					// Partial tool after user rejected a previous tool.
-					cline.userMessageContent.push({
+					assista.userMessageContent.push({
 						type: "text",
 						text: `Tool ${toolDescription()} was interrupted and not executed due to user rejecting a previous tool.`,
 					})
@@ -213,9 +231,9 @@ export async function presentAssistantMessage(cline: Task) {
 				break
 			}
 
-			if (cline.didAlreadyUseTool) {
+			if (assista.didAlreadyUseTool) {
 				// Ignore any content after a tool has already been used.
-				cline.userMessageContent.push({
+				assista.userMessageContent.push({
 					type: "text",
 					text: `Tool [${block.name}] was not executed because a tool has already been used in this message. Only one tool may be used per message. You must assess the first tool's result before proceeding to use the next tool.`,
 				})
@@ -224,42 +242,49 @@ export async function presentAssistantMessage(cline: Task) {
 			}
 
 			const pushToolResult = (content: ToolResponse) => {
-				cline.userMessageContent.push({ type: "text", text: `${toolDescription()} Result:` })
+				assista.userMessageContent.push({ type: "text", text: `${toolDescription()} Result:` })
 
 				if (typeof content === "string") {
-					cline.userMessageContent.push({ type: "text", text: content || "(tool did not return anything)" })
+					assista.userMessageContent.push({ type: "text", text: content || "(tool did not return anything)" })
 				} else {
-					cline.userMessageContent.push(...content)
+					assista.userMessageContent.push(...content)
 				}
 
 				// Once a tool result has been collected, ignore all other tool
 				// uses since we should only ever present one tool result per
 				// message.
-				cline.didAlreadyUseTool = true
+				assista.didAlreadyUseTool = true
 			}
 
 			const askApproval = async (
-				type: ClineAsk,
+				type: AssistaAsk,
 				partialMessage?: string,
 				progressStatus?: ToolProgressStatus,
+				isProtected?: boolean,
 			) => {
-				const { response, text, images } = await cline.ask(type, partialMessage, false, progressStatus)
+				const { response, text, images } = await assista.ask(
+					type,
+					partialMessage,
+					false,
+					progressStatus,
+					isProtected || false,
+				)
 
 				if (response !== "yesButtonClicked") {
 					// Handle both messageResponse and noButtonClicked with text.
 					if (text) {
-						await cline.say("user_feedback", text, images)
+						await assista.say("user_feedback", text, images)
 						pushToolResult(formatResponse.toolResult(formatResponse.toolDeniedWithFeedback(text), images))
 					} else {
 						pushToolResult(formatResponse.toolDenied())
 					}
-					cline.didRejectTool = true
+					assista.didRejectTool = true
 					return false
 				}
 
 				// Handle yesButtonClicked with text.
 				if (text) {
-					await cline.say("user_feedback", text, images)
+					await assista.say("user_feedback", text, images)
 					pushToolResult(formatResponse.toolResult(formatResponse.toolApprovedWithFeedback(text), images))
 				}
 
@@ -278,7 +303,7 @@ export async function presentAssistantMessage(cline: Task) {
 			const handleError = async (action: string, error: Error) => {
 				const errorString = `Error ${action}: ${JSON.stringify(serializeError(error))}`
 
-				await cline.say(
+				await assista.say(
 					"error",
 					`Error ${action}:\n${error.message ?? JSON.stringify(serializeError(error), null, 2)}`,
 				)
@@ -314,27 +339,26 @@ export async function presentAssistantMessage(cline: Task) {
 			}
 
 			if (block.name !== "browser_action") {
-				await cline.browserSession.closeBrowser()
+				await assista.browserSession.closeBrowser()
 			}
 
 			if (!block.partial) {
-				cline.recordToolUsage(block.name)
-				TelemetryService.instance.captureToolUsage(cline.taskId, block.name)
+				assista.recordToolUsage(block.name)
 			}
 
 			// Validate tool use before execution.
-			const { mode, customModes } = (await cline.providerRef.deref()?.getState()) ?? {}
+			const { mode, customModes } = (await assista.providerRef.deref()?.getState()) ?? {}
 
 			try {
 				validateToolUse(
 					block.name as ToolName,
 					mode ?? defaultModeSlug,
 					customModes ?? [],
-					{ apply_diff: cline.diffEnabled },
+					{ apply_diff: assista.diffEnabled },
 					block.params,
 				)
 			} catch (error) {
-				cline.consecutiveMistakeCount++
+				assista.consecutiveMistakeCount++
 				pushToolResult(formatResponse.toolError(error.message))
 				break
 			}
@@ -343,19 +367,19 @@ export async function presentAssistantMessage(cline: Task) {
 			if (!block.partial) {
 				// Use the detector to check for repetition, passing the ToolUse
 				// block directly.
-				const repetitionCheck = cline.toolRepetitionDetector.check(block)
+				const repetitionCheck = assista.toolRepetitionDetector.check(block)
 
 				// If execution is not allowed, notify user and break.
 				if (!repetitionCheck.allowExecution && repetitionCheck.askUser) {
 					// Handle repetition similar to mistake_limit_reached pattern.
-					const { response, text, images } = await cline.ask(
-						repetitionCheck.askUser.messageKey as ClineAsk,
+					const { response, text, images } = await assista.ask(
+						repetitionCheck.askUser.messageKey as AssistaAsk,
 						repetitionCheck.askUser.messageDetail.replace("{toolName}", block.name),
 					)
 
 					if (response === "messageResponse") {
 						// Add user feedback to userContent.
-						cline.userMessageContent.push(
+						assista.userMessageContent.push(
 							{
 								type: "text" as const,
 								text: `Tool repetition limit reached. User feedback: ${text}`,
@@ -364,10 +388,7 @@ export async function presentAssistantMessage(cline: Task) {
 						)
 
 						// Add user feedback to chat.
-						await cline.say("user_feedback", text, images)
-
-						// Track tool repetition in telemetry.
-						TelemetryService.instance.captureConsecutiveMistakeError(cline.taskId)
+						await assista.say("user_feedback", text, images)
 					}
 
 					// Return tool result message about the repetition
@@ -382,33 +403,57 @@ export async function presentAssistantMessage(cline: Task) {
 
 			switch (block.name) {
 				case "write_to_file":
-					await writeToFileTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await writeToFileTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
-				case "apply_diff":
-					await applyDiffTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+				case "apply_diff": {
+					// Get the provider and state to check experiment settings
+					const provider = assista.providerRef.deref()
+					let isMultiFileApplyDiffEnabled = false
+
+					if (provider) {
+						const state = await provider.getState()
+						isMultiFileApplyDiffEnabled = experiments.isEnabled(
+							state.experiments ?? {},
+							EXPERIMENT_IDS.MULTI_FILE_APPLY_DIFF,
+						)
+					}
+
+					if (isMultiFileApplyDiffEnabled) {
+						await applyDiffTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					} else {
+						await applyDiffToolLegacy(
+							assista,
+							block,
+							askApproval,
+							handleError,
+							pushToolResult,
+							removeClosingTag,
+						)
+					}
 					break
+				}
 				case "insert_content":
-					await insertContentTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await insertContentTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "search_and_replace":
-					await searchAndReplaceTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await searchAndReplaceTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "read_file":
-					await readFileTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await readFileTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 
 					break
 				case "fetch_instructions":
-					await fetchInstructionsTool(cline, block, askApproval, handleError, pushToolResult)
+					await fetchInstructionsTool(assista, block, askApproval, handleError, pushToolResult)
 					break
 				case "list_files":
-					await listFilesTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await listFilesTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "codebase_search":
-					await codebaseSearchTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await codebaseSearchTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "list_code_definition_names":
 					await listCodeDefinitionNamesTool(
-						cline,
+						assista,
 						block,
 						askApproval,
 						handleError,
@@ -417,20 +462,20 @@ export async function presentAssistantMessage(cline: Task) {
 					)
 					break
 				case "search_files":
-					await searchFilesTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await searchFilesTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "browser_action":
-					await browserActionTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await browserActionTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "execute_command":
-					await executeCommandTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await executeCommandTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "use_mcp_tool":
-					await useMcpToolTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await useMcpToolTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "access_mcp_resource":
 					await accessMcpResourceTool(
-						cline,
+						assista,
 						block,
 						askApproval,
 						handleError,
@@ -440,7 +485,7 @@ export async function presentAssistantMessage(cline: Task) {
 					break
 				case "ask_followup_question":
 					await askFollowupQuestionTool(
-						cline,
+						assista,
 						block,
 						askApproval,
 						handleError,
@@ -449,14 +494,14 @@ export async function presentAssistantMessage(cline: Task) {
 					)
 					break
 				case "switch_mode":
-					await switchModeTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await switchModeTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "new_task":
-					await newTaskTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
+					await newTaskTool(assista, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
 				case "attempt_completion":
 					await attemptCompletionTool(
-						cline,
+						assista,
 						block,
 						askApproval,
 						handleError,
@@ -471,12 +516,12 @@ export async function presentAssistantMessage(cline: Task) {
 			break
 	}
 
-	const recentlyModifiedFiles = cline.fileContextTracker.getAndClearCheckpointPossibleFile()
+	const recentlyModifiedFiles = assista.fileContextTracker.getAndClearCheckpointPossibleFile()
 
 	if (recentlyModifiedFiles.length > 0) {
 		// TODO: We can track what file changes were made and only
 		// checkpoint those files, this will be save storage.
-		await checkpointSave(cline)
+		await checkpointSave(assista)
 	}
 
 	// Seeing out of bounds is fine, it means that the next too call is being
@@ -486,18 +531,18 @@ export async function presentAssistantMessage(cline: Task) {
 	// was breaking when relpath was undefined, and for invalid relpath it never
 	// presented UI.
 	// This needs to be placed here, if not then calling
-	// cline.presentAssistantMessage below would fail (sometimes) since it's
+	// assista.presentAssistantMessage below would fail (sometimes) since it's
 	// locked.
-	cline.presentAssistantMessageLocked = false
+	assista.presentAssistantMessageLocked = false
 
 	// NOTE: When tool is rejected, iterator stream is interrupted and it waits
 	// for `userMessageContentReady` to be true. Future calls to present will
 	// skip execution since `didRejectTool` and iterate until `contentIndex` is
 	// set to message length and it sets userMessageContentReady to true itself
 	// (instead of preemptively doing it in iterator).
-	if (!block.partial || cline.didRejectTool || cline.didAlreadyUseTool) {
+	if (!block.partial || assista.didRejectTool || assista.didAlreadyUseTool) {
 		// Block is finished streaming and executing.
-		if (cline.currentStreamingContentIndex === cline.assistantMessageContent.length - 1) {
+		if (assista.currentStreamingContentIndex === assista.assistantMessageContent.length - 1) {
 			// It's okay that we increment if !didCompleteReadingStream, it'll
 			// just return because out of bounds and as streaming continues it
 			// will call `presentAssitantMessage` if a new block is ready. If
@@ -505,25 +550,25 @@ export async function presentAssistantMessage(cline: Task) {
 			// true when out of bounds. This gracefully allows the stream to
 			// continue on and all potential content blocks be presented.
 			// Last block is complete and it is finished executing
-			cline.userMessageContentReady = true // Will allow `pWaitFor` to continue.
+			assista.userMessageContentReady = true // Will allow `pWaitFor` to continue.
 		}
 
 		// Call next block if it exists (if not then read stream will call it
 		// when it's ready).
 		// Need to increment regardless, so when read stream calls this function
 		// again it will be streaming the next block.
-		cline.currentStreamingContentIndex++
+		assista.currentStreamingContentIndex++
 
-		if (cline.currentStreamingContentIndex < cline.assistantMessageContent.length) {
+		if (assista.currentStreamingContentIndex < assista.assistantMessageContent.length) {
 			// There are already more content blocks to stream, so we'll call
 			// this function ourselves.
-			presentAssistantMessage(cline)
+			presentAssistantMessage(assista)
 			return
 		}
 	}
 
 	// Block is partial, but the read stream may have finished.
-	if (cline.presentAssistantMessageHasPendingUpdates) {
-		presentAssistantMessage(cline)
+	if (assista.presentAssistantMessageHasPendingUpdates) {
+		presentAssistantMessage(assista)
 	}
 }

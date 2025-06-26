@@ -1,11 +1,11 @@
-name: Deploy roocode.com
+name: Deploy cybrosysassista.com
 
 on:
     push:
         branches:
             - main
         paths:
-            - 'apps/web-roo-code/**'
+            - 'apps/web-cybrosys-assista/**'
     workflow_dispatch:
 
 env:

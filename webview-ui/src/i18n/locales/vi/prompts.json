@@ -6,8 +6,8 @@
 		"createNewMode": "Tạo chế độ mới",
 		"editModesConfig": "Chỉnh sửa cấu hình chế độ",
 		"editGlobalModes": "Chỉnh sửa chế độ toàn cục",
-		"editProjectModes": "Chỉnh sửa chế độ dự án (.roomodes)",
-		"createModeHelpText": "Chế độ là các vai trò chuyên biệt điều chỉnh hành vi của Roo. <0>Tìm hiểu về Sử dụng Chế độ</0> hoặc <1>Tùy chỉnh Chế độ.</1>",
+		"editProjectModes": "Chỉnh sửa chế độ dự án (.assistamodes)",
+		"createModeHelpText": "Chế độ là các vai trò chuyên biệt điều chỉnh hành vi của Assista. <0>Tìm hiểu về Sử dụng Chế độ</0> hoặc <1>Tùy chỉnh Chế độ.</1>",
 		"selectMode": "Tìm kiếm chế độ"
 	},
 	"apiConfiguration": {
@@ -32,7 +32,7 @@
 	"roleDefinition": {
 		"title": "Định nghĩa vai trò",
 		"resetToDefault": "Đặt lại về mặc định",
-		"description": "Xác định chuyên môn và tính cách của Roo cho chế độ này. Mô tả này định hình cách Roo giới thiệu bản thân và tiếp cận nhiệm vụ."
+		"description": "Xác định chuyên môn và tính cách của Assista cho chế độ này. Mô tả này định hình cách Assista giới thiệu bản thân và tiếp cận nhiệm vụ."
 	},
 	"whenToUse": {
 		"title": "Khi nào nên sử dụng (tùy chọn)",
@@ -43,12 +43,12 @@
 		"title": "Hướng dẫn tùy chỉnh dành riêng cho chế độ (tùy chọn)",
 		"resetToDefault": "Đặt lại về mặc định",
 		"description": "Thêm hướng dẫn hành vi dành riêng cho chế độ {{modeName}}.",
-		"loadFromFile": "Hướng dẫn tùy chỉnh dành riêng cho chế độ {{mode}} cũng có thể được tải từ thư mục <span>.roo/rules-{{slug}}/</span> trong không gian làm việc của bạn (.roorules-{{slug}} và .clinerules-{{slug}} đã lỗi thời và sẽ sớm ngừng hoạt động)."
+		"loadFromFile": "Hướng dẫn tùy chỉnh dành riêng cho chế độ {{mode}} cũng có thể được tải từ thư mục <span>.assista/rules-{{slug}}/</span> trong không gian làm việc của bạn (.assistarules-{{slug}} và .assistarules-{{slug}} đã lỗi thời và sẽ sớm ngừng hoạt động)."
 	},
 	"globalCustomInstructions": {
 		"title": "Hướng dẫn tùy chỉnh cho tất cả các chế độ",
 		"description": "Những hướng dẫn này áp dụng cho tất cả các chế độ. Chúng cung cấp một bộ hành vi cơ bản có thể được nâng cao bởi hướng dẫn dành riêng cho chế độ bên dưới. <0>Tìm hiểu thêm</0>",
-		"loadFromFile": "Hướng dẫn cũng có thể được tải từ thư mục <span>.roo/rules/</span> trong không gian làm việc của bạn (.roorules và .clinerules đã lỗi thời và sẽ sớm ngừng hoạt động)."
+		"loadFromFile": "Hướng dẫn cũng có thể được tải từ thư mục <span>.assista/rules/</span> trong không gian làm việc của bạn (.assistarules và .assistarules đã lỗi thời và sẽ sớm ngừng hoạt động)."
 	},
 	"systemPrompt": {
 		"preview": "Xem trước lời nhắc hệ thống",
@@ -70,7 +70,7 @@
 		"types": {
 			"ENHANCE": {
 				"label": "Nâng cao lời nhắc",
-				"description": "Sử dụng nâng cao lời nhắc để nhận đề xuất hoặc cải tiến phù hợp cho đầu vào của bạn. Điều này đảm bảo Roo hiểu ý định của bạn và cung cấp phản hồi tốt nhất có thể. Có sẵn thông qua biểu tượng ✨ trong chat."
+				"description": "Sử dụng nâng cao lời nhắc để nhận đề xuất hoặc cải tiến phù hợp cho đầu vào của bạn. Điều này đảm bảo Assista hiểu ý định của bạn và cung cấp phản hồi tốt nhất có thể. Có sẵn thông qua biểu tượng ✨ trong chat."
 			},
 			"EXPLAIN": {
 				"label": "Giải thích mã",
@@ -108,7 +108,7 @@
 	},
 	"advancedSystemPrompt": {
 		"title": "Nâng cao: Ghi đè lời nhắc hệ thống",
-		"description": "<2>⚠️ Cảnh báo:</2> Tính năng nâng cao này bỏ qua các biện pháp bảo vệ. <1>ĐỌC KỸ TRƯỚC KHI SỬ DỤNG!</1>Ghi đè lời nhắc hệ thống mặc định bằng cách tạo một tệp tại <span>.roo/system-prompt-{{slug}}</span>."
+		"description": "<2>⚠️ Cảnh báo:</2> Tính năng nâng cao này bỏ qua các biện pháp bảo vệ. <1>ĐỌC KỸ TRƯỚC KHI SỬ DỤNG!</1>Ghi đè lời nhắc hệ thống mặc định bằng cách tạo một tệp tại <span>.assista/system-prompt-{{slug}}</span>."
 	},
 	"createModeDialog": {
 		"title": "Tạo chế độ mới",
@@ -129,13 +129,13 @@
 				"description": "Có sẵn trong tất cả các không gian làm việc"
 			},
 			"project": {
-				"label": "Dành riêng cho dự án (.roomodes)",
+				"label": "Dành riêng cho dự án (.assistamodes)",
 				"description": "Chỉ có sẵn trong không gian làm việc này, được ưu tiên hơn toàn cục"
 			}
 		},
 		"roleDefinition": {
 			"label": "Định nghĩa vai trò",
-			"description": "Xác định chuyên môn và tính cách của Roo cho chế độ này."
+			"description": "Xác định chuyên môn và tính cách của Assista cho chế độ này."
 		},
 		"whenToUse": {
 			"label": "Khi nào nên sử dụng (tùy chọn)",

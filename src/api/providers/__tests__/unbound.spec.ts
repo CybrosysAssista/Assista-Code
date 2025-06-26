@@ -1,6 +1,5 @@
 // npx vitest run src/api/providers/__tests__/unbound.spec.ts
 
-import { vitest, describe, it, expect, beforeEach } from "vitest"
 import { Anthropic } from "@anthropic-ai/sdk"
 
 import { ApiHandlerOptions } from "../../../shared/api"
@@ -193,7 +192,7 @@ describe("UnboundHandler", () => {
 
 				expect.objectContaining({
 					headers: {
-						"X-Unbound-Metadata": expect.stringContaining("roo-code"),
+						"X-Unbound-Metadata": expect.stringContaining("cybrosys-assista"),
 					},
 				}),
 			)
@@ -234,7 +233,7 @@ describe("UnboundHandler", () => {
 				}),
 				expect.objectContaining({
 					headers: expect.objectContaining({
-						"X-Unbound-Metadata": expect.stringContaining("roo-code"),
+						"X-Unbound-Metadata": expect.stringContaining("cybrosys-assista"),
 					}),
 				}),
 			)
@@ -270,7 +269,7 @@ describe("UnboundHandler", () => {
 				}),
 				expect.objectContaining({
 					headers: expect.objectContaining({
-						"X-Unbound-Metadata": expect.stringContaining("roo-code"),
+						"X-Unbound-Metadata": expect.stringContaining("cybrosys-assista"),
 					}),
 				}),
 			)
@@ -296,7 +295,7 @@ describe("UnboundHandler", () => {
 				}),
 				expect.objectContaining({
 					headers: expect.objectContaining({
-						"X-Unbound-Metadata": expect.stringContaining("roo-code"),
+						"X-Unbound-Metadata": expect.stringContaining("cybrosys-assista"),
 					}),
 				}),
 			)

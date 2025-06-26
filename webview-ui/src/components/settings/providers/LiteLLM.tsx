@@ -1,10 +1,10 @@
 import { useCallback, useState, useEffect, useRef } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type ProviderSettings, type OrganizationAllowList, litellmDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, litellmDefaultModelId } from "@cybrosys-assista/types"
 
-import { RouterName } from "@roo/api"
-import { ExtensionMessage } from "@roo/ExtensionMessage"
+import { RouterName } from "@assista/api"
+import { ExtensionMessage } from "@assista/ExtensionMessage"
 
 import { vscode } from "@src/utils/vscode"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
@@ -18,9 +18,15 @@ type LiteLLMProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
 	organizationAllowList: OrganizationAllowList
+	modelValidationError?: string
 }
 
-export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, organizationAllowList }: LiteLLMProps) => {
+export const LiteLLM = ({
+	apiConfiguration,
+	setApiConfigurationField,
+	organizationAllowList,
+	modelValidationError,
+}: LiteLLMProps) => {
 	const { t } = useAppTranslation()
 	const { routerModels } = useExtensionState()
 	const [refreshStatus, setRefreshStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
@@ -143,6 +149,7 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, organizati
 				serviceUrl="https://docs.litellm.ai/"
 				setApiConfigurationField={setApiConfigurationField}
 				organizationAllowList={organizationAllowList}
+				errorMessage={modelValidationError}
 			/>
 		</>
 	)

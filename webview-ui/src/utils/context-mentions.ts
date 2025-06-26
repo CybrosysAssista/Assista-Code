@@ -1,8 +1,8 @@
 import { Fzf } from "fzf"
 
-import type { ModeConfig } from "@roo-code/types"
+import type { ModeConfig } from "@cybrosys-assista/types"
 
-import { mentionRegex } from "@roo/context-mentions"
+import { mentionRegex } from "@assista/context-mentions"
 
 import { escapeSpaces } from "./path-mentions"
 

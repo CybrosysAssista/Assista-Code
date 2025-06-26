@@ -10,18 +10,17 @@ import {
 	type GlobalSettings,
 	type SecretState,
 	type GlobalState,
-	type RooCodeSettings,
+	type CybrosysAssistaSettings,
 	providerSettingsSchema,
 	globalSettingsSchema,
 	isSecretStateKey,
-} from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+} from "@cybrosys-assista/types"
 
 import { logger } from "../../utils/logging"
 
 type GlobalStateKey = keyof GlobalState
 type SecretStateKey = keyof SecretState
-type RooCodeSettingsKey = keyof RooCodeSettings
+type CybrosysAssistaSettingsKey = keyof CybrosysAssistaSettings
 
 const PASS_THROUGH_STATE_KEYS = ["taskHistory"]
 
@@ -161,10 +160,6 @@ export class ContextProxy {
 		try {
 			return globalSettingsSchema.parse(values)
 		} catch (error) {
-			if (error instanceof ZodError) {
-				TelemetryService.instance.captureSchemaValidationError({ schemaName: "GlobalSettings", error })
-			}
-
 			return GLOBAL_SETTINGS_KEYS.reduce((acc, key) => ({ ...acc, [key]: values[key] }), {} as GlobalSettings)
 		}
 	}
@@ -179,10 +174,6 @@ export class ContextProxy {
 		try {
 			return providerSettingsSchema.parse(values)
 		} catch (error) {
-			if (error instanceof ZodError) {
-				TelemetryService.instance.captureSchemaValidationError({ schemaName: "ProviderSettings", error })
-			}
-
 			return PROVIDER_SETTINGS_KEYS.reduce((acc, key) => ({ ...acc, [key]: values[key] }), {} as ProviderSettings)
 		}
 	}
@@ -212,25 +203,25 @@ export class ContextProxy {
 	}
 
 	/**
-	 * RooCodeSettings
+	 * CybrosysAssistaSettings
 	 */
 
-	public setValue<K extends RooCodeSettingsKey>(key: K, value: RooCodeSettings[K]) {
+	public setValue<K extends CybrosysAssistaSettingsKey>(key: K, value: CybrosysAssistaSettings[K]) {
 		return isSecretStateKey(key) ? this.storeSecret(key, value as string) : this.updateGlobalState(key, value)
 	}
 
-	public getValue<K extends RooCodeSettingsKey>(key: K): RooCodeSettings[K] {
+	public getValue<K extends CybrosysAssistaSettingsKey>(key: K): CybrosysAssistaSettings[K] {
 		return isSecretStateKey(key)
-			? (this.getSecret(key) as RooCodeSettings[K])
-			: (this.getGlobalState(key) as RooCodeSettings[K])
+			? (this.getSecret(key) as CybrosysAssistaSettings[K])
+			: (this.getGlobalState(key) as CybrosysAssistaSettings[K])
 	}
 
-	public getValues(): RooCodeSettings {
+	public getValues(): CybrosysAssistaSettings {
 		return { ...this.getAllGlobalState(), ...this.getAllSecretState() }
 	}
 
-	public async setValues(values: RooCodeSettings) {
-		const entries = Object.entries(values) as [RooCodeSettingsKey, unknown][]
+	public async setValues(values: CybrosysAssistaSettings) {
+		const entries = Object.entries(values) as [CybrosysAssistaSettingsKey, unknown][]
 		await Promise.all(entries.map(([key, value]) => this.setValue(key, value)))
 	}
 
@@ -242,15 +233,11 @@ export class ContextProxy {
 		try {
 			const globalSettings = globalSettingsExportSchema.parse(this.getValues())
 
-			// Exports should only contain global settings, so this skips project custom modes (those exist in the .roomode folder)
+			// Exports should only contain global settings, so this skips project custom modes (those exist in the .assistamode folder)
 			globalSettings.customModes = globalSettings.customModes?.filter((mode) => mode.source === "global")
 
 			return Object.fromEntries(Object.entries(globalSettings).filter(([_, value]) => value !== undefined))
 		} catch (error) {
-			if (error instanceof ZodError) {
-				TelemetryService.instance.captureSchemaValidationError({ schemaName: "GlobalSettings", error })
-			}
-
 			return undefined
 		}
 	}

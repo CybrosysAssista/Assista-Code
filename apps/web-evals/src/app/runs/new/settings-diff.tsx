@@ -1,14 +1,14 @@
 import { Fragment, HTMLAttributes } from "react"
 
-import { type Keys, type RooCodeSettings, GLOBAL_SETTINGS_KEYS, PROVIDER_SETTINGS_KEYS } from "@roo-code/types"
+import { type Keys, type CybrosysAssistaSettings, GLOBAL_SETTINGS_KEYS, PROVIDER_SETTINGS_KEYS } from "@cybrosys-assista/types"
 
 import { cn } from "@/lib/utils"
 
-export const ROO_CODE_SETTINGS_KEYS = [...GLOBAL_SETTINGS_KEYS, ...PROVIDER_SETTINGS_KEYS] as Keys<RooCodeSettings>[]
+export const CYBROSYS_ASSISTA_SETTINGS_KEYS = [...GLOBAL_SETTINGS_KEYS, ...PROVIDER_SETTINGS_KEYS] as Keys<CybrosysAssistaSettings>[]
 
 type SettingsDiffProps = HTMLAttributes<HTMLDivElement> & {
-	defaultSettings: RooCodeSettings
-	customSettings: RooCodeSettings
+	defaultSettings: CybrosysAssistaSettings
+	customSettings: CybrosysAssistaSettings
 }
 
 export function SettingsDiff({
@@ -25,7 +25,7 @@ export function SettingsDiff({
 			<div className="font-medium text-muted-foreground">Setting</div>
 			<div className="font-medium text-muted-foreground">Default</div>
 			<div className="font-medium text-muted-foreground">Custom</div>
-			{ROO_CODE_SETTINGS_KEYS.map((key) => {
+			{CYBROSYS_ASSISTA_SETTINGS_KEYS.map((key) => {
 				const defaultValue = defaults[key as keyof typeof defaults]
 				const customValue = custom[key as keyof typeof custom]
 				const isDefault = JSON.stringify(defaultValue) === JSON.stringify(customValue)

@@ -1,7 +1,7 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 
-import { unboundDefaultModelId, unboundDefaultModelInfo } from "@roo-code/types"
+import { unboundDefaultModelId, unboundDefaultModelInfo } from "@cybrosys-assista/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 
@@ -9,14 +9,15 @@ import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
 import { convertToOpenAiMessages } from "../transform/openai-format"
 import { addCacheBreakpoints as addAnthropicCacheBreakpoints } from "../transform/caching/anthropic"
 import { addCacheBreakpoints as addGeminiCacheBreakpoints } from "../transform/caching/gemini"
+import { addCacheBreakpoints as addVertexCacheBreakpoints } from "../transform/caching/vertex"
 
 import type { SingleCompletionHandler, ApiHandlerCreateMessageMetadata } from "../index"
 import { RouterProvider } from "./router-provider"
 
-const ORIGIN_APP = "roo-code"
+const ORIGIN_APP = "cybrosys-assista"
 
 const DEFAULT_HEADERS = {
-	"X-Unbound-Metadata": JSON.stringify({ labels: [{ key: "app", value: "roo-code" }] }),
+	"X-Unbound-Metadata": JSON.stringify({ labels: [{ key: "app", value: "cybrosys-assista" }] }),
 }
 
 interface UnboundUsage extends OpenAI.CompletionUsage {
@@ -69,6 +70,10 @@ export class UnboundHandler extends RouterProvider implements SingleCompletionHa
 			} else if (modelId.startsWith("anthropic/")) {
 				addAnthropicCacheBreakpoints(systemPrompt, openAiMessages)
 			}
+		}
+		// Custom models from Vertex AI (no configuration) need to be handled differently.
+		if (modelId.startsWith("vertex-ai/google.") || modelId.startsWith("vertex-ai/anthropic.")) {
+			addVertexCacheBreakpoints(messages)
 		}
 
 		// Required by Anthropic; other providers default to max tokens allowed.

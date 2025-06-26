@@ -1,24 +1,24 @@
 {
-	"name": "@roo-code/types",
-	"version": "1.25.0",
-	"description": "TypeScript type definitions for Roo Code.",
+	"name": "@cybrosys-assista/types",
+	"version": "1.28.0",
+	"description": "TypeScript type definitions for Cybrosys Assista.",
 	"publishConfig": {
 		"access": "public",
-		"name": "@roo-code/types"
+		"name": "@cybrosys-assista/types"
 	},
-	"author": "Roo Code Team",
+	"author": "Cybrosys Assista Team",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/RooCodeInc/Roo-Code.git"
+		"url": "git+https://github.com/CybrosysAssistaInc/Cybrosys-Assista.git"
 	},
 	"bugs": {
-		"url": "https://github.com/RooCodeInc/Roo-Code/issues"
+		"url": "https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues"
 	},
-	"homepage": "https://github.com/RooCodeInc/Roo-Code/tree/main/packages/types",
+	"homepage": "https://github.com/CybrosysAssistaInc/Cybrosys-Assista/tree/main/packages/types",
 	"keywords": [
-		"roo",
-		"roo-code",
+		"assista",
+		"cybrosys-assista",
 		"ai"
 	],
 	"main": "./dist/index.cjs",

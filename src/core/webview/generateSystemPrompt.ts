@@ -1,13 +1,15 @@
 import { WebviewMessage } from "../../shared/WebviewMessage"
 import { defaultModeSlug, getModeBySlug, getGroupName } from "../../shared/modes"
 import { buildApiHandler } from "../../api"
+import { experiments as experimentsModule, EXPERIMENT_IDS } from "../../shared/experiments"
 
 import { SYSTEM_PROMPT } from "../prompts/system"
 import { MultiSearchReplaceDiffStrategy } from "../diff/strategies/multi-search-replace"
+import { MultiFileSearchReplaceDiffStrategy } from "../diff/strategies/multi-file-search-replace"
 
-import { ClineProvider } from "./ClineProvider"
+import { AssistaProvider } from "./AssistaProvider"
 
-export const generateSystemPrompt = async (provider: ClineProvider, message: WebviewMessage) => {
+export const generateSystemPrompt = async (provider: AssistaProvider, message: WebviewMessage) => {
 	const {
 		apiConfiguration,
 		customModePrompts,
@@ -24,20 +26,28 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 		maxConcurrentFileReads,
 	} = await provider.getState()
 
-	const diffStrategy = new MultiSearchReplaceDiffStrategy(fuzzyMatchThreshold)
+	// Check experiment to determine which diff strategy to use
+	const isMultiFileApplyDiffEnabled = experimentsModule.isEnabled(
+		experiments ?? {},
+		EXPERIMENT_IDS.MULTI_FILE_APPLY_DIFF,
+	)
+
+	const diffStrategy = isMultiFileApplyDiffEnabled
+		? new MultiFileSearchReplaceDiffStrategy(fuzzyMatchThreshold)
+		: new MultiSearchReplaceDiffStrategy(fuzzyMatchThreshold)
 
 	const cwd = provider.cwd
 
 	const mode = message.mode ?? defaultModeSlug
 	const customModes = await provider.customModesManager.getCustomModes()
 
-	const rooIgnoreInstructions = provider.getCurrentCline()?.rooIgnoreController?.getInstructions()
+	const assistaIgnoreInstructions = provider.getCurrentAssista()?.assistaIgnoreController?.getInstructions()
 
 	// Determine if browser tools can be used based on model support, mode, and user settings
 	let modelSupportsComputerUse = false
 
 	// Create a temporary API handler to check if the model supports computer use
-	// This avoids relying on an active Cline instance which might not exist during preview
+	// This avoids relying on an active Assista instance which might not exist during preview
 	try {
 		const tempApiHandler = buildApiHandler(apiConfiguration)
 		modelSupportsComputerUse = tempApiHandler.getModel().info.supportsComputerUse ?? false
@@ -68,7 +78,7 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 		experiments,
 		enableMcpServerCreation,
 		language,
-		rooIgnoreInstructions,
+		assistaIgnoreInstructions,
 		maxReadFileLine !== -1,
 		{
 			maxConcurrentFileReads,

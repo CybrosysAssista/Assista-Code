@@ -201,7 +201,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 
 					<AutoApproveToggle {...toggles} onToggle={onAutoApproveToggle} />
 
-					{/* Auto-approve API request count limit input row inspired by Cline */}
+					{/* Auto-approve API request count limit input row inspired by Assista */}
 					<div
 						style={{
 							display: "flex",

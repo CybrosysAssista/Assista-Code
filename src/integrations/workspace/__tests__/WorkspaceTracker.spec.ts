@@ -1,7 +1,7 @@
-import { vitest, describe, it, expect, beforeEach, type Mock } from "vitest"
+import type { Mock } from "vitest"
 import * as vscode from "vscode"
 import WorkspaceTracker from "../WorkspaceTracker"
-import { ClineProvider } from "../../../core/webview/ClineProvider"
+import { AssistaProvider } from "../../../core/webview/AssistaProvider"
 import { listFiles } from "../../../services/glob/list-files"
 import { getWorkspacePath } from "../../../utils/path"
 
@@ -67,7 +67,7 @@ vitest.mock("../../../services/glob/list-files", () => ({
 
 describe("WorkspaceTracker", () => {
 	let workspaceTracker: WorkspaceTracker
-	let mockProvider: ClineProvider
+	let mockProvider: AssistaProvider
 
 	beforeEach(() => {
 		vitest.clearAllMocks()
@@ -82,7 +82,7 @@ describe("WorkspaceTracker", () => {
 		// Create provider mock
 		mockProvider = {
 			postMessageToWebview: vitest.fn().mockResolvedValue(undefined),
-		} as unknown as ClineProvider & { postMessageToWebview: Mock }
+		} as unknown as AssistaProvider & { postMessageToWebview: Mock }
 
 		// Create tracker instance
 		workspaceTracker = new WorkspaceTracker(mockProvider)

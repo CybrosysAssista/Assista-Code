@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • <b>हिंदी</b> • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • <b>हिंदी</b> • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # योगदानकर्ता संधि आचार संहिता
 
@@ -57,7 +66,7 @@
 ## प्रवर्तन
 
 दुर्व्यवहार, उत्पीड़न, या अन्यथा अस्वीकार्य व्यवहार के उदाहरणों की
-रिपोर्ट support@roocode.com पर प्रोजेक्ट टीम से संपर्क करके की जा सकती है। सभी शिकायतें
+रिपोर्ट support@cybrosysassista.com पर प्रोजेक्ट टीम से संपर्क करके की जा सकती है। सभी शिकायतें
 समीक्षा की जाएंगी और जांच की जाएगी और इसके परिणामस्वरूप एक प्रतिक्रिया होगी जो
 परिस्थितियों के अनुसार आवश्यक और उचित मानी जाती है। प्रोजेक्ट टीम
 एक घटना के रिपोर्टर के संबंध में गोपनीयता बनाए रखने के लिए बाध्य है।
@@ -69,10 +78,10 @@
 
 ## श्रेय
 
-यह आचार संहिता [Cline के संस्करण][cline_coc] से अनुकूलित है [योगदानकर्ता संधि][homepage], संस्करण 1.4,
+यह आचार संहिता [Assista के संस्करण][assista_coc] से अनुकूलित है [योगदानकर्ता संधि][homepage], संस्करण 1.4,
 जो यहां उपलब्ध है https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 इस आचार संहिता के बारे में आम सवालों के जवाब के लिए, देखें

@@ -6,7 +6,7 @@ import { formatResponse } from "../prompts/responses"
 import { defaultModeSlug, getModeBySlug } from "../../shared/modes"
 
 export async function switchModeTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -24,32 +24,32 @@ export async function switchModeTool(
 				reason: removeClosingTag("reason", reason),
 			})
 
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+			await assista.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
 			if (!mode_slug) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("switch_mode")
-				pushToolResult(await cline.sayAndCreateMissingParamError("switch_mode", "mode_slug"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("switch_mode")
+				pushToolResult(await assista.sayAndCreateMissingParamError("switch_mode", "mode_slug"))
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
 
 			// Verify the mode exists
-			const targetMode = getModeBySlug(mode_slug, (await cline.providerRef.deref()?.getState())?.customModes)
+			const targetMode = getModeBySlug(mode_slug, (await assista.providerRef.deref()?.getState())?.customModes)
 
 			if (!targetMode) {
-				cline.recordToolError("switch_mode")
+				assista.recordToolError("switch_mode")
 				pushToolResult(formatResponse.toolError(`Invalid mode: ${mode_slug}`))
 				return
 			}
 
 			// Check if already in requested mode
-			const currentMode = (await cline.providerRef.deref()?.getState())?.mode ?? defaultModeSlug
+			const currentMode = (await assista.providerRef.deref()?.getState())?.mode ?? defaultModeSlug
 
 			if (currentMode === mode_slug) {
-				cline.recordToolError("switch_mode")
+				assista.recordToolError("switch_mode")
 				pushToolResult(`Already in ${targetMode.name} mode.`)
 				return
 			}
@@ -62,7 +62,7 @@ export async function switchModeTool(
 			}
 
 			// Switch the mode using shared handler
-			await cline.providerRef.deref()?.handleModeSwitch(mode_slug)
+			await assista.providerRef.deref()?.handleModeSwitch(mode_slug)
 
 			pushToolResult(
 				`Successfully switched from ${getModeBySlug(currentMode)?.name ?? currentMode} mode to ${

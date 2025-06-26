@@ -1,9 +1,7 @@
-import type { AssertEqual, Equals, Keys, Values, ExperimentId } from "@roo-code/types"
+import type { AssertEqual, Equals, Keys, Values, ExperimentId, Experiments } from "@cybrosys-assista/types"
 
 export const EXPERIMENT_IDS = {
-	MARKETPLACE: "marketplace",
-	CONCURRENT_FILE_READS: "concurrentFileReads",
-	DISABLE_COMPLETION_COMMAND: "disableCompletionCommand",
+	MULTI_FILE_APPLY_DIFF: "multiFileApplyDiff",
 	POWER_STEERING: "powerSteering",
 } as const satisfies Record<string, ExperimentId>
 
@@ -16,9 +14,7 @@ interface ExperimentConfig {
 }
 
 export const experimentConfigsMap: Record<ExperimentKey, ExperimentConfig> = {
-	MARKETPLACE: { enabled: false },
-	CONCURRENT_FILE_READS: { enabled: false },
-	DISABLE_COMPLETION_COMMAND: { enabled: false },
+	MULTI_FILE_APPLY_DIFF: { enabled: false },
 	POWER_STEERING: { enabled: false },
 }
 
@@ -31,6 +27,5 @@ export const experimentDefault = Object.fromEntries(
 
 export const experiments = {
 	get: (id: ExperimentKey): ExperimentConfig | undefined => experimentConfigsMap[id],
-	isEnabled: (experimentsConfig: Record<ExperimentId, boolean>, id: ExperimentId) =>
-		experimentsConfig[id] ?? experimentDefault[id],
+	isEnabled: (experimentsConfig: Experiments, id: ExperimentId) => experimentsConfig[id] ?? experimentDefault[id],
 } as const

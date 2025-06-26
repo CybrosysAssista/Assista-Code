@@ -1,8 +1,11 @@
 import * as assert from "assert"
 
 import { waitUntilCompleted } from "./utils"
+import { setDefaultSuiteTimeout } from "./test-utils"
 
-suite("Roo Code Modes", () => {
+suite("Cybrosys Assista Modes", function () {
+	setDefaultSuiteTimeout(this)
+
 	test("Should handle switching modes correctly", async () => {
 		const modes: string[] = []
 

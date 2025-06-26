@@ -1,14 +1,17 @@
 import * as assert from "assert"
 
-import type { ClineMessage } from "@roo-code/types"
+import type { AssistaMessage } from "@cybrosys-assista/types"
 
 import { waitUntilCompleted } from "./utils"
+import { setDefaultSuiteTimeout } from "./test-utils"
 
-suite("Roo Code Task", () => {
+suite("Cybrosys Assista Task", function () {
+	setDefaultSuiteTimeout(this)
+
 	test("Should handle prompt and response correctly", async () => {
 		const api = globalThis.api
 
-		const messages: ClineMessage[] = []
+		const messages: AssistaMessage[] = []
 
 		api.on("message", ({ message }) => {
 			if (message.type === "say" && message.partial === false) {
@@ -25,9 +28,9 @@ suite("Roo Code Task", () => {
 
 		assert.ok(
 			!!messages.find(
-				({ say, text }) => (say === "completion_result" || say === "text") && text?.includes("My name is Roo"),
+				({ say, text }) => (say === "completion_result" || say === "text") && text?.includes("My name is Assista"),
 			),
-			`Completion should include "My name is Roo"`,
+			`Completion should include "My name is Assista"`,
 		)
 	})
 })

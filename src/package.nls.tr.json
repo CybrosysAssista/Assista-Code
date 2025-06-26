@@ -1,5 +1,5 @@
 {
-	"extension.displayName": "Cybrosys Assista (önceden Roo Cline)",
+	"extension.displayName": "Cybrosys Assista",
 	"extension.description": "Düzenleyicinde tam bir AI ajanları geliştirme ekibi.",
 	"command.newTask.title": "Yeni Görev",
 	"command.explainCode.title": "Kodu Açıkla",
@@ -29,6 +29,7 @@
 	"settings.vsCodeLmModelSelector.description": "VSCode dil modeli API'si için ayarlar",
 	"settings.vsCodeLmModelSelector.vendor.description": "Dil modelinin sağlayıcısı (örn: copilot)",
 	"settings.vsCodeLmModelSelector.family.description": "Dil modelinin ailesi (örn: gpt-4)",
-	"settings.customStoragePath.description": "Özel depolama yolu. Varsayılan konumu kullanmak için boş bırakın. Mutlak yolları destekler (örn: 'D:\\RooCodeStorage')",
-	"settings.rooCodeCloudEnabled.description": "Cybrosys Assista Cloud'u Etkinleştir."
+	"settings.customStoragePath.description": "Özel depolama yolu. Varsayılan konumu kullanmak için boş bırakın. Mutlak yolları destekler (örn: 'D:\\CybrosysAssistaStorage')",
+	"settings.cybrosysAssistaCloudEnabled.description": "Cybrosys Assista Cloud'u Etkinleştir.",
+	"settings.enableCodeActions.description": "Cybrosys Assista hızlı düzeltmeleri etkinleştir."
 }

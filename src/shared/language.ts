@@ -1,4 +1,4 @@
-import { type Language, isLanguage } from "@roo-code/types"
+import { type Language, isLanguage } from "@cybrosys-assista/types"
 
 /**
  * Language name mapping from ISO codes to full language names.
@@ -11,6 +11,7 @@ export const LANGUAGES: Record<Language, string> = {
 	es: "Español",
 	fr: "Français",
 	hi: "हिन्दी",
+	id: "Bahasa Indonesia",
 	it: "Italiano",
 	ja: "日本語",
 	ko: "한국어",

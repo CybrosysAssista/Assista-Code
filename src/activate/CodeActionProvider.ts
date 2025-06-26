@@ -1,16 +1,17 @@
 import * as vscode from "vscode"
 
-import { CodeActionName, CodeActionId } from "@roo-code/types"
+import { CodeActionName, CodeActionId } from "@cybrosys-assista/types"
+import { Package } from "../shared/package"
 
 import { getCodeActionCommand } from "../utils/commands"
 import { EditorUtils } from "../integrations/editor/EditorUtils"
 
 export const TITLES: Record<CodeActionName, string> = {
-	EXPLAIN: "Explain with Roo Code",
-	FIX: "Fix with Roo Code",
-	IMPROVE: "Improve with Roo Code",
-	ADD_TO_CONTEXT: "Add to Roo Code",
-	NEW_TASK: "New Roo Code Task",
+	EXPLAIN: "Explain with Cybrosys Assista",
+	FIX: "Fix with Cybrosys Assista",
+	IMPROVE: "Improve with Cybrosys Assista",
+	ADD_TO_CONTEXT: "Add to Cybrosys Assista",
+	NEW_TASK: "New Cybrosys Assista Task",
 } as const
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
@@ -36,6 +37,10 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 		context: vscode.CodeActionContext,
 	): vscode.ProviderResult<(vscode.CodeAction | vscode.Command)[]> {
 		try {
+			if (!vscode.workspace.getConfiguration(Package.name).get<boolean>("enableCodeActions", true)) {
+				return []
+			}
+
 			const effectiveRange = EditorUtils.getEffectiveRange(document, range)
 
 			if (!effectiveRange) {

@@ -1,6 +1,6 @@
 import { listFiles } from "../../glob/list-files"
 import { Ignore } from "ignore"
-import { RooIgnoreController } from "../../../core/ignore/RooIgnoreController"
+import { AssistaIgnoreController } from "../../../core/ignore/AssistaIgnoreController"
 import { stat } from "fs/promises"
 import * as path from "path"
 import { generateNormalizedAbsolutePath, generateRelativeFilePath } from "../shared/get-relative-path"
@@ -12,6 +12,7 @@ import { v5 as uuidv5 } from "uuid"
 import pLimit from "p-limit"
 import { Mutex } from "async-mutex"
 import { CacheManager } from "../cache-manager"
+import { t } from "../../../i18n"
 import {
 	QDRANT_CODE_BLOCK_NAMESPACE,
 	MAX_FILE_SIZE_BYTES,
@@ -22,6 +23,7 @@ import {
 	PARSING_CONCURRENCY,
 	BATCH_PROCESSING_CONCURRENCY,
 } from "../constants"
+import { isPathInIgnoredDirectory } from "../../glob/ignore-utils"
 
 export class DirectoryScanner implements IDirectoryScanner {
 	constructor(
@@ -35,7 +37,7 @@ export class DirectoryScanner implements IDirectoryScanner {
 	/**
 	 * Recursively scans a directory for code blocks in supported files.
 	 * @param directoryPath The directory to scan
-	 * @param rooIgnoreController Optional RooIgnoreController instance for filtering
+	 * @param assistaIgnoreController Optional AssistaIgnoreController instance for filtering
 	 * @param context VS Code ExtensionContext for cache storage
 	 * @param onError Optional error handler callback
 	 * @returns Promise<{codeBlocks: CodeBlock[], stats: {processed: number, skipped: number}}> Array of parsed code blocks and processing stats
@@ -53,18 +55,24 @@ export class DirectoryScanner implements IDirectoryScanner {
 		// Filter out directories (marked with trailing '/')
 		const filePaths = allPaths.filter((p) => !p.endsWith("/"))
 
-		// Initialize RooIgnoreController if not provided
-		const ignoreController = new RooIgnoreController(directoryPath)
+		// Initialize AssistaIgnoreController if not provided
+		const ignoreController = new AssistaIgnoreController(directoryPath)
 
 		await ignoreController.initialize()
 
-		// Filter paths using .rooignore
+		// Filter paths using .assistaignore
 		const allowedPaths = ignoreController.filterPaths(filePaths)
 
-		// Filter by supported extensions and ignore patterns
+		// Filter by supported extensions, ignore patterns, and excluded directories
 		const supportedPaths = allowedPaths.filter((filePath) => {
 			const ext = path.extname(filePath).toLowerCase()
 			const relativeFilePath = generateRelativeFilePath(filePath)
+
+			// Check if file is in an ignored directory using the shared helper
+			if (isPathInIgnoredDirectory(filePath)) {
+				return false
+			}
+
 			return scannerExtensions.includes(ext) && !this.ignoreInstance.ignores(relativeFilePath)
 		})
 
@@ -179,7 +187,11 @@ export class DirectoryScanner implements IDirectoryScanner {
 				} catch (error) {
 					console.error(`Error processing file ${filePath}:`, error)
 					if (onError) {
-						onError(error instanceof Error ? error : new Error(`Unknown error processing file ${filePath}`))
+						onError(
+							error instanceof Error
+								? error
+								: new Error(t("embeddings:scanner.unknownErrorProcessingFile", { filePath })),
+						)
 					}
 				}
 			}),
@@ -228,7 +240,11 @@ export class DirectoryScanner implements IDirectoryScanner {
 							onError(
 								error instanceof Error
 									? error
-									: new Error(`Unknown error deleting points for ${cachedFilePath}`),
+									: new Error(
+											t("embeddings:scanner.unknownErrorDeletingPoints", {
+												filePath: cachedFilePath,
+											}),
+										),
 							)
 						}
 						// Decide if we should re-throw or just log
@@ -330,7 +346,18 @@ export class DirectoryScanner implements IDirectoryScanner {
 		if (!success && lastError) {
 			console.error(`[DirectoryScanner] Failed to process batch after ${MAX_BATCH_RETRIES} attempts`)
 			if (onError) {
-				onError(new Error(`Failed to process batch after ${MAX_BATCH_RETRIES} attempts: ${lastError.message}`))
+				// Preserve the original error message from embedders which now have detailed i18n messages
+				const errorMessage = lastError.message || "Unknown error"
+
+				// For other errors, provide context
+				onError(
+					new Error(
+						t("embeddings:scanner.failedToProcessBatchWithError", {
+							maxRetries: MAX_BATCH_RETRIES,
+							errorMessage,
+						}),
+					),
+				)
 			}
 		}
 	}

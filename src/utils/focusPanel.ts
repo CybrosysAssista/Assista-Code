@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { Package } from "../shared/package"
-import { ClineProvider } from "../core/webview/ClineProvider"
+import { AssistaProvider } from "../core/webview/AssistaProvider"
 
 /**
  * Focus the active panel (either tab or sidebar)
@@ -17,11 +17,11 @@ export async function focusPanel(
 	if (!panel) {
 		// If no panel is open, open the sidebar
 		await vscode.commands.executeCommand(`workbench.view.extension.${Package.name}-ActivityBar`)
-	} else if (panel === tabPanel) {
+	} else if (panel === tabPanel && !panel.active) {
 		// For tab panels, use reveal to focus
 		panel.reveal(vscode.ViewColumn.Active, false)
 	} else if (panel === sidebarPanel) {
 		// For sidebar panels, focus the sidebar
-		await vscode.commands.executeCommand(`${ClineProvider.sideBarId}.focus`)
+		await vscode.commands.executeCommand(`${AssistaProvider.sideBarId}.focus`)
 	}
 }

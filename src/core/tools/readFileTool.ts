@@ -2,7 +2,7 @@ import path from "path"
 import { isBinaryFile } from "isbinaryfile"
 
 import { Task } from "../task/Task"
-import { ClineSayTool } from "../../shared/ExtensionMessage"
+import { AssistaSayTool } from "../../shared/ExtensionMessage"
 import { formatResponse } from "../prompts/responses"
 import { t } from "../../i18n"
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
@@ -71,7 +71,7 @@ interface FileResult {
 }
 
 export async function readFileTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -96,17 +96,17 @@ export async function readFileTool(
 			filePath = legacyPath
 		}
 
-		const fullPath = filePath ? path.resolve(cline.cwd, filePath) : ""
-		const sharedMessageProps: ClineSayTool = {
+		const fullPath = filePath ? path.resolve(assista.cwd, filePath) : ""
+		const sharedMessageProps: AssistaSayTool = {
 			tool: "readFile",
-			path: getReadablePath(cline.cwd, filePath),
+			path: getReadablePath(assista.cwd, filePath),
 			isOutsideWorkspace: filePath ? isPathOutsideWorkspace(fullPath) : false,
 		}
 		const partialMessage = JSON.stringify({
 			...sharedMessageProps,
 			content: undefined,
-		} satisfies ClineSayTool)
-		await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+		} satisfies AssistaSayTool)
+		await assista.ask("tool", partialMessage, block.partial).catch(() => {})
 		return
 	}
 
@@ -171,9 +171,9 @@ export async function readFileTool(
 
 	// If, after trying both new and legacy, no valid file entries are found.
 	if (fileEntries.length === 0) {
-		cline.consecutiveMistakeCount++
-		cline.recordToolError("read_file")
-		const errorMsg = await cline.sayAndCreateMissingParamError("read_file", "args (containing valid file paths)")
+		assista.consecutiveMistakeCount++
+		assista.recordToolError("read_file")
+		const errorMsg = await assista.sayAndCreateMissingParamError("read_file", "args (containing valid file paths)")
 		pushToolResult(`<files><error>${errorMsg}</error></files>`)
 		return
 	}
@@ -200,7 +200,7 @@ export async function readFileTool(
 		for (let i = 0; i < fileResults.length; i++) {
 			const fileResult = fileResults[i]
 			const relPath = fileResult.path
-			const fullPath = path.resolve(cline.cwd, relPath)
+			const fullPath = path.resolve(assista.cwd, relPath)
 
 			// Validate line ranges first
 			if (fileResult.lineRanges) {
@@ -232,12 +232,12 @@ export async function readFileTool(
 				if (hasRangeError) continue
 			}
 
-			// Then check RooIgnore validation
+			// Then check AssistaIgnore validation
 			if (fileResult.status === "pending") {
-				const accessAllowed = cline.rooIgnoreController?.validateAccess(relPath)
+				const accessAllowed = assista.assistaIgnoreController?.validateAccess(relPath)
 				if (!accessAllowed) {
-					await cline.say("rooignore_error", relPath)
-					const errorMsg = formatResponse.rooIgnoreError(relPath)
+					await assista.say("assistaignore_error", relPath)
+					const errorMsg = formatResponse.assistaIgnoreError(relPath)
 					updateFileResult(relPath, {
 						status: "blocked",
 						error: errorMsg,
@@ -253,12 +253,12 @@ export async function readFileTool(
 
 		// Handle batch approval if there are multiple files to approve
 		if (filesToApprove.length > 1) {
-			const { maxReadFileLine = -1 } = (await cline.providerRef.deref()?.getState()) ?? {}
+			const { maxReadFileLine = -1 } = (await assista.providerRef.deref()?.getState()) ?? {}
 
 			// Prepare batch file data
 			const batchFiles = filesToApprove.map((fileResult) => {
 				const relPath = fileResult.path
-				const fullPath = path.resolve(cline.cwd, relPath)
+				const fullPath = path.resolve(assista.cwd, relPath)
 				const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
 
 				// Create line snippet for this file
@@ -274,7 +274,7 @@ export async function readFileTool(
 					lineSnippet = t("tools:readFile.maxLines", { max: maxReadFileLine })
 				}
 
-				const readablePath = getReadablePath(cline.cwd, relPath)
+				const readablePath = getReadablePath(assista.cwd, relPath)
 				const key = `${readablePath}${lineSnippet ? ` (${lineSnippet})` : ""}`
 
 				return {
@@ -289,15 +289,15 @@ export async function readFileTool(
 			const completeMessage = JSON.stringify({
 				tool: "readFile",
 				batchFiles,
-			} satisfies ClineSayTool)
+			} satisfies AssistaSayTool)
 
-			const { response, text, images } = await cline.ask("tool", completeMessage, false)
+			const { response, text, images } = await assista.ask("tool", completeMessage, false)
 
 			// Process batch response
 			if (response === "yesButtonClicked") {
 				// Approve all files
 				if (text) {
-					await cline.say("user_feedback", text, images)
+					await assista.say("user_feedback", text, images)
 				}
 				filesToApprove.forEach((fileResult) => {
 					updateFileResult(fileResult.path, {
@@ -309,9 +309,9 @@ export async function readFileTool(
 			} else if (response === "noButtonClicked") {
 				// Deny all files
 				if (text) {
-					await cline.say("user_feedback", text, images)
+					await assista.say("user_feedback", text, images)
 				}
-				cline.didRejectTool = true
+				assista.didRejectTool = true
 				filesToApprove.forEach((fileResult) => {
 					updateFileResult(fileResult.path, {
 						status: "denied",
@@ -323,7 +323,7 @@ export async function readFileTool(
 			} else {
 				// Handle individual permissions from objectResponse
 				// if (text) {
-				// 	await cline.say("user_feedback", text, images)
+				// 	await assista.say("user_feedback", text, images)
 				// }
 
 				try {
@@ -348,12 +348,12 @@ export async function readFileTool(
 					})
 
 					if (hasAnyDenial) {
-						cline.didRejectTool = true
+						assista.didRejectTool = true
 					}
 				} catch (error) {
 					// Fallback: if JSON parsing fails, deny all files
 					console.error("Failed to parse individual permissions:", error)
-					cline.didRejectTool = true
+					assista.didRejectTool = true
 					filesToApprove.forEach((fileResult) => {
 						updateFileResult(fileResult.path, {
 							status: "denied",
@@ -366,9 +366,9 @@ export async function readFileTool(
 			// Handle single file approval (existing logic)
 			const fileResult = filesToApprove[0]
 			const relPath = fileResult.path
-			const fullPath = path.resolve(cline.cwd, relPath)
+			const fullPath = path.resolve(assista.cwd, relPath)
 			const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
-			const { maxReadFileLine = -1 } = (await cline.providerRef.deref()?.getState()) ?? {}
+			const { maxReadFileLine = -1 } = (await assista.providerRef.deref()?.getState()) ?? {}
 
 			// Create line snippet for approval message
 			let lineSnippet = ""
@@ -385,20 +385,20 @@ export async function readFileTool(
 
 			const completeMessage = JSON.stringify({
 				tool: "readFile",
-				path: getReadablePath(cline.cwd, relPath),
+				path: getReadablePath(assista.cwd, relPath),
 				isOutsideWorkspace,
 				content: fullPath,
 				reason: lineSnippet,
-			} satisfies ClineSayTool)
+			} satisfies AssistaSayTool)
 
-			const { response, text, images } = await cline.ask("tool", completeMessage, false)
+			const { response, text, images } = await assista.ask("tool", completeMessage, false)
 
 			if (response !== "yesButtonClicked") {
 				// Handle both messageResponse and noButtonClicked with text
 				if (text) {
-					await cline.say("user_feedback", text, images)
+					await assista.say("user_feedback", text, images)
 				}
-				cline.didRejectTool = true
+				assista.didRejectTool = true
 
 				updateFileResult(relPath, {
 					status: "denied",
@@ -409,7 +409,7 @@ export async function readFileTool(
 			} else {
 				// Handle yesButtonClicked with text
 				if (text) {
-					await cline.say("user_feedback", text, images)
+					await assista.say("user_feedback", text, images)
 				}
 
 				updateFileResult(relPath, {
@@ -428,8 +428,8 @@ export async function readFileTool(
 			}
 
 			const relPath = fileResult.path
-			const fullPath = path.resolve(cline.cwd, relPath)
-			const { maxReadFileLine = 500 } = (await cline.providerRef.deref()?.getState()) ?? {}
+			const fullPath = path.resolve(assista.cwd, relPath)
+			const { maxReadFileLine = -1 } = (await assista.providerRef.deref()?.getState()) ?? {}
 
 			// Process approved files
 			try {
@@ -470,7 +470,7 @@ export async function readFileTool(
 				// Handle definitions-only mode
 				if (maxReadFileLine === 0) {
 					try {
-						const defResult = await parseSourceCodeDefinitionsForFile(fullPath, cline.rooIgnoreController)
+						const defResult = await parseSourceCodeDefinitionsForFile(fullPath, assista.assistaIgnoreController)
 						if (defResult) {
 							let xmlInfo = `<notice>Showing only ${maxReadFileLine} of ${totalLines} total lines. Use line_range if you need to read more lines</notice>\n`
 							updateFileResult(relPath, {
@@ -496,7 +496,7 @@ export async function readFileTool(
 					let xmlInfo = `<content${lineRangeAttr}>\n${content}</content>\n`
 
 					try {
-						const defResult = await parseSourceCodeDefinitionsForFile(fullPath, cline.rooIgnoreController)
+						const defResult = await parseSourceCodeDefinitionsForFile(fullPath, assista.assistaIgnoreController)
 						if (defResult) {
 							xmlInfo += `<list_code_definition_names>${defResult}</list_code_definition_names>\n`
 						}
@@ -526,7 +526,7 @@ export async function readFileTool(
 				}
 
 				// Track file read
-				await cline.fileContextTracker.trackFileContext(relPath, "read_tool" as RecordSource)
+				await assista.fileContextTracker.trackFileContext(relPath, "read_tool" as RecordSource)
 
 				updateFileResult(relPath, {
 					xmlContent: `<file><path>${relPath}</path>\n${xmlInfo}</file>`,
@@ -558,7 +558,7 @@ export async function readFileTool(
 			feedbackImages = deniedWithFeedback.feedbackImages || []
 		}
 		// Handle generic denial
-		else if (cline.didRejectTool) {
+		else if (assista.didRejectTool) {
 			statusMessage = formatResponse.toolDenied()
 		}
 		// Handle approval with feedback

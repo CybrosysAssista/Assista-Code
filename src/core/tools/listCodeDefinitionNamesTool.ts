@@ -3,13 +3,14 @@ import fs from "fs/promises"
 
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
 import { Task } from "../task/Task"
-import { ClineSayTool } from "../../shared/ExtensionMessage"
+import { AssistaSayTool } from "../../shared/ExtensionMessage"
 import { getReadablePath } from "../../utils/path"
+import { isPathOutsideWorkspace } from "../../utils/pathUtils"
 import { parseSourceCodeForDefinitionsTopLevel, parseSourceCodeDefinitionsForFile } from "../../services/tree-sitter"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
 
 export async function listCodeDefinitionNamesTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -18,37 +19,41 @@ export async function listCodeDefinitionNamesTool(
 ) {
 	const relPath: string | undefined = block.params.path
 
-	const sharedMessageProps: ClineSayTool = {
+	// Calculate if the path is outside workspace
+	const absolutePath = relPath ? path.resolve(assista.cwd, relPath) : assista.cwd
+	const isOutsideWorkspace = isPathOutsideWorkspace(absolutePath)
+
+	const sharedMessageProps: AssistaSayTool = {
 		tool: "listCodeDefinitionNames",
-		path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
+		path: getReadablePath(assista.cwd, removeClosingTag("path", relPath)),
+		isOutsideWorkspace,
 	}
 
 	try {
 		if (block.partial) {
-			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: "" } satisfies ClineSayTool)
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: "" } satisfies AssistaSayTool)
+			await assista.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
 			if (!relPath) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("list_code_definition_names")
-				pushToolResult(await cline.sayAndCreateMissingParamError("list_code_definition_names", "path"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("list_code_definition_names")
+				pushToolResult(await assista.sayAndCreateMissingParamError("list_code_definition_names", "path"))
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
 
-			const absolutePath = path.resolve(cline.cwd, relPath)
 			let result: string
 
 			try {
 				const stats = await fs.stat(absolutePath)
 
 				if (stats.isFile()) {
-					const fileResult = await parseSourceCodeDefinitionsForFile(absolutePath, cline.rooIgnoreController)
-					result = fileResult ?? "No source code definitions found in cline file."
+					const fileResult = await parseSourceCodeDefinitionsForFile(absolutePath, assista.assistaIgnoreController)
+					result = fileResult ?? "No source code definitions found in assista file."
 				} else if (stats.isDirectory()) {
-					result = await parseSourceCodeForDefinitionsTopLevel(absolutePath, cline.rooIgnoreController)
+					result = await parseSourceCodeForDefinitionsTopLevel(absolutePath, assista.assistaIgnoreController)
 				} else {
 					result = "The specified path is neither a file nor a directory."
 				}
@@ -56,7 +61,7 @@ export async function listCodeDefinitionNamesTool(
 				result = `${absolutePath}: does not exist or cannot be accessed.`
 			}
 
-			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: result } satisfies ClineSayTool)
+			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: result } satisfies AssistaSayTool)
 			const didApprove = await askApproval("tool", completeMessage)
 
 			if (!didApprove) {
@@ -64,7 +69,7 @@ export async function listCodeDefinitionNamesTool(
 			}
 
 			if (relPath) {
-				await cline.fileContextTracker.trackFileContext(relPath, "read_tool" as RecordSource)
+				await assista.fileContextTracker.trackFileContext(relPath, "read_tool" as RecordSource)
 			}
 
 			pushToolResult(result)

@@ -4,7 +4,8 @@ import { listFiles } from "../glob/list-files"
 import { LanguageParser, loadRequiredLanguageParsers } from "./languageParser"
 import { fileExistsAtPath } from "../../utils/fs"
 import { parseMarkdown } from "./markdownParser"
-import { RooIgnoreController } from "../../core/ignore/RooIgnoreController"
+import { AssistaIgnoreController } from "../../core/ignore/AssistaIgnoreController"
+import { QueryCapture } from "web-tree-sitter"
 
 // Private constant
 const DEFAULT_MIN_COMPONENT_LINES_VALUE = 4
@@ -94,7 +95,7 @@ export { extensions }
 
 export async function parseSourceCodeDefinitionsForFile(
 	filePath: string,
-	rooIgnoreController?: RooIgnoreController,
+	assistaIgnoreController?: AssistaIgnoreController,
 ): Promise<string | undefined> {
 	// check if the file exists
 	const fileExists = await fileExistsAtPath(path.resolve(filePath))
@@ -112,7 +113,7 @@ export async function parseSourceCodeDefinitionsForFile(
 	// Special case for markdown files
 	if (ext === ".md" || ext === ".markdown") {
 		// Check if we have permission to access this file
-		if (rooIgnoreController && !rooIgnoreController.validateAccess(filePath)) {
+		if (assistaIgnoreController && !assistaIgnoreController.validateAccess(filePath)) {
 			return undefined
 		}
 
@@ -138,7 +139,7 @@ export async function parseSourceCodeDefinitionsForFile(
 	const languageParsers = await loadRequiredLanguageParsers([filePath])
 
 	// Parse the file if we have a parser for it
-	const definitions = await parseFile(filePath, languageParsers, rooIgnoreController)
+	const definitions = await parseFile(filePath, languageParsers, assistaIgnoreController)
 	if (definitions) {
 		return `# ${path.basename(filePath)}\n${definitions}`
 	}
@@ -149,7 +150,7 @@ export async function parseSourceCodeDefinitionsForFile(
 // TODO: implement caching behavior to avoid having to keep analyzing project for new tasks.
 export async function parseSourceCodeForDefinitionsTopLevel(
 	dirPath: string,
-	rooIgnoreController?: RooIgnoreController,
+	assistaIgnoreController?: AssistaIgnoreController,
 ): Promise<string> {
 	// check if the path exists
 	const dirExists = await fileExistsAtPath(path.resolve(dirPath))
@@ -166,7 +167,7 @@ export async function parseSourceCodeForDefinitionsTopLevel(
 	const { filesToParse } = separateFiles(allFiles)
 
 	// Filter filepaths for access if controller is provided
-	const allowedFilesToParse = rooIgnoreController ? rooIgnoreController.filterPaths(filesToParse) : filesToParse
+	const allowedFilesToParse = assistaIgnoreController ? assistaIgnoreController.filterPaths(filesToParse) : filesToParse
 
 	// Separate markdown files from other files
 	const markdownFiles: string[] = []
@@ -187,7 +188,7 @@ export async function parseSourceCodeForDefinitionsTopLevel(
 	// Process markdown files
 	for (const file of markdownFiles) {
 		// Check if we have permission to access this file
-		if (rooIgnoreController && !rooIgnoreController.validateAccess(file)) {
+		if (assistaIgnoreController && !assistaIgnoreController.validateAccess(file)) {
 			continue
 		}
 
@@ -214,7 +215,7 @@ export async function parseSourceCodeForDefinitionsTopLevel(
 
 	// Process other files using tree-sitter
 	for (const file of otherFiles) {
-		const definitions = await parseFile(file, languageParsers, rooIgnoreController)
+		const definitions = await parseFile(file, languageParsers, assistaIgnoreController)
 		if (definitions) {
 			result += `# ${path.relative(dirPath, file).toPosix()}\n${definitions}\n`
 		}
@@ -250,7 +251,7 @@ This approach allows us to focus on the most relevant parts of the code (defined
  *
  * @param filePath - Path to the file to parse
  * @param languageParsers - Map of language parsers
- * @param rooIgnoreController - Optional controller to check file access permissions
+ * @param assistaIgnoreController - Optional controller to check file access permissions
  * @returns A formatted string with code definitions or null if no definitions found
  */
 
@@ -262,7 +263,7 @@ This approach allows us to focus on the most relevant parts of the code (defined
  * @param minComponentLines - Minimum number of lines for a component to be included
  * @returns A formatted string with definitions
  */
-function processCaptures(captures: any[], lines: string[], language: string): string | null {
+function processCaptures(captures: QueryCapture[], lines: string[], language: string): string | null {
 	// Determine if HTML filtering is needed for this language
 	const needsHtmlFiltering = ["jsx", "tsx"].includes(language)
 
@@ -369,16 +370,16 @@ function processCaptures(captures: any[], lines: string[], language: string): st
  *
  * @param filePath - Path to the file to parse
  * @param languageParsers - Map of language parsers
- * @param rooIgnoreController - Optional controller to check file access permissions
+ * @param assistaIgnoreController - Optional controller to check file access permissions
  * @returns A formatted string with code definitions or null if no definitions found
  */
 async function parseFile(
 	filePath: string,
 	languageParsers: LanguageParser,
-	rooIgnoreController?: RooIgnoreController,
+	assistaIgnoreController?: AssistaIgnoreController,
 ): Promise<string | null> {
 	// Check if we have permission to access this file
-	if (rooIgnoreController && !rooIgnoreController.validateAccess(filePath)) {
+	if (assistaIgnoreController && !assistaIgnoreController.validateAccess(filePath)) {
 		return null
 	}
 
@@ -397,7 +398,7 @@ async function parseFile(
 		const tree = parser.parse(fileContent)
 
 		// Apply the query to the AST and get the captures
-		const captures = query.captures(tree.rootNode)
+		const captures = tree ? query.captures(tree.rootNode) : []
 
 		// Split the file content into individual lines
 		const lines = fileContent.split("\n")

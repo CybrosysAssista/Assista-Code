@@ -1,14 +1,12 @@
 // npx vitest run src/api/providers/__tests__/groq.spec.ts
 
-import { vitest, describe, it, expect, beforeEach } from "vitest"
-
 // Mock vscode first to avoid import errors
 vitest.mock("vscode", () => ({}))
 
 import OpenAI from "openai"
 import { Anthropic } from "@anthropic-ai/sdk"
 
-import { type GroqModelId, groqDefaultModelId, groqModels } from "@roo-code/types"
+import { type GroqModelId, groqDefaultModelId, groqModels } from "@cybrosys-assista/types"
 
 import { GroqHandler } from "../groq"
 

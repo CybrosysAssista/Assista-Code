@@ -1,34 +1,32 @@
 import pWaitFor from "p-wait-for"
 import * as vscode from "vscode"
 
-import { TelemetryService } from "@roo-code/telemetry"
-
 import { Task } from "../task/Task"
 
 import { getWorkspacePath } from "../../utils/path"
 
-import { ClineApiReqInfo } from "../../shared/ExtensionMessage"
+import { AssistaApiReqInfo } from "../../shared/ExtensionMessage"
 import { getApiMetrics } from "../../shared/getApiMetrics"
 
 import { DIFF_VIEW_URI_SCHEME } from "../../integrations/editor/DiffViewProvider"
 
 import { CheckpointServiceOptions, RepoPerTaskCheckpointService } from "../../services/checkpoints"
 
-export function getCheckpointService(cline: Task) {
-	if (!cline.enableCheckpoints) {
+export function getCheckpointService(assista: Task) {
+	if (!assista.enableCheckpoints) {
 		return undefined
 	}
 
-	if (cline.checkpointService) {
-		return cline.checkpointService
+	if (assista.checkpointService) {
+		return assista.checkpointService
 	}
 
-	if (cline.checkpointServiceInitializing) {
+	if (assista.checkpointServiceInitializing) {
 		console.log("[Task#getCheckpointService] checkpoint service is still initializing")
 		return undefined
 	}
 
-	const provider = cline.providerRef.deref()
+	const provider = assista.providerRef.deref()
 
 	const log = (message: string) => {
 		console.log(message)
@@ -47,7 +45,7 @@ export function getCheckpointService(cline: Task) {
 
 		if (!workspaceDir) {
 			log("[Task#getCheckpointService] workspace folder not found, disabling checkpoints")
-			cline.enableCheckpoints = false
+			assista.enableCheckpoints = false
 			return undefined
 		}
 
@@ -55,12 +53,12 @@ export function getCheckpointService(cline: Task) {
 
 		if (!globalStorageDir) {
 			log("[Task#getCheckpointService] globalStorageDir not found, disabling checkpoints")
-			cline.enableCheckpoints = false
+			assista.enableCheckpoints = false
 			return undefined
 		}
 
 		const options: CheckpointServiceOptions = {
-			taskId: cline.taskId,
+			taskId: assista.taskId,
 			workspaceDir,
 			shadowDir: globalStorageDir,
 			log,
@@ -68,25 +66,25 @@ export function getCheckpointService(cline: Task) {
 
 		const service = RepoPerTaskCheckpointService.create(options)
 
-		cline.checkpointServiceInitializing = true
+		assista.checkpointServiceInitializing = true
 
 		service.on("initialize", () => {
 			log("[Task#getCheckpointService] service initialized")
 
 			try {
 				const isCheckpointNeeded =
-					typeof cline.clineMessages.find(({ say }) => say === "checkpoint_saved") === "undefined"
+					typeof assista.assistaMessages.find(({ say }) => say === "checkpoint_saved") === "undefined"
 
-				cline.checkpointService = service
-				cline.checkpointServiceInitializing = false
+				assista.checkpointService = service
+				assista.checkpointServiceInitializing = false
 
 				if (isCheckpointNeeded) {
 					log("[Task#getCheckpointService] no checkpoints found, saving initial checkpoint")
-					checkpointSave(cline)
+					checkpointSave(assista)
 				}
 			} catch (err) {
 				log("[Task#getCheckpointService] caught error in on('initialize'), disabling checkpoints")
-				cline.enableCheckpoints = false
+				assista.enableCheckpoints = false
 			}
 		})
 
@@ -94,7 +92,7 @@ export function getCheckpointService(cline: Task) {
 			try {
 				provider?.postMessageToWebview({ type: "currentCheckpointUpdated", text: to })
 
-				cline
+				assista
 					.say("checkpoint_saved", to, undefined, undefined, { isFirst, from, to }, undefined, {
 						isNonInteractive: true,
 					})
@@ -105,7 +103,7 @@ export function getCheckpointService(cline: Task) {
 			} catch (err) {
 				log("[Task#getCheckpointService] caught unexpected error in on('checkpoint'), disabling checkpoints")
 				console.error(err)
-				cline.enableCheckpoints = false
+				assista.enableCheckpoints = false
 			}
 		})
 
@@ -113,22 +111,22 @@ export function getCheckpointService(cline: Task) {
 
 		service.initShadowGit().catch((err) => {
 			log(`[Task#getCheckpointService] initShadowGit -> ${err.message}`)
-			cline.enableCheckpoints = false
+			assista.enableCheckpoints = false
 		})
 
 		return service
 	} catch (err) {
 		log(`[Task#getCheckpointService] ${err.message}`)
-		cline.enableCheckpoints = false
+		assista.enableCheckpoints = false
 		return undefined
 	}
 }
 
 async function getInitializedCheckpointService(
-	cline: Task,
+	assista: Task,
 	{ interval = 250, timeout = 15_000 }: { interval?: number; timeout?: number } = {},
 ) {
-	const service = getCheckpointService(cline)
+	const service = getCheckpointService(assista)
 
 	if (!service || service.isInitialized) {
 		return service
@@ -149,26 +147,26 @@ async function getInitializedCheckpointService(
 	}
 }
 
-export async function checkpointSave(cline: Task, force = false) {
-	const service = getCheckpointService(cline)
+export async function checkpointSave(assista: Task, force = false) {
+	const service = getCheckpointService(assista)
 
 	if (!service) {
 		return
 	}
 
 	if (!service.isInitialized) {
-		const provider = cline.providerRef.deref()
+		const provider = assista.providerRef.deref()
 		provider?.log("[checkpointSave] checkpoints didn't initialize in time, disabling checkpoints for this task")
-		cline.enableCheckpoints = false
+		assista.enableCheckpoints = false
 		return
 	}
 
-	TelemetryService.instance.captureCheckpointCreated(cline.taskId)
+	console.log("[Task#checkpointSave] starting checkpoint save process")
 
 	// Start the checkpoint process in the background.
-	return service.saveCheckpoint(`Task: ${cline.taskId}, Time: ${Date.now()}`, { allowEmpty: force }).catch((err) => {
+	return service.saveCheckpoint(`Task: ${assista.taskId}, Time: ${Date.now()}`, { allowEmpty: force }).catch((err) => {
 		console.error("[Task#checkpointSave] caught unexpected error, disabling checkpoints", err)
-		cline.enableCheckpoints = false
+		assista.enableCheckpoints = false
 	})
 }
 
@@ -178,39 +176,38 @@ export type CheckpointRestoreOptions = {
 	mode: "preview" | "restore"
 }
 
-export async function checkpointRestore(cline: Task, { ts, commitHash, mode }: CheckpointRestoreOptions) {
-	const service = await getInitializedCheckpointService(cline)
+export async function checkpointRestore(assista: Task, { ts, commitHash, mode }: CheckpointRestoreOptions) {
+	const service = await getInitializedCheckpointService(assista)
 
 	if (!service) {
 		return
 	}
 
-	const index = cline.clineMessages.findIndex((m) => m.ts === ts)
+	const index = assista.assistaMessages.findIndex((m) => m.ts === ts)
 
 	if (index === -1) {
 		return
 	}
 
-	const provider = cline.providerRef.deref()
+	const provider = assista.providerRef.deref()
 
 	try {
 		await service.restoreCheckpoint(commitHash)
-		TelemetryService.instance.captureCheckpointRestored(cline.taskId)
 		await provider?.postMessageToWebview({ type: "currentCheckpointUpdated", text: commitHash })
 
 		if (mode === "restore") {
-			await cline.overwriteApiConversationHistory(cline.apiConversationHistory.filter((m) => !m.ts || m.ts < ts))
+			await assista.overwriteApiConversationHistory(assista.apiConversationHistory.filter((m) => !m.ts || m.ts < ts))
 
-			const deletedMessages = cline.clineMessages.slice(index + 1)
+			const deletedMessages = assista.assistaMessages.slice(index + 1)
 
 			const { totalTokensIn, totalTokensOut, totalCacheWrites, totalCacheReads, totalCost } = getApiMetrics(
-				cline.combineMessages(deletedMessages),
+				assista.combineMessages(deletedMessages),
 			)
 
-			await cline.overwriteClineMessages(cline.clineMessages.slice(0, index + 1))
+			await assista.overwriteAssistaMessages(assista.assistaMessages.slice(0, index + 1))
 
 			// TODO: Verify that this is working as expected.
-			await cline.say(
+			await assista.say(
 				"api_req_deleted",
 				JSON.stringify({
 					tokensIn: totalTokensIn,
@@ -218,24 +215,24 @@ export async function checkpointRestore(cline: Task, { ts, commitHash, mode }: C
 					cacheWrites: totalCacheWrites,
 					cacheReads: totalCacheReads,
 					cost: totalCost,
-				} satisfies ClineApiReqInfo),
+				} satisfies AssistaApiReqInfo),
 			)
 		}
 
 		// The task is already cancelled by the provider beforehand, but we
 		// need to re-init to get the updated messages.
 		//
-		// This was take from Cline's implementation of the checkpoints
-		// feature. The cline instance will hang if we don't cancel twice,
+		// This was take from Assista's implementation of the checkpoints
+		// feature. The assista instance will hang if we don't cancel twice,
 		// so this is currently necessary, but it seems like a complicated
 		// and hacky solution to a problem that I don't fully understand.
 		// I'd like to revisit this in the future and try to improve the
 		// task flow and the communication between the webview and the
-		// Cline instance.
+		// Assista instance.
 		provider?.cancelTask()
 	} catch (err) {
 		provider?.log("[checkpointRestore] disabling checkpoints for this task")
-		cline.enableCheckpoints = false
+		assista.enableCheckpoints = false
 	}
 }
 
@@ -246,17 +243,15 @@ export type CheckpointDiffOptions = {
 	mode: "full" | "checkpoint"
 }
 
-export async function checkpointDiff(cline: Task, { ts, previousCommitHash, commitHash, mode }: CheckpointDiffOptions) {
-	const service = await getInitializedCheckpointService(cline)
+export async function checkpointDiff(assista: Task, { ts, previousCommitHash, commitHash, mode }: CheckpointDiffOptions) {
+	const service = await getInitializedCheckpointService(assista)
 
 	if (!service) {
 		return
 	}
 
-	TelemetryService.instance.captureCheckpointDiffed(cline.taskId)
-
 	if (!previousCommitHash && mode === "checkpoint") {
-		const previousCheckpoint = cline.clineMessages
+		const previousCheckpoint = assista.assistaMessages
 			.filter(({ say }) => say === "checkpoint_saved")
 			.sort((a, b) => b.ts - a.ts)
 			.find((message) => message.ts < ts)
@@ -286,8 +281,8 @@ export async function checkpointDiff(cline: Task, { ts, previousCommitHash, comm
 			]),
 		)
 	} catch (err) {
-		const provider = cline.providerRef.deref()
+		const provider = assista.providerRef.deref()
 		provider?.log("[checkpointDiff] disabling checkpoints for this task")
-		cline.enableCheckpoints = false
+		assista.enableCheckpoints = false
 	}
 }

@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • <b>Nederlands</b> • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • [한국어](../ko/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+[한국어](../ko/CODE_OF_CONDUCT.md) • <b>Nederlands</b> • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # Contributor Covenant Gedragscode
 
@@ -38,15 +47,15 @@ Deze Gedragscode is van toepassing binnen projectruimtes en in openbare ruimtes 
 
 ## Handhaving
 
-Voorvallen van beledigend, intimiderend of anderszins onacceptabel gedrag kunnen worden gemeld door contact op te nemen met het projectteam via support@roocode.com. Alle klachten zullen worden beoordeeld en onderzocht en zullen resulteren in een reactie die passend wordt geacht voor de omstandigheden. Het projectteam is verplicht vertrouwelijkheid te bewaren met betrekking tot de melder van het incident. Verdere details over specifiek handhavingsbeleid kunnen afzonderlijk worden gepubliceerd.
+Voorvallen van beledigend, intimiderend of anderszins onacceptabel gedrag kunnen worden gemeld door contact op te nemen met het projectteam via support@cybrosysassista.com. Alle klachten zullen worden beoordeeld en onderzocht en zullen resulteren in een reactie die passend wordt geacht voor de omstandigheden. Het projectteam is verplicht vertrouwelijkheid te bewaren met betrekking tot de melder van het incident. Verdere details over specifiek handhavingsbeleid kunnen afzonderlijk worden gepubliceerd.
 
 Projectbeheerders die de Gedragscode niet te goeder trouw volgen of handhaven, kunnen tijdelijke of permanente gevolgen ondervinden zoals bepaald door andere leden van het leiderschap van het project.
 
 ## Toeschrijving
 
-Deze Gedragscode is gebaseerd op [Cline's versie][cline_coc] van de [Contributor Covenant][homepage], versie 1.4, beschikbaar op https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+Deze Gedragscode is gebaseerd op [Assista's versie][assista_coc] van de [Contributor Covenant][homepage], versie 1.4, beschikbaar op https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 Voor antwoorden op veelgestelde vragen over deze gedragscode, zie https://www.contributor-covenant.org/faq

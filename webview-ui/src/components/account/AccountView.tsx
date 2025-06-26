@@ -1,6 +1,6 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 
-import type { CloudUserInfo } from "@roo-code/types"
+import type { CloudUserInfo } from "@cybrosys-assista/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { vscode } from "@src/utils/vscode"
@@ -14,7 +14,7 @@ type AccountViewProps = {
 export const AccountView = ({ userInfo, isAuthenticated, onDone }: AccountViewProps) => {
 	const { t } = useAppTranslation()
 
-	const rooLogoUri = (window as any).IMAGES_BASE_URI + "/roo-logo.svg"
+	const assistaLogoUri = (window as any).IMAGES_BASE_URI + "/assista-logo.svg"
 
 	return (
 		<div className="flex flex-col h-full p-4 bg-vscode-editor-background">
@@ -41,16 +41,30 @@ export const AccountView = ({ userInfo, isAuthenticated, onDone }: AccountViewPr
 									</div>
 								)}
 							</div>
-							<h2 className="text-lg font-medium text-vscode-foreground mb-1">
+							<h2 className="text-lg font-medium text-vscode-foreground mb-0">
 								{userInfo?.name || t("account:unknownUser")}
 							</h2>
-							<p className="text-sm text-vscode-descriptionForeground">{userInfo?.email || ""}</p>
+							{userInfo?.email && (
+								<p className="text-sm text-vscode-descriptionForeground">{userInfo?.email}</p>
+							)}
+							{userInfo?.organizationName && (
+								<div className="flex items-center gap-2 text-sm text-vscode-descriptionForeground">
+									{userInfo.organizationImageUrl && (
+										<img
+											src={userInfo.organizationImageUrl}
+											alt={userInfo.organizationName}
+											className="w-4 h-4 rounded object-cover"
+										/>
+									)}
+									<span>{userInfo.organizationName}</span>
+								</div>
+							)}
 						</div>
 					)}
 					<div className="flex flex-col gap-2 mt-4">
 						<VSCodeButton
 							appearance="secondary"
-							onClick={() => vscode.postMessage({ type: "rooCloudSignOut" })}
+							onClick={() => vscode.postMessage({ type: "assistaCloudSignOut" })}
 							className="w-full">
 							{t("account:logOut")}
 						</VSCodeButton>
@@ -63,21 +77,21 @@ export const AccountView = ({ userInfo, isAuthenticated, onDone }: AccountViewPr
 							<div
 								className="w-12 h-12 bg-vscode-foreground"
 								style={{
-									WebkitMaskImage: `url('${rooLogoUri}')`,
+									WebkitMaskImage: `url('${assistaLogoUri}')`,
 									WebkitMaskRepeat: "no-repeat",
 									WebkitMaskSize: "contain",
-									maskImage: `url('${rooLogoUri}')`,
+									maskImage: `url('${assistaLogoUri}')`,
 									maskRepeat: "no-repeat",
 									maskSize: "contain",
 								}}>
-								<img src={rooLogoUri} alt="Roo logo" className="w-12 h-12 opacity-0" />
+								<img src={assistaLogoUri} alt="Assista logo" className="w-12 h-12 opacity-0" />
 							</div>
 						</div>
 					</div>
 					<div className="flex flex-col gap-4">
 						<VSCodeButton
 							appearance="primary"
-							onClick={() => vscode.postMessage({ type: "rooCloudSignIn" })}
+							onClick={() => vscode.postMessage({ type: "assistaCloudSignIn" })}
 							className="w-full">
 							{t("account:signIn")}
 						</VSCodeButton>

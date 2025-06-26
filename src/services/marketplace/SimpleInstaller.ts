@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import * as path from "path"
 import * as fs from "fs/promises"
 import * as yaml from "yaml"
-import { MarketplaceItem, MarketplaceItemType, InstallMarketplaceItemOptions, McpParameter } from "./types"
+import type { MarketplaceItem, MarketplaceItemType, InstallMarketplaceItemOptions, McpParameter } from "@cybrosys-assista/types"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 import { ensureSettingsDirectoryExists } from "../../utils/globalContext"
 
@@ -23,7 +23,7 @@ export class SimpleInstaller {
 			case "mcp":
 				return await this.installMcp(item, target, options)
 			default:
-				throw new Error(`Unsupported item type: ${item.type}`)
+				throw new Error(`Unsupported item type: ${(item as any).type}`)
 		}
 	}
 
@@ -54,7 +54,7 @@ export class SimpleInstaller {
 				existingData = { customModes: [] }
 			} else if (error.name === "YAMLParseError" || error.message?.includes("YAML")) {
 				// YAML parsing error - don't overwrite the file!
-				const fileName = target === "project" ? ".roomodes" : "custom-modes.yaml"
+				const fileName = target === "project" ? ".assistamodes" : "custom-modes.yaml"
 				throw new Error(
 					`Cannot install mode: The ${fileName} file contains invalid YAML. ` +
 						`Please fix the syntax errors in the file before installing new modes.`,
@@ -135,7 +135,8 @@ export class SimpleInstaller {
 		}
 
 		// Merge parameters (method-specific override global)
-		const allParameters = [...(item.parameters || []), ...methodParameters]
+		const itemParameters = item.type === "mcp" ? item.parameters || [] : []
+		const allParameters = [...itemParameters, ...methodParameters]
 		const uniqueParameters = Array.from(new Map(allParameters.map((p) => [p.key, p])).values())
 
 		// Replace parameters if provided
@@ -158,7 +159,8 @@ export class SimpleInstaller {
 				methodParameters = method.parameters || []
 
 				// Re-merge parameters with the newly selected method
-				const allParametersForNewMethod = [...(item.parameters || []), ...methodParameters]
+				const itemParametersForNewMethod = item.type === "mcp" ? item.parameters || [] : []
+				const allParametersForNewMethod = [...itemParametersForNewMethod, ...methodParameters]
 				const uniqueParametersForNewMethod = Array.from(
 					new Map(allParametersForNewMethod.map((p) => [p.key, p])).values(),
 				)
@@ -187,7 +189,7 @@ export class SimpleInstaller {
 				existingData = { mcpServers: {} }
 			} else if (error instanceof SyntaxError) {
 				// JSON parsing error - don't overwrite the file!
-				const fileName = target === "project" ? ".roo/mcp.json" : "mcp-settings.json"
+				const fileName = target === "project" ? ".assista/mcp.json" : "mcp-settings.json"
 				throw new Error(
 					`Cannot install MCP server: The ${fileName} file contains invalid JSON. ` +
 						`Please fix the syntax errors in the file before installing new servers.`,
@@ -239,7 +241,7 @@ export class SimpleInstaller {
 				await this.removeMcp(item, target)
 				break
 			default:
-				throw new Error(`Unsupported item type: ${item.type}`)
+				throw new Error(`Unsupported item type: ${(item as any).type}`)
 		}
 	}
 
@@ -254,7 +256,7 @@ export class SimpleInstaller {
 				existingData = yaml.parse(existing)
 			} catch (parseError) {
 				// If we can't parse the file, we can't safely remove a mode
-				const fileName = target === "project" ? ".roomodes" : "custom-modes.yaml"
+				const fileName = target === "project" ? ".assistamodes" : "custom-modes.yaml"
 				throw new Error(
 					`Cannot remove mode: The ${fileName} file contains invalid YAML. ` +
 						`Please fix the syntax errors before removing modes.`,
@@ -325,7 +327,7 @@ export class SimpleInstaller {
 			if (!workspaceFolder) {
 				throw new Error("No workspace folder found")
 			}
-			return path.join(workspaceFolder.uri.fsPath, ".roomodes")
+			return path.join(workspaceFolder.uri.fsPath, ".assistamodes")
 		} else {
 			const globalSettingsPath = await ensureSettingsDirectoryExists(this.context)
 			return path.join(globalSettingsPath, GlobalFileNames.customModes)
@@ -338,7 +340,7 @@ export class SimpleInstaller {
 			if (!workspaceFolder) {
 				throw new Error("No workspace folder found")
 			}
-			return path.join(workspaceFolder.uri.fsPath, ".roo", "mcp.json")
+			return path.join(workspaceFolder.uri.fsPath, ".assista", "mcp.json")
 		} else {
 			const globalSettingsPath = await ensureSettingsDirectoryExists(this.context)
 			return path.join(globalSettingsPath, GlobalFileNames.mcpSettings)

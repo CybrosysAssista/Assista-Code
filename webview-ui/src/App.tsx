@@ -2,12 +2,11 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react"
 import { useEvent } from "react-use"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { ExtensionMessage } from "@roo/ExtensionMessage"
+import { ExtensionMessage } from "@assista/ExtensionMessage"
 import TranslationProvider from "./i18n/TranslationContext"
 import { MarketplaceViewStateManager } from "./components/marketplace/MarketplaceViewStateManager"
 
 import { vscode } from "./utils/vscode"
-import { telemetryClient } from "./utils/TelemetryClient"
 import { ExtensionStateContextProvider, useExtensionState } from "./context/ExtensionStateContext"
 import ChatView, { ChatViewRef } from "./components/chat/ChatView"
 import HistoryView from "./components/history/HistoryView"
@@ -37,12 +36,10 @@ const App = () => {
 		didHydrateState,
 		showWelcome,
 		shouldShowAnnouncement,
-		telemetrySetting,
-		telemetryKey,
-		machineId,
-		experiments,
 		cloudUserInfo,
 		cloudIsAuthenticated,
+		renderContext,
+		mdmCompliant,
 	} = useExtensionState()
 
 	// Create a persistent state manager
@@ -64,15 +61,23 @@ const App = () => {
 	const settingsRef = useRef<SettingsViewRef>(null)
 	const chatViewRef = useRef<ChatViewRef>(null)
 
-	const switchTab = useCallback((newTab: Tab) => {
-		setCurrentSection(undefined)
+	const switchTab = useCallback(
+		(newTab: Tab) => {
+			// Check MDM compliance before allowing tab switching
+			if (mdmCompliant === false && newTab !== "account") {
+				return
+			}
 
-		if (settingsRef.current?.checkUnsaveChanges) {
-			settingsRef.current.checkUnsaveChanges(() => setTab(newTab))
-		} else {
-			setTab(newTab)
-		}
-	}, [])
+			setCurrentSection(undefined)
+
+			if (settingsRef.current?.checkUnsaveChanges) {
+				settingsRef.current.checkUnsaveChanges(() => setTab(newTab))
+			} else {
+				setTab(newTab)
+			}
+		},
+		[mdmCompliant],
+	)
 
 	const [currentSection, setCurrentSection] = useState<string | undefined>(undefined)
 
@@ -84,10 +89,6 @@ const App = () => {
 				// Handle switchTab action with tab parameter
 				if (message.action === "switchTab" && message.tab) {
 					const targetTab = message.tab as Tab
-					// Don't switch to marketplace tab if the experiment is disabled
-					if (targetTab === "marketplace" && !experiments.marketplace) {
-						return
-					}
 					switchTab(targetTab)
 					setCurrentSection(undefined)
 				} else {
@@ -96,10 +97,6 @@ const App = () => {
 					const section = message.values?.section as string | undefined
 
 					if (newTab) {
-						// Don't switch to marketplace tab if the experiment is disabled
-						if (newTab === "marketplace" && !experiments.marketplace) {
-							return
-						}
 						switchTab(newTab)
 						setCurrentSection(section)
 					}
@@ -115,7 +112,7 @@ const App = () => {
 				chatViewRef.current?.acceptInput()
 			}
 		},
-		[switchTab, experiments],
+		[switchTab],
 	)
 
 	useEvent("message", onMessage)
@@ -127,20 +124,17 @@ const App = () => {
 		}
 	}, [shouldShowAnnouncement])
 
-	useEffect(() => {
-		if (didHydrateState) {
-			telemetryClient.updateTelemetryState(telemetrySetting, telemetryKey, machineId)
-		}
-	}, [telemetrySetting, telemetryKey, machineId, didHydrateState])
-
 	// Tell the extension that we are ready to receive messages.
 	useEffect(() => vscode.postMessage({ type: "webviewDidLaunch" }), [])
 
-	// Focus the WebView when non-interactive content is clicked
+	// Focus the WebView when non-interactive content is clicked (only in editor/tab mode)
 	useAddNonInteractiveClickListener(
 		useCallback(() => {
-			vscode.postMessage({ type: "focusPanelRequest" })
-		}, []),
+			// Only send focus request if we're in editor (tab) mode, not sidebar
+			if (renderContext === "editor") {
+				vscode.postMessage({ type: "focusPanelRequest" })
+			}
+		}, [renderContext]),
 	)
 
 	if (!didHydrateState) {

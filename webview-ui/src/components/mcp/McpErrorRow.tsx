@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { formatRelative } from "date-fns"
 
-import type { McpErrorEntry } from "@roo/mcp"
+import type { McpErrorEntry } from "@assista/mcp"
 
 type McpErrorRowProps = {
 	error: McpErrorEntry

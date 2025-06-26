@@ -1,0 +1,19 @@
+{
+	"greeting": "Selamat datang di Cybrosys Assista!",
+	"introduction": "Dengan berbagai Mode bawaan dan dapat diperluas, Cybrosys Assista memungkinkan Anda merencanakan, merancang, coding, debug, dan meningkatkan produktivitas seperti yang belum pernah terjadi sebelumnya.",
+	"notice": "Untuk memulai, ekstensi ini memerlukan provider API.",
+	"start": "Ayo mulai!",
+	"routers": {
+		"requesty": {
+			"description": "Router LLM yang dioptimalkan",
+			"incentive": "Kredit gratis $1"
+		},
+		"openrouter": {
+			"description": "Interface terpadu untuk LLM"
+		}
+	},
+	"chooseProvider": "Untuk melakukan keajaibannya, Assista membutuhkan API key.",
+	"startRouter": "Kami merekomendasikan menggunakan Router LLM:",
+	"startCustom": "Atau Anda dapat menggunakan API key Anda sendiri:",
+	"importSettings": "Impor Pengaturan"
+}

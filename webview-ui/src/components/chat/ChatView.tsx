@@ -8,17 +8,19 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import useSound from "use-sound"
 import { LRUCache } from "lru-cache"
 
-import type { ClineAsk, ClineMessage } from "@roo-code/types"
+import { useDebounceEffect } from "@src/utils/useDebounceEffect"
 
-import { ClineSayBrowserAction, ClineSayTool, ExtensionMessage } from "@roo/ExtensionMessage"
-import { McpServer, McpTool } from "@roo/mcp"
-import { findLast } from "@roo/array"
-import { combineApiRequests } from "@roo/combineApiRequests"
-import { combineCommandSequences } from "@roo/combineCommandSequences"
-import { getApiMetrics } from "@roo/getApiMetrics"
-import { AudioType } from "@roo/WebviewMessage"
-import { getAllModes } from "@roo/modes"
-import { ProfileValidator } from "@roo/ProfileValidator"
+import type { AssistaAsk, AssistaMessage } from "@cybrosys-assista/types"
+
+import { AssistaSayBrowserAction, AssistaSayTool, ExtensionMessage } from "@assista/ExtensionMessage"
+import { McpServer, McpTool } from "@assista/mcp"
+import { findLast } from "@assista/array"
+import { combineApiRequests } from "@assista/combineApiRequests"
+import { combineCommandSequences } from "@assista/combineCommandSequences"
+import { getApiMetrics } from "@assista/getApiMetrics"
+import { AudioType } from "@assista/WebviewMessage"
+import { getAllModes } from "@assista/modes"
+import { ProfileValidator } from "@assista/ProfileValidator"
 
 import { vscode } from "@src/utils/vscode"
 import { validateCommand } from "@src/utils/command-validation"
@@ -26,10 +28,9 @@ import { buildDocLink } from "@src/utils/docLinks"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
 import { useSelectedModel } from "@src/components/ui/hooks/useSelectedModel"
-import RooHero from "@src/components/welcome/RooHero"
-import RooTips from "@src/components/welcome/RooTips"
+import AssistaHero from "@src/components/welcome/AssistaHero"
+import AssistaTips from "@src/components/welcome/AssistaTips"
 
-import TelemetryBanner from "../common/TelemetryBanner"
 import { useTaskSearch } from "../history/useTaskSearch"
 import HistoryPreview from "../history/HistoryPreview"
 import Announcement from "./Announcement"
@@ -68,7 +69,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	const { t } = useAppTranslation()
 	const modeShortcutText = `${isMac ? "⌘" : "Ctrl"} + . ${t("chat:forNextMode")}`
 	const {
-		clineMessages: messages,
+		assistaMessages: messages,
 		currentTaskItem,
 		taskHistory,
 		apiConfiguration,
@@ -79,6 +80,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		alwaysAllowReadOnlyOutsideWorkspace,
 		alwaysAllowWrite,
 		alwaysAllowWriteOutsideWorkspace,
+		alwaysAllowWriteProtected,
 		alwaysAllowExecute,
 		alwaysAllowMcp,
 		allowedCommands,
@@ -89,7 +91,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		alwaysAllowModeSwitch,
 		alwaysAllowSubtasks,
 		customModes,
-		telemetrySetting,
 		hasSystemPromptOverride,
 		historyPreviewCollapsed, // Added historyPreviewCollapsed
 		soundEnabled,
@@ -117,7 +118,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	// Leaving this less safe version here since if the first message is not a
 	// task, then the extension is in a bad state and needs to be debugged (see
-	// Cline.abort).
+	// Assista.abort).
 	const task = useMemo(() => messages.at(0), [messages])
 
 	const modifiedMessages = useMemo(() => combineApiRequests(combineCommandSequences(messages.slice(1))), [messages])
@@ -131,7 +132,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	const [selectedImages, setSelectedImages] = useState<string[]>([])
 
 	// we need to hold on to the ask because useEffect > lastMessage will always let us know when an ask comes in and handle it, but by the time handleMessage is called, the last message might not be the ask anymore (it could be a say that followed)
-	const [clineAsk, setClineAsk] = useState<ClineAsk | undefined>(undefined)
+	const [assistaAsk, setAssistaAsk] = useState<AssistaAsk | undefined>(undefined)
 	const [enableButtons, setEnableButtons] = useState<boolean>(false)
 	const [primaryButtonText, setPrimaryButtonText] = useState<string | undefined>(undefined)
 	const [secondaryButtonText, setSecondaryButtonText] = useState<string | undefined>(undefined)
@@ -153,11 +154,12 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			ttl: 1000 * 60 * 15, // 15 minutes TTL for long-running tasks
 		}),
 	)
+	const autoApproveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-	const clineAskRef = useRef(clineAsk)
+	const assistaAskRef = useRef(assistaAsk)
 	useEffect(() => {
-		clineAskRef.current = clineAsk
-	}, [clineAsk])
+		assistaAskRef.current = assistaAsk
+	}, [assistaAsk])
 
 	useEffect(() => {
 		isMountedRef.current = true
@@ -227,7 +229,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 						case "api_req_failed":
 							playSound("progress_loop")
 							setSendingDisabled(true)
-							setClineAsk("api_req_failed")
+							setAssistaAsk("api_req_failed")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:retry.title"))
 							setSecondaryButtonText(t("chat:startNewTask.title"))
@@ -235,7 +237,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 						case "mistake_limit_reached":
 							playSound("progress_loop")
 							setSendingDisabled(false)
-							setClineAsk("mistake_limit_reached")
+							setAssistaAsk("mistake_limit_reached")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:proceedAnyways.title"))
 							setSecondaryButtonText(t("chat:startNewTask.title"))
@@ -245,7 +247,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("notification")
 							}
 							setSendingDisabled(isPartial)
-							setClineAsk("followup")
+							setAssistaAsk("followup")
 							// setting enable buttons to `false` would trigger a focus grab when
 							// the text area is enabled which is undesirable.
 							// We have no buttons for this tool, so no problem having them "enabled"
@@ -259,9 +261,9 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("notification")
 							}
 							setSendingDisabled(isPartial)
-							setClineAsk("tool")
+							setAssistaAsk("tool")
 							setEnableButtons(!isPartial)
-							const tool = JSON.parse(lastMessage.text || "{}") as ClineSayTool
+							const tool = JSON.parse(lastMessage.text || "{}") as AssistaSayTool
 							switch (tool.tool) {
 								case "editedExistingFile":
 								case "appliedDiff":
@@ -294,7 +296,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("notification")
 							}
 							setSendingDisabled(isPartial)
-							setClineAsk("browser_action_launch")
+							setAssistaAsk("browser_action_launch")
 							setEnableButtons(!isPartial)
 							setPrimaryButtonText(t("chat:approve.title"))
 							setSecondaryButtonText(t("chat:reject.title"))
@@ -304,14 +306,14 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("notification")
 							}
 							setSendingDisabled(isPartial)
-							setClineAsk("command")
+							setAssistaAsk("command")
 							setEnableButtons(!isPartial)
 							setPrimaryButtonText(t("chat:runCommand.title"))
 							setSecondaryButtonText(t("chat:reject.title"))
 							break
 						case "command_output":
 							setSendingDisabled(false)
-							setClineAsk("command_output")
+							setAssistaAsk("command_output")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:proceedWhileRunning.title"))
 							setSecondaryButtonText(t("chat:killCommand.title"))
@@ -321,7 +323,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("notification")
 							}
 							setSendingDisabled(isPartial)
-							setClineAsk("use_mcp_server")
+							setAssistaAsk("use_mcp_server")
 							setEnableButtons(!isPartial)
 							setPrimaryButtonText(t("chat:approve.title"))
 							setSecondaryButtonText(t("chat:reject.title"))
@@ -332,7 +334,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("celebration")
 							}
 							setSendingDisabled(isPartial)
-							setClineAsk("completion_result")
+							setAssistaAsk("completion_result")
 							setEnableButtons(!isPartial)
 							setPrimaryButtonText(t("chat:startNewTask.title"))
 							setSecondaryButtonText(undefined)
@@ -342,7 +344,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("notification")
 							}
 							setSendingDisabled(false)
-							setClineAsk("resume_task")
+							setAssistaAsk("resume_task")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:resumeTask.title"))
 							setSecondaryButtonText(t("chat:terminate.title"))
@@ -353,7 +355,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								playSound("celebration")
 							}
 							setSendingDisabled(false)
-							setClineAsk("resume_completed_task")
+							setAssistaAsk("resume_completed_task")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:startNewTask.title"))
 							setSecondaryButtonText(undefined)
@@ -372,7 +374,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							if (secondLastMessage?.ask === "command_output") {
 								setSendingDisabled(true)
 								setSelectedImages([])
-								setClineAsk(undefined)
+								setAssistaAsk(undefined)
 								setEnableButtons(false)
 							}
 							break
@@ -395,7 +397,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	useEffect(() => {
 		if (messages.length === 0) {
 			setSendingDisabled(false)
-			setClineAsk(undefined)
+			setAssistaAsk(undefined)
 			setEnableButtons(false)
 			setPrimaryButtonText(undefined)
 			setSecondaryButtonText(undefined)
@@ -406,6 +408,12 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		setExpandedRows({})
 		everVisibleMessagesTsRef.current.clear() // Clear for new task
 	}, [task?.ts])
+
+	useEffect(() => {
+		if (isHidden) {
+			everVisibleMessagesTsRef.current.clear()
+		}
+	}, [isHidden])
 
 	useEffect(() => () => everVisibleMessagesTsRef.current.clear(), [])
 
@@ -430,8 +438,8 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	}, [expandedRows])
 
 	const isStreaming = useMemo(() => {
-		// Checking clineAsk isn't enough since messages effect may be called
-		// again for a tool for example, set clineAsk to its value, and if the
+		// Checking assistaAsk isn't enough since messages effect may be called
+		// again for a tool for example, set assistaAsk to its value, and if the
 		// next message is not an ask then it doesn't reset. This is likely due
 		// to how much more often we're updating messages as compared to before,
 		// and should be resolved with optimizations as it's likely a rendering
@@ -440,7 +448,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		const isLastAsk = !!modifiedMessages.at(-1)?.ask
 
 		const isToolCurrentlyAsking =
-			isLastAsk && clineAsk !== undefined && enableButtons && primaryButtonText !== undefined
+			isLastAsk && assistaAsk !== undefined && enableButtons && primaryButtonText !== undefined
 
 		if (isToolCurrentlyAsking) {
 			return false
@@ -468,14 +476,14 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		}
 
 		return false
-	}, [modifiedMessages, clineAsk, enableButtons, primaryButtonText])
+	}, [modifiedMessages, assistaAsk, enableButtons, primaryButtonText])
 
 	const handleChatReset = useCallback(() => {
 		// Only reset message-specific state, preserving mode.
 		setInputValue("")
 		setSendingDisabled(true)
 		setSelectedImages([])
-		setClineAsk(undefined)
+		setAssistaAsk(undefined)
 		setEnableButtons(false)
 		// Do not reset mode here as it should persist.
 		// setPrimaryButtonText(undefined)
@@ -490,10 +498,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			if (text || images.length > 0) {
 				if (messagesRef.current.length === 0) {
 					vscode.postMessage({ type: "newTask", text, images })
-				} else if (clineAskRef.current) {
-					// Use clineAskRef.current
+				} else if (assistaAskRef.current) {
+					// Use assistaAskRef.current
 					switch (
-						clineAskRef.current // Use clineAskRef.current
+						assistaAskRef.current // Use assistaAskRef.current
 					) {
 						case "followup":
 						case "tool":
@@ -514,7 +522,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				handleChatReset()
 			}
 		},
-		[handleChatReset], // messagesRef and clineAskRef are stable
+		[handleChatReset], // messagesRef and assistaAskRef are stable
 	)
 
 	const handleSetChatBoxMessage = useCallback(
@@ -534,14 +542,14 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	const startNewTask = useCallback(() => vscode.postMessage({ type: "clearTask" }), [])
 
-	// This logic depends on the useEffect[messages] above to set clineAsk,
+	// This logic depends on the useEffect[messages] above to set assistaAsk,
 	// after which buttons are shown and we then send an askResponse to the
 	// extension.
 	const handlePrimaryButtonClick = useCallback(
 		(text?: string, images?: string[]) => {
 			const trimmedInput = text?.trim()
 
-			switch (clineAsk) {
+			switch (assistaAsk) {
 				case "api_req_failed":
 				case "command":
 				case "tool":
@@ -575,10 +583,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			}
 
 			setSendingDisabled(true)
-			setClineAsk(undefined)
+			setAssistaAsk(undefined)
 			setEnableButtons(false)
 		},
-		[clineAsk, startNewTask],
+		[assistaAsk, startNewTask],
 	)
 
 	const handleSecondaryButtonClick = useCallback(
@@ -591,7 +599,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				return
 			}
 
-			switch (clineAsk) {
+			switch (assistaAsk) {
 				case "api_req_failed":
 				case "mistake_limit_reached":
 				case "resume_task":
@@ -622,10 +630,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					break
 			}
 			setSendingDisabled(true)
-			setClineAsk(undefined)
+			setAssistaAsk(undefined)
 			setEnableButtons(false)
 		},
-		[clineAsk, startNewTask, isStreaming],
+		[assistaAsk, startNewTask, isStreaming],
 	)
 
 	const handleTaskCloseButtonClick = useCallback(() => startNewTask(), [startNewTask])
@@ -713,24 +721,22 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	// NOTE: the VSCode window needs to be focused for this to work.
 	useMount(() => textAreaRef.current?.focus())
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
+	useDebounceEffect(
+		() => {
 			if (!isHidden && !sendingDisabled && !enableButtons) {
 				textAreaRef.current?.focus()
 			}
-		}, 50)
-
-		return () => {
-			clearTimeout(timer)
-		}
-	}, [isHidden, sendingDisabled, enableButtons])
+		},
+		50,
+		[isHidden, sendingDisabled, enableButtons]
+	)
 
 	const visibleMessages = useMemo(() => {
 		const newVisibleMessages = modifiedMessages.filter((message) => {
 			if (everVisibleMessagesTsRef.current.has(message.ts)) {
 				// If it was ever visible, and it's not one of the types that should always be hidden once processed, keep it.
 				// This helps prevent flickering for messages like 'api_req_retry_delayed' if they are no longer the absolute last.
-				const alwaysHiddenOnceProcessedAsk: ClineAsk[] = [
+				const alwaysHiddenOnceProcessedAsk: AssistaAsk[] = [
 					"api_req_failed",
 					"resume_task",
 					"resume_completed_task",
@@ -790,7 +796,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		return newVisibleMessages
 	}, [modifiedMessages])
 
-	const isReadOnlyToolAction = useCallback((message: ClineMessage | undefined) => {
+	const isReadOnlyToolAction = useCallback((message: AssistaMessage | undefined) => {
 		if (message?.type === "ask") {
 			if (!message.text) {
 				return true
@@ -812,7 +818,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		return false
 	}, [])
 
-	const isWriteToolAction = useCallback((message: ClineMessage | undefined) => {
+	const isWriteToolAction = useCallback((message: AssistaMessage | undefined) => {
 		if (message?.type === "ask") {
 			if (!message.text) {
 				return true
@@ -833,7 +839,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	}, [])
 
 	const isMcpToolAlwaysAllowed = useCallback(
-		(message: ClineMessage | undefined) => {
+		(message: AssistaMessage | undefined) => {
 			if (message?.type === "ask" && message.ask === "use_mcp_server") {
 				if (!message.text) {
 					return true
@@ -855,7 +861,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	// Check if a command message is allowed.
 	const isAllowedCommand = useCallback(
-		(message: ClineMessage | undefined): boolean => {
+		(message: AssistaMessage | undefined): boolean => {
 			if (message?.type !== "ask") return false
 			return validateCommand(message.text || "", allowedCommands || [])
 		},
@@ -863,7 +869,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	)
 
 	const isAutoApproved = useCallback(
-		(message: ClineMessage | undefined) => {
+		(message: AssistaMessage | undefined) => {
 			if (!autoApprovalEnabled || !message || message.type !== "ask") {
 				return false
 			}
@@ -914,13 +920,18 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				}
 
 				const isOutsideWorkspace = !!tool.isOutsideWorkspace
+				const isProtected = message.isProtected
 
 				if (isReadOnlyToolAction(message)) {
 					return alwaysAllowReadOnly && (!isOutsideWorkspace || alwaysAllowReadOnlyOutsideWorkspace)
 				}
 
 				if (isWriteToolAction(message)) {
-					return alwaysAllowWrite && (!isOutsideWorkspace || alwaysAllowWriteOutsideWorkspace)
+					return (
+						alwaysAllowWrite &&
+						(!isOutsideWorkspace || alwaysAllowWriteOutsideWorkspace) &&
+						(!isProtected || alwaysAllowWriteProtected)
+					)
 				}
 			}
 
@@ -934,6 +945,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			isReadOnlyToolAction,
 			alwaysAllowWrite,
 			alwaysAllowWriteOutsideWorkspace,
+			alwaysAllowWriteProtected,
 			isWriteToolAction,
 			alwaysAllowExecute,
 			isAllowedCommand,
@@ -977,7 +989,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		setWasStreaming(isStreaming)
 	}, [isStreaming, lastMessage, wasStreaming, isAutoApproved, messages.length])
 
-	const isBrowserSessionMessage = (message: ClineMessage): boolean => {
+	const isBrowserSessionMessage = (message: AssistaMessage): boolean => {
 		// Which of visible messages are browser session messages, see above.
 		if (message.type === "ask") {
 			return ["browser_action_launch"].includes(message.ask!)
@@ -991,8 +1003,8 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	}
 
 	const groupedMessages = useMemo(() => {
-		const result: (ClineMessage | ClineMessage[])[] = []
-		let currentGroup: ClineMessage[] = []
+		const result: (AssistaMessage | AssistaMessage[])[] = []
+		let currentGroup: AssistaMessage[] = []
 		let isInBrowserSession = false
 
 		const endBrowserSession = () => {
@@ -1036,7 +1048,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 					// Check if this is a close action
 					if (message.say === "browser_action") {
-						const browserAction = JSON.parse(message.text || "{}") as ClineSayBrowserAction
+						const browserAction = JSON.parse(message.text || "{}") as AssistaSayBrowserAction
 						if (browserAction.action === "close") {
 							endBrowserSession()
 						}
@@ -1079,6 +1091,14 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		[],
 	)
 
+	useEffect(() => {
+		return () => {
+			if (scrollToBottomSmooth && typeof (scrollToBottomSmooth as any).cancel === 'function') {
+				(scrollToBottomSmooth as any).cancel()
+			}
+		}
+	}, [scrollToBottomSmooth])
+
 	const scrollToBottomAuto = useCallback(() => {
 		virtuosoRef.current?.scrollTo({
 			top: Number.MAX_SAFE_INTEGER,
@@ -1117,13 +1137,13 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	)
 
 	useEffect(() => {
-		let timerId: NodeJS.Timeout | undefined
+		let timer: NodeJS.Timeout | undefined
 		if (!disableAutoScrollRef.current) {
-			timerId = setTimeout(() => scrollToBottomSmooth(), 50)
+			timer = setTimeout(() => scrollToBottomSmooth(), 50)
 		}
 		return () => {
-			if (timerId) {
-				clearTimeout(timerId)
+			if (timer) {
+				clearTimeout(timer)
 			}
 		}
 	}, [groupedMessages.length, scrollToBottomSmooth])
@@ -1144,21 +1164,23 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	// Effect to handle showing the checkpoint warning after a delay
 	useEffect(() => {
 		// Only show the warning when there's a task but no visible messages yet
-		if (task && modifiedMessages.length === 0 && !isStreaming) {
+		if (task && modifiedMessages.length === 0 && !isStreaming && !isHidden) {
 			const timer = setTimeout(() => {
 				setShowCheckpointWarning(true)
 			}, 5000) // 5 seconds
 
 			return () => clearTimeout(timer)
+		} else {
+			setShowCheckpointWarning(false)
 		}
-	}, [task, modifiedMessages.length, isStreaming])
+	}, [task, modifiedMessages.length, isStreaming, isHidden])
 
 	// Effect to hide the checkpoint warning when messages appear
 	useEffect(() => {
-		if (modifiedMessages.length > 0 || isStreaming) {
+		if (modifiedMessages.length > 0 || isStreaming || isHidden) {
 			setShowCheckpointWarning(false)
 		}
-	}, [modifiedMessages.length, isStreaming])
+	}, [modifiedMessages.length, isStreaming, isHidden])
 
 	const placeholderText = task ? t("chat:typeMessage") : t("chat:typeTask")
 
@@ -1173,7 +1195,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				handleSendMessage(answer, [])
 			}
 		},
-		[handleSendMessage, setInputValue], // setInputValue is stable, handleSendMessage depends on clineAsk
+		[handleSendMessage, setInputValue], // setInputValue is stable, handleSendMessage depends on assistaAsk
 	)
 
 	const handleBatchFileResponse = useCallback((response: { [key: string]: boolean }) => {
@@ -1182,7 +1204,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	}, [])
 
 	const itemContent = useCallback(
-		(index: number, messageOrGroup: ClineMessage | ClineMessage[]) => {
+		(index: number, messageOrGroup: AssistaMessage | AssistaMessage[]) => {
 			// browser session group
 			if (Array.isArray(messageOrGroup)) {
 				return (
@@ -1232,40 +1254,42 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	)
 
 	useEffect(() => {
-		// Only proceed if we have an ask and buttons are enabled.
-		if (!clineAsk || !enableButtons) {
+		if (autoApproveTimeoutRef.current) {
+			clearTimeout(autoApproveTimeoutRef.current)
+			autoApproveTimeoutRef.current = null
+		}
+
+		if (!assistaAsk || !enableButtons) {
 			return
 		}
 
 		const autoApprove = async () => {
 			if (lastMessage?.ask && isAutoApproved(lastMessage)) {
-				// Note that `isAutoApproved` can only return true if
-				// lastMessage is an ask of type "browser_action_launch",
-				// "use_mcp_server", "command", or "tool".
-
-				// Add delay for write operations.
 				if (lastMessage.ask === "tool" && isWriteToolAction(lastMessage)) {
-					await new Promise((resolve) => setTimeout(resolve, writeDelayMs))
-					if (!isMountedRef.current) {
-						return
-					}
+					await new Promise<void>((resolve) => {
+						autoApproveTimeoutRef.current = setTimeout(resolve, writeDelayMs)
+					})
 				}
 
-				vscode.postMessage({ type: "askResponse", askResponse: "yesButtonClicked" })
+				if (autoApproveTimeoutRef.current === null || autoApproveTimeoutRef.current) {
+					vscode.postMessage({ type: "askResponse", askResponse: "yesButtonClicked" })
 
-				// This is copied from `handlePrimaryButtonClick`, which we used
-				// to call from `autoApprove`. I'm not sure how many of these
-				// things are actually needed.
-				if (isMountedRef.current) {
 					setSendingDisabled(true)
-					setClineAsk(undefined)
+					setAssistaAsk(undefined)
 					setEnableButtons(false)
 				}
 			}
 		}
 		autoApprove()
+
+		return () => {
+			if (autoApproveTimeoutRef.current) {
+				clearTimeout(autoApproveTimeoutRef.current)
+				autoApproveTimeoutRef.current = null
+			}
+		}
 	}, [
-		clineAsk,
+		assistaAsk,
 		enableButtons,
 		handlePrimaryButtonClick,
 		alwaysAllowBrowser,
@@ -1384,8 +1408,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					)}
 					<div
 						className={` w-full flex flex-col gap-4 m-auto ${isExpanded && tasks.length > 0 ? "mt-0" : ""} px-3.5 min-[370px]:px-10 pt-5 transition-all duration-300`}>
-						<RooHero />
-						{telemetrySetting === "unset" && <TelemetryBanner />}
+						<AssistaHero />
 						{/* Show the task history preview if expanded and tasks exist */}
 						{taskHistory.length > 0 && isExpanded && <HistoryPreview />}
 						<p className="text-vscode-editor-foreground leading-tight font-vscode-font-family text-center text-balance max-w-[380px] mx-auto">
@@ -1400,7 +1423,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								}}
 							/>
 						</p>
-						<RooTips cycle={false} />
+						<AssistaTips cycle={false} />
 					</div>
 				</div>
 			)}
@@ -1531,7 +1554,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				inputValue={inputValue}
 				setInputValue={setInputValue}
 				sendingDisabled={sendingDisabled || isProfileDisabled}
-				selectApiConfigDisabled={sendingDisabled && clineAsk !== "api_req_failed"}
+				selectApiConfigDisabled={sendingDisabled && assistaAsk !== "api_req_failed"}
 				placeholderText={placeholderText}
 				selectedImages={selectedImages}
 				setSelectedImages={setSelectedImages}
@@ -1554,7 +1577,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				</div>
 			)}
 
-			<div id="roo-portal" />
+			<div id="assista-portal" />
 		</div>
 	)
 }

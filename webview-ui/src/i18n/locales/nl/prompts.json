@@ -6,8 +6,8 @@
 		"createNewMode": "Nieuwe modus aanmaken",
 		"editModesConfig": "Modusconfiguratie bewerken",
 		"editGlobalModes": "Globale modi bewerken",
-		"editProjectModes": "Projectmodi bewerken (.roomodes)",
-		"createModeHelpText": "Modi zijn gespecialiseerde persona's die het gedrag van Roo aanpassen. <0>Meer informatie over het gebruik van modi</0> of <1>het aanpassen van modi.</1>",
+		"editProjectModes": "Projectmodi bewerken (.assistamodes)",
+		"createModeHelpText": "Modi zijn gespecialiseerde persona's die het gedrag van Assista aanpassen. <0>Meer informatie over het gebruik van modi</0> of <1>het aanpassen van modi.</1>",
 		"selectMode": "Modus zoeken"
 	},
 	"apiConfiguration": {
@@ -32,7 +32,7 @@
 	"roleDefinition": {
 		"title": "Roldefinitie",
 		"resetToDefault": "Terugzetten naar standaard",
-		"description": "Definieer Roo's expertise en persoonlijkheid voor deze modus. Deze beschrijving bepaalt hoe Roo zich presenteert en taken benadert."
+		"description": "Definieer Assista's expertise en persoonlijkheid voor deze modus. Deze beschrijving bepaalt hoe Assista zich presenteert en taken benadert."
 	},
 	"whenToUse": {
 		"title": "Wanneer te gebruiken (optioneel)",
@@ -43,12 +43,12 @@
 		"title": "Modusspecifieke instructies (optioneel)",
 		"resetToDefault": "Terugzetten naar standaard",
 		"description": "Voeg gedragsrichtlijnen toe die specifiek zijn voor de modus {{modeName}}.",
-		"loadFromFile": "Modusspecifieke instructies voor {{mode}} kunnen ook worden geladen uit de map <span>.roo/rules-{{slug}}/</span> in je werkruimte (.roorules-{{slug}} en .clinerules-{{slug}} zijn verouderd en werken binnenkort niet meer)."
+		"loadFromFile": "Modusspecifieke instructies voor {{mode}} kunnen ook worden geladen uit de map <span>.assista/rules-{{slug}}/</span> in je werkruimte (.assistarules-{{slug}} en .assistarules-{{slug}} zijn verouderd en werken binnenkort niet meer)."
 	},
 	"globalCustomInstructions": {
 		"title": "Aangepaste instructies voor alle modi",
 		"description": "Deze instructies gelden voor alle modi. Ze bieden een basisset aan gedragingen die kunnen worden uitgebreid met modusspecifieke instructies hieronder. <0>Meer informatie</0>",
-		"loadFromFile": "Instructies kunnen ook worden geladen uit de map <span>.roo/rules/</span> in je werkruimte (.roorules en .clinerules zijn verouderd en werken binnenkort niet meer)."
+		"loadFromFile": "Instructies kunnen ook worden geladen uit de map <span>.assista/rules/</span> in je werkruimte (.assistarules en .assistarules zijn verouderd en werken binnenkort niet meer)."
 	},
 	"systemPrompt": {
 		"preview": "Systeemprompt bekijken",
@@ -70,7 +70,7 @@
 		"types": {
 			"ENHANCE": {
 				"label": "Prompt verbeteren",
-				"description": "Gebruik promptverbetering om op maat gemaakte suggesties of verbeteringen voor je invoer te krijgen. Zo begrijpt Roo je intentie en krijg je de best mogelijke antwoorden. Beschikbaar via het ✨-icoon in de chat."
+				"description": "Gebruik promptverbetering om op maat gemaakte suggesties of verbeteringen voor je invoer te krijgen. Zo begrijpt Assista je intentie en krijg je de best mogelijke antwoorden. Beschikbaar via het ✨-icoon in de chat."
 			},
 			"EXPLAIN": {
 				"label": "Code uitleggen",
@@ -108,7 +108,7 @@
 	},
 	"advancedSystemPrompt": {
 		"title": "Geavanceerd: Systeemprompt overschrijven",
-		"description": "<2>⚠️ Waarschuwing:</2> Deze geavanceerde functie omzeilt beveiligingen. <1>LEES DIT VOOR GEBRUIK!</1>Overschrijf de standaard systeemprompt door een bestand aan te maken op <span>.roo/system-prompt-{{slug}}</span>."
+		"description": "<2>⚠️ Waarschuwing:</2> Deze geavanceerde functie omzeilt beveiligingen. <1>LEES DIT VOOR GEBRUIK!</1>Overschrijf de standaard systeemprompt door een bestand aan te maken op <span>.assista/system-prompt-{{slug}}</span>."
 	},
 	"createModeDialog": {
 		"title": "Nieuwe modus aanmaken",
@@ -129,13 +129,13 @@
 				"description": "Beschikbaar in alle werkruimtes"
 			},
 			"project": {
-				"label": "Projectspecifiek (.roomodes)",
+				"label": "Projectspecifiek (.assistamodes)",
 				"description": "Alleen beschikbaar in deze werkruimte, heeft voorrang op globaal"
 			}
 		},
 		"roleDefinition": {
 			"label": "Roldefinitie",
-			"description": "Definieer Roo's expertise en persoonlijkheid voor deze modus."
+			"description": "Definieer Assista's expertise en persoonlijkheid voor deze modus."
 		},
 		"whenToUse": {
 			"label": "Wanneer te gebruiken (optioneel)",

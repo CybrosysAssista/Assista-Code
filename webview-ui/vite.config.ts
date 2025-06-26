@@ -61,11 +61,11 @@ export default defineConfig(({ mode }) => {
 		"process.env.VSCODE_TEXTMATE_DEBUG": JSON.stringify(process.env.VSCODE_TEXTMATE_DEBUG),
 		"process.env.PKG_NAME": JSON.stringify(pkg.name),
 		"process.env.PKG_VERSION": JSON.stringify(pkg.version),
-		"process.env.PKG_OUTPUT_CHANNEL": JSON.stringify("Roo-Code"),
+		"process.env.PKG_OUTPUT_CHANNEL": JSON.stringify("Cybrosys-Assista"),
 		...(gitSha ? { "process.env.PKG_SHA": JSON.stringify(gitSha) } : {}),
 	}
 
-	// TODO: We can use `@roo-code/build` to generate `define` once the
+	// TODO: We can use `@cybrosys-assista/build` to generate `define` once the
 	// monorepo is deployed.
 	if (mode === "nightly") {
 		outDir = "../apps/vscode-nightly/build/webview-ui/build"
@@ -76,7 +76,7 @@ export default defineConfig(({ mode }) => {
 
 		define["process.env.PKG_NAME"] = JSON.stringify(nightlyPkg.name)
 		define["process.env.PKG_VERSION"] = JSON.stringify(nightlyPkg.version)
-		define["process.env.PKG_OUTPUT_CHANNEL"] = JSON.stringify("Roo-Code-Nightly")
+		define["process.env.PKG_OUTPUT_CHANNEL"] = JSON.stringify("Cybrosys-Assista-Nightly")
 	}
 
 	const plugins: PluginOption[] = [react(), tailwindcss(), persistPortPlugin(), wasmPlugin()]
@@ -87,7 +87,7 @@ export default defineConfig(({ mode }) => {
 			alias: {
 				"@": resolve(__dirname, "./src"),
 				"@src": resolve(__dirname, "./src"),
-				"@roo": resolve(__dirname, "../src/shared"),
+				"@assista": resolve(__dirname, "../src/shared"),
 			},
 		},
 		build: {
@@ -105,7 +105,17 @@ export default defineConfig(({ mode }) => {
 						// Default naming for other chunks, ensuring uniqueness from entry
 						return `assets/chunk-[hash].js`
 					},
-					assetFileNames: `assets/[name].[ext]`,
+					assetFileNames: (assetInfo) => {
+						if (
+							assetInfo.name &&
+							(assetInfo.name.endsWith(".woff2") ||
+								assetInfo.name.endsWith(".woff") ||
+								assetInfo.name.endsWith(".ttf"))
+						) {
+							return "assets/fonts/[name][extname]"
+						}
+						return "assets/[name][extname]"
+					},
 					manualChunks: (id, { getModuleInfo }) => {
 						// Consolidate all mermaid code and its direct large dependencies (like dagre)
 						// into a single chunk. The 'channel.js' error often points to dagre.

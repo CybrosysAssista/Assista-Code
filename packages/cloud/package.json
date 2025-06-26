@@ -1,6 +1,6 @@
 {
-	"name": "@roo-code/cloud",
-	"description": "Roo Code Cloud VSCode integration.",
+	"name": "@cybrosys-assista/cloud",
+	"description": "Cybrosys Assista Cloud VSCode integration.",
 	"version": "0.0.0",
 	"type": "module",
 	"exports": "./src/index.ts",
@@ -11,16 +11,15 @@
 		"clean": "rimraf dist .turbo"
 	},
 	"dependencies": {
-		"@roo-code/telemetry": "workspace:^",
-		"@roo-code/types": "workspace:^",
+		"@cybrosys-assista/types": "workspace:^",
 		"axios": "^1.7.4",
 		"zod": "^3.25.61"
 	},
 	"devDependencies": {
-		"@roo-code/config-eslint": "workspace:^",
-		"@roo-code/config-typescript": "workspace:^",
+		"@cybrosys-assista/config-eslint": "workspace:^",
+		"@cybrosys-assista/config-typescript": "workspace:^",
 		"@types/node": "20.x",
 		"@types/vscode": "^1.84.0",
-		"vitest": "^3.1.3"
+		"vitest": "^3.2.3"
 	}
 }

@@ -1,5 +1,5 @@
 {
-	"greeting": "Benvingut a Roo Code",
+	"greeting": "Benvingut a Cybrosys Assista",
 	"task": {
 		"title": "Tasca",
 		"seeMore": "Veure més",
@@ -12,7 +12,11 @@
 		"export": "Exportar historial de tasques",
 		"delete": "Eliminar tasca (Shift + Clic per ometre confirmació)",
 		"condenseContext": "Condensar context de forma intel·ligent",
-		"share": "Compartir tasca"
+		"share": "Compartir tasca",
+		"shareWithOrganization": "Compartir amb l'organització",
+		"shareWithOrganizationDescription": "Només els membres de la teva organització poden accedir",
+		"sharePublicly": "Compartir públicament",
+		"sharePubliclyDescription": "Qualsevol amb l'enllaç pot accedir"
 	},
 	"unpin": "Desfixar",
 	"pin": "Fixar",
@@ -72,10 +76,10 @@
 	},
 	"scrollToBottom": "Desplaça't al final del xat",
 	"about": "Genera, refactoritza i depura codi amb l'ajuda de la IA. Consulta la nostra <DocsLink>documentació</DocsLink> per obtenir més informació.",
-	"onboarding": "<strong> La vostra llista de tasques en aquest espai de treball està buida. </strong> Comença escrivint una tasca a continuació. \nNo esteu segur per on començar? \nMés informació sobre què pot fer Roo als documents.",
-	"rooTips": {
+	"onboarding": "<strong> La vostra llista de tasques en aquest espai de treball està buida. </strong> Comença escrivint una tasca a continuació. \nNo esteu segur per on començar? \nMés informació sobre què pot fer Assista als documents.",
+	"assistaTips": {
 		"boomerangTasks": {
-			"title": "Tasques Boomerang",
+			"title": "Orquestració de Tasques",
 			"description": "Divideix les tasques en parts més petites i manejables."
 		},
 		"stickyModels": {
@@ -111,7 +115,7 @@
 	"diffError": {
 		"title": "Edició fallida"
 	},
-	"troubleMessage": "Roo està tenint problemes...",
+	"troubleMessage": "Assista està tenint problemes...",
 	"apiRequest": {
 		"title": "Sol·licitud API",
 		"failed": "Sol·licitud API ha fallat",
@@ -137,49 +141,59 @@
 		"current": "Actual"
 	},
 	"instructions": {
-		"wantsToFetch": "Roo vol obtenir instruccions detallades per ajudar amb la tasca actual."
+		"wantsToFetch": "Assista vol obtenir instruccions detallades per ajudar amb la tasca actual."
 	},
 	"fileOperations": {
-		"wantsToRead": "Roo vol llegir aquest fitxer:",
-		"wantsToReadOutsideWorkspace": "Roo vol llegir aquest fitxer fora de l'espai de treball:",
-		"didRead": "Roo ha llegit aquest fitxer:",
-		"wantsToEdit": "Roo vol editar aquest fitxer:",
-		"wantsToEditOutsideWorkspace": "Roo vol editar aquest fitxer fora de l'espai de treball:",
-		"wantsToCreate": "Roo vol crear un nou fitxer:",
-		"wantsToSearchReplace": "Roo vol realitzar cerca i substitució en aquest fitxer:",
-		"didSearchReplace": "Roo ha realitzat cerca i substitució en aquest fitxer:",
-		"wantsToInsert": "Roo vol inserir contingut en aquest fitxer:",
-		"wantsToInsertWithLineNumber": "Roo vol inserir contingut a la línia {{lineNumber}} d'aquest fitxer:",
-		"wantsToInsertAtEnd": "Roo vol afegir contingut al final d'aquest fitxer:",
-		"wantsToReadAndXMore": "En Roo vol llegir aquest fitxer i {{count}} més:",
-		"wantsToReadMultiple": "Roo vol llegir diversos fitxers:"
+		"wantsToRead": "Assista vol llegir aquest fitxer:",
+		"wantsToReadOutsideWorkspace": "Assista vol llegir aquest fitxer fora de l'espai de treball:",
+		"didRead": "Assista ha llegit aquest fitxer:",
+		"wantsToEdit": "Assista vol editar aquest fitxer:",
+		"wantsToEditOutsideWorkspace": "Assista vol editar aquest fitxer fora de l'espai de treball:",
+		"wantsToEditProtected": "Assista vol editar un fitxer de configuració protegit:",
+		"wantsToCreate": "Assista vol crear un nou fitxer:",
+		"wantsToSearchReplace": "Assista vol realitzar cerca i substitució en aquest fitxer:",
+		"didSearchReplace": "Assista ha realitzat cerca i substitució en aquest fitxer:",
+		"wantsToInsert": "Assista vol inserir contingut en aquest fitxer:",
+		"wantsToInsertWithLineNumber": "Assista vol inserir contingut a la línia {{lineNumber}} d'aquest fitxer:",
+		"wantsToInsertAtEnd": "Assista vol afegir contingut al final d'aquest fitxer:",
+		"wantsToReadAndXMore": "En Assista vol llegir aquest fitxer i {{count}} més:",
+		"wantsToReadMultiple": "Assista vol llegir diversos fitxers:",
+		"wantsToApplyBatchChanges": "Assista vol aplicar canvis a múltiples fitxers:"
 	},
 	"directoryOperations": {
-		"wantsToViewTopLevel": "Roo vol veure els fitxers de nivell superior en aquest directori:",
-		"didViewTopLevel": "Roo ha vist els fitxers de nivell superior en aquest directori:",
-		"wantsToViewRecursive": "Roo vol veure recursivament tots els fitxers en aquest directori:",
-		"didViewRecursive": "Roo ha vist recursivament tots els fitxers en aquest directori:",
-		"wantsToViewDefinitions": "Roo vol veure noms de definicions de codi font utilitzats en aquest directori:",
-		"didViewDefinitions": "Roo ha vist noms de definicions de codi font utilitzats en aquest directori:",
-		"wantsToSearch": "Roo vol cercar en aquest directori <code>{{regex}}</code>:",
-		"didSearch": "Roo ha cercat en aquest directori <code>{{regex}}</code>:"
+		"wantsToViewTopLevel": "Assista vol veure els fitxers de nivell superior en aquest directori:",
+		"didViewTopLevel": "Assista ha vist els fitxers de nivell superior en aquest directori:",
+		"wantsToViewRecursive": "Assista vol veure recursivament tots els fitxers en aquest directori:",
+		"didViewRecursive": "Assista ha vist recursivament tots els fitxers en aquest directori:",
+		"wantsToViewDefinitions": "Assista vol veure noms de definicions de codi font utilitzats en aquest directori:",
+		"didViewDefinitions": "Assista ha vist noms de definicions de codi font utilitzats en aquest directori:",
+		"wantsToSearch": "Assista vol cercar en aquest directori <code>{{regex}}</code>:",
+		"didSearch": "Assista ha cercat en aquest directori <code>{{regex}}</code>:",
+		"wantsToSearchOutsideWorkspace": "Assista vol cercar en aquest directori (fora de l'espai de treball) <code>{{regex}}</code>:",
+		"didSearchOutsideWorkspace": "Assista ha cercat en aquest directori (fora de l'espai de treball) <code>{{regex}}</code>:",
+		"wantsToViewTopLevelOutsideWorkspace": "Assista vol veure els fitxers de nivell superior en aquest directori (fora de l'espai de treball):",
+		"didViewTopLevelOutsideWorkspace": "Assista ha vist els fitxers de nivell superior en aquest directori (fora de l'espai de treball):",
+		"wantsToViewRecursiveOutsideWorkspace": "Assista vol veure recursivament tots els fitxers en aquest directori (fora de l'espai de treball):",
+		"didViewRecursiveOutsideWorkspace": "Assista ha vist recursivament tots els fitxers en aquest directori (fora de l'espai de treball):",
+		"wantsToViewDefinitionsOutsideWorkspace": "Assista vol veure noms de definicions de codi font utilitzats en aquest directori (fora de l'espai de treball):",
+		"didViewDefinitionsOutsideWorkspace": "Assista ha vist noms de definicions de codi font utilitzats en aquest directori (fora de l'espai de treball):"
 	},
 	"commandOutput": "Sortida de l'ordre",
 	"response": "Resposta",
 	"arguments": "Arguments",
 	"mcp": {
-		"wantsToUseTool": "Roo vol utilitzar una eina al servidor MCP {{serverName}}:",
-		"wantsToAccessResource": "Roo vol accedir a un recurs al servidor MCP {{serverName}}:"
+		"wantsToUseTool": "Assista vol utilitzar una eina al servidor MCP {{serverName}}:",
+		"wantsToAccessResource": "Assista vol accedir a un recurs al servidor MCP {{serverName}}:"
 	},
 	"modes": {
-		"wantsToSwitch": "Roo vol canviar a mode <code>{{mode}}</code>",
-		"wantsToSwitchWithReason": "Roo vol canviar a mode <code>{{mode}}</code> perquè: {{reason}}",
-		"didSwitch": "Roo ha canviat a mode <code>{{mode}}</code>",
-		"didSwitchWithReason": "Roo ha canviat a mode <code>{{mode}}</code> perquè: {{reason}}"
+		"wantsToSwitch": "Assista vol canviar a mode <code>{{mode}}</code>",
+		"wantsToSwitchWithReason": "Assista vol canviar a mode <code>{{mode}}</code> perquè: {{reason}}",
+		"didSwitch": "Assista ha canviat a mode <code>{{mode}}</code>",
+		"didSwitchWithReason": "Assista ha canviat a mode <code>{{mode}}</code> perquè: {{reason}}"
 	},
 	"subtasks": {
-		"wantsToCreate": "Roo vol crear una nova subtasca en mode <code>{{mode}}</code>:",
-		"wantsToFinish": "Roo vol finalitzar aquesta subtasca",
+		"wantsToCreate": "Assista vol crear una nova subtasca en mode <code>{{mode}}</code>:",
+		"wantsToFinish": "Assista vol finalitzar aquesta subtasca",
 		"newTaskContent": "Instruccions de la subtasca",
 		"completionContent": "Subtasca completada",
 		"resultContent": "Resultats de la subtasca",
@@ -187,7 +201,7 @@
 		"completionInstructions": "Subtasca completada! Pots revisar els resultats i suggerir correccions o següents passos. Si tot sembla correcte, confirma per tornar el resultat a la tasca principal."
 	},
 	"questions": {
-		"hasQuestion": "Roo té una pregunta:"
+		"hasQuestion": "Assista té una pregunta:"
 	},
 	"taskCompleted": "Tasca completada",
 	"powershell": {
@@ -196,7 +210,7 @@
 	"autoApprove": {
 		"title": "Aprovació automàtica:",
 		"none": "Cap",
-		"description": "L'aprovació automàtica permet a Roo Code realitzar accions sense demanar permís. Activa-la només per a accions en les que confies plenament. Configuració més detallada disponible a la <settingsLink>Configuració</settingsLink>."
+		"description": "L'aprovació automàtica permet a Cybrosys Assista realitzar accions sense demanar permís. Activa-la només per a accions en les que confies plenament. Configuració més detallada disponible a la <settingsLink>Configuració</settingsLink>."
 	},
 	"reasoning": {
 		"thinking": "Pensant",
@@ -212,17 +226,17 @@
 		"copyToInput": "Copiar a l'entrada (o Shift + clic)"
 	},
 	"announcement": {
-		"title": "🎉 Roo Code {{version}} publicat",
-		"description": "Roo Code {{version}} porta noves funcionalitats potents i millores basades en els teus comentaris.",
+		"title": "🎉 Cybrosys Assista {{version}} publicat",
+		"description": "Cybrosys Assista {{version}} porta noves funcionalitats potents i millores basades en els teus comentaris.",
 		"whatsNew": "Novetats",
-		"feature1": "<bold>Condensació intel·ligent de context activada per defecte</bold>: La condensació de context ara està activada per defecte amb configuracions configurables per quan es produeix la condensació automàtica",
-		"feature2": "<bold>Botó de condensació manual</bold>: Nou botó a la capçalera de tasques que et permet activar manualment la condensació de context en qualsevol moment",
-		"feature3": "<bold>Configuració avançada de condensació</bold>: Ajusta quan i com es produeix la condensació automàtica a través de <contextSettingsLink>Configuració de context</contextSettingsLink>",
+		"feature1": "<bold>Llançament del Marketplace Assista</bold> - El marketplace ja està en funcionament! Descobreix i instal·la modes i MCP més fàcilment que mai.",
+		"feature2": "<bold>Models Gemini 2.5</bold> - S'ha afegit suport per als nous models Gemini 2.5 Pro, Flash i Flash Lite.",
+		"feature3": "<bold>Suport per a fitxers Excel i més</bold> - S'ha afegit suport per a fitxers Excel (.xlsx) i nombroses correccions d'errors i millores!",
 		"hideButton": "Amagar anunci",
 		"detailsDiscussLinks": "Obtingues més detalls i participa a <discordLink>Discord</discordLink> i <redditLink>Reddit</redditLink> 🚀"
 	},
 	"browser": {
-		"rooWantsToUse": "Roo vol utilitzar el navegador:",
+		"assistaWantsToUse": "Assista vol utilitzar el navegador:",
 		"consoleLogs": "Registres de consola",
 		"noNewLogs": "(Cap registre nou)",
 		"screenshot": "Captura de pantalla del navegador",
@@ -256,19 +270,19 @@
 	"profileViolationWarning": "El perfil actual infringeix la configuració de la teva organització",
 	"shellIntegration": {
 		"title": "Advertència d'execució d'ordres",
-		"description": "La teva ordre s'està executant sense la integració de shell del terminal VSCode. Per suprimir aquest advertiment, pots desactivar la integració de shell a la secció <strong>Terminal</strong> de la <settingsLink>configuració de Roo Code</settingsLink> o solucionar problemes d'integració del terminal VSCode utilitzant l'enllaç a continuació.",
+		"description": "La teva ordre s'està executant sense la integració de shell del terminal VSCode. Per suprimir aquest advertiment, pots desactivar la integració de shell a la secció <strong>Terminal</strong> de la <settingsLink>configuració de Cybrosys Assista</settingsLink> o solucionar problemes d'integració del terminal VSCode utilitzant l'enllaç a continuació.",
 		"troubleshooting": "Fes clic aquí per a la documentació d'integració de shell."
 	},
 	"ask": {
 		"autoApprovedRequestLimitReached": {
 			"title": "S'ha arribat al límit de sol·licituds aprovades automàticament",
-			"description": "Roo ha arribat al límit aprovat automàticament de {{count}} sol·licitud(s) d'API. Vols reiniciar el comptador i continuar amb la tasca?",
+			"description": "Assista ha arribat al límit aprovat automàticament de {{count}} sol·licitud(s) d'API. Vols reiniciar el comptador i continuar amb la tasca?",
 			"button": "Reiniciar i continuar"
 		}
 	},
 	"codebaseSearch": {
-		"wantsToSearch": "Roo vol cercar a la base de codi <code>{{query}}</code>:",
-		"wantsToSearchWithPath": "Roo vol cercar a la base de codi <code>{{query}}</code> a <code>{{path}}</code>:",
+		"wantsToSearch": "Assista vol cercar a la base de codi <code>{{query}}</code>:",
+		"wantsToSearchWithPath": "Assista vol cercar a la base de codi <code>{{query}}</code> a <code>{{path}}</code>:",
 		"didSearch": "S'han trobat {{count}} resultat(s) per a <code>{{query}}</code>:"
 	},
 	"read-batch": {
@@ -278,5 +292,12 @@
 		"deny": {
 			"title": "Denegar tot"
 		}
+	},
+	"indexingStatus": {
+		"ready": "Índex preparat",
+		"indexing": "Indexant {{percentage}}%",
+		"indexed": "Indexat",
+		"error": "Error d'índex",
+		"status": "Estat de l'índex"
 	}
 }

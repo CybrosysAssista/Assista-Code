@@ -3,7 +3,7 @@ import delay from "delay"
 import * as vscode from "vscode"
 
 import { Task } from "../task/Task"
-import { ClineSayTool } from "../../shared/ExtensionMessage"
+import { AssistaSayTool } from "../../shared/ExtensionMessage"
 import { formatResponse } from "../prompts/responses"
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
@@ -15,7 +15,7 @@ import { detectCodeOmission } from "../../integrations/editor/detect-omission"
 import { unescapeHtmlEntities } from "../../utils/text-normalization"
 
 export async function writeToFileTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -26,95 +26,99 @@ export async function writeToFileTool(
 	let newContent: string | undefined = block.params.content
 	let predictedLineCount: number | undefined = parseInt(block.params.line_count ?? "0")
 
-	if (!relPath || newContent === undefined) {
+	if (block.partial && (!relPath || newContent === undefined)) {
 		// checking for newContent ensure relPath is complete
 		// wait so we can determine if it's a new file or editing an existing file
 		return
 	}
 
-	const accessAllowed = cline.rooIgnoreController?.validateAccess(relPath)
-
-	if (!accessAllowed) {
-		await cline.say("rooignore_error", relPath)
-		pushToolResult(formatResponse.toolError(formatResponse.rooIgnoreError(relPath)))
+	if (!relPath) {
+		assista.consecutiveMistakeCount++
+		assista.recordToolError("write_to_file")
+		pushToolResult(await assista.sayAndCreateMissingParamError("write_to_file", "path"))
+		await assista.diffViewProvider.reset()
 		return
 	}
+
+	if (newContent === undefined) {
+		assista.consecutiveMistakeCount++
+		assista.recordToolError("write_to_file")
+		pushToolResult(await assista.sayAndCreateMissingParamError("write_to_file", "content"))
+		await assista.diffViewProvider.reset()
+		return
+	}
+
+	const accessAllowed = assista.assistaIgnoreController?.validateAccess(relPath)
+
+	if (!accessAllowed) {
+		await assista.say("assistaignore_error", relPath)
+		pushToolResult(formatResponse.toolError(formatResponse.assistaIgnoreError(relPath)))
+		return
+	}
+
+	// Check if file is write-protected
+	const isWriteProtected = assista.assistaProtectedController?.isWriteProtected(relPath) || false
 
 	// Check if file exists using cached map or fs.access
 	let fileExists: boolean
 
-	if (cline.diffViewProvider.editType !== undefined) {
-		fileExists = cline.diffViewProvider.editType === "modify"
+	if (assista.diffViewProvider.editType !== undefined) {
+		fileExists = assista.diffViewProvider.editType === "modify"
 	} else {
-		const absolutePath = path.resolve(cline.cwd, relPath)
+		const absolutePath = path.resolve(assista.cwd, relPath)
 		fileExists = await fileExistsAtPath(absolutePath)
-		cline.diffViewProvider.editType = fileExists ? "modify" : "create"
+		assista.diffViewProvider.editType = fileExists ? "modify" : "create"
 	}
 
 	// pre-processing newContent for cases where weaker models might add artifacts like markdown codeblock markers (deepseek/llama) or extra escape characters (gemini)
 	if (newContent.startsWith("```")) {
-		// cline handles cases where it includes language specifiers like ```python ```js
-		newContent = newContent.split("\n").slice(1).join("\n").trim()
+		// assista handles cases where it includes language specifiers like ```python ```js
+		newContent = newContent.split("\n").slice(1).join("\n")
 	}
 
 	if (newContent.endsWith("```")) {
-		newContent = newContent.split("\n").slice(0, -1).join("\n").trim()
+		newContent = newContent.split("\n").slice(0, -1).join("\n")
 	}
 
-	if (!cline.api.getModel().id.includes("claude")) {
+	if (!assista.api.getModel().id.includes("claude")) {
 		newContent = unescapeHtmlEntities(newContent)
 	}
 
 	// Determine if the path is outside the workspace
-	const fullPath = relPath ? path.resolve(cline.cwd, removeClosingTag("path", relPath)) : ""
+	const fullPath = relPath ? path.resolve(assista.cwd, removeClosingTag("path", relPath)) : ""
 	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
 
-	const sharedMessageProps: ClineSayTool = {
+	const sharedMessageProps: AssistaSayTool = {
 		tool: fileExists ? "editedExistingFile" : "newFileCreated",
-		path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
+		path: getReadablePath(assista.cwd, removeClosingTag("path", relPath)),
 		content: newContent,
 		isOutsideWorkspace,
+		isProtected: isWriteProtected,
 	}
 
 	try {
 		if (block.partial) {
 			// update gui message
 			const partialMessage = JSON.stringify(sharedMessageProps)
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+			await assista.ask("tool", partialMessage, block.partial).catch(() => {})
 
 			// update editor
-			if (!cline.diffViewProvider.isEditing) {
+			if (!assista.diffViewProvider.isEditing) {
 				// open the editor and prepare to stream content in
-				await cline.diffViewProvider.open(relPath)
+				await assista.diffViewProvider.open(relPath)
 			}
 
 			// editor is open, stream content in
-			await cline.diffViewProvider.update(
+			await assista.diffViewProvider.update(
 				everyLineHasLineNumbers(newContent) ? stripLineNumbers(newContent) : newContent,
 				false,
 			)
 
 			return
 		} else {
-			if (!relPath) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("write_to_file")
-				pushToolResult(await cline.sayAndCreateMissingParamError("write_to_file", "path"))
-				await cline.diffViewProvider.reset()
-				return
-			}
-
-			if (newContent === undefined) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("write_to_file")
-				pushToolResult(await cline.sayAndCreateMissingParamError("write_to_file", "content"))
-				await cline.diffViewProvider.reset()
-				return
-			}
-
 			if (predictedLineCount === undefined) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("write_to_file")
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("write_to_file")
 
 				// Calculate the actual number of lines in the content
 				const actualLineCount = newContent.split("\n").length
@@ -123,12 +127,12 @@ export async function writeToFileTool(
 				const isNewFile = !fileExists
 
 				// Check if diffStrategy is enabled
-				const diffStrategyEnabled = !!cline.diffStrategy
+				const diffStrategyEnabled = !!assista.diffStrategy
 
 				// Use more specific error message for line_count that provides guidance based on the situation
-				await cline.say(
+				await assista.say(
 					"error",
-					`Roo tried to use write_to_file${
+					`Assista tried to use write_to_file${
 						relPath ? ` for '${relPath.toPosix()}'` : ""
 					} but the required parameter 'line_count' was missing or truncated after ${actualLineCount} lines of content were written. Retrying...`,
 				)
@@ -138,34 +142,34 @@ export async function writeToFileTool(
 						formatResponse.lineCountTruncationError(actualLineCount, isNewFile, diffStrategyEnabled),
 					),
 				)
-				await cline.diffViewProvider.revertChanges()
+				await assista.diffViewProvider.revertChanges()
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
 
 			// if isEditingFile false, that means we have the full contents of the file already.
-			// it's important to note how cline function works, you can't make the assumption that the block.partial conditional will always be called since it may immediately get complete, non-partial data. So cline part of the logic will always be called.
+			// it's important to note how assista function works, you can't make the assumption that the block.partial conditional will always be called since it may immediately get complete, non-partial data. So assista part of the logic will always be called.
 			// in other words, you must always repeat the block.partial logic here
-			if (!cline.diffViewProvider.isEditing) {
+			if (!assista.diffViewProvider.isEditing) {
 				// show gui message before showing edit animation
 				const partialMessage = JSON.stringify(sharedMessageProps)
-				await cline.ask("tool", partialMessage, true).catch(() => {}) // sending true for partial even though it's not a partial, cline shows the edit row before the content is streamed into the editor
-				await cline.diffViewProvider.open(relPath)
+				await assista.ask("tool", partialMessage, true).catch(() => {}) // sending true for partial even though it's not a partial, assista shows the edit row before the content is streamed into the editor
+				await assista.diffViewProvider.open(relPath)
 			}
 
-			await cline.diffViewProvider.update(
+			await assista.diffViewProvider.update(
 				everyLineHasLineNumbers(newContent) ? stripLineNumbers(newContent) : newContent,
 				true,
 			)
 
 			await delay(300) // wait for diff view to update
-			cline.diffViewProvider.scrollToFirstDiff()
+			assista.diffViewProvider.scrollToFirstDiff()
 
 			// Check for code omissions before proceeding
-			if (detectCodeOmission(cline.diffViewProvider.originalContent || "", newContent, predictedLineCount)) {
-				if (cline.diffStrategy) {
-					await cline.diffViewProvider.revertChanges()
+			if (detectCodeOmission(assista.diffViewProvider.originalContent || "", newContent, predictedLineCount)) {
+				if (assista.diffStrategy) {
+					await assista.diffViewProvider.revertChanges()
 
 					pushToolResult(
 						formatResponse.toolError(
@@ -178,14 +182,14 @@ export async function writeToFileTool(
 				} else {
 					vscode.window
 						.showWarningMessage(
-							"Potential code truncation detected. cline happens when the AI reaches its max output limit.",
-							"Follow cline guide to fix the issue",
+							"Potential code truncation detected. assista happens when the AI reaches its max output limit.",
+							"Follow assista guide to fix the issue",
 						)
 						.then((selection) => {
-							if (selection === "Follow cline guide to fix the issue") {
+							if (selection === "Follow assista guide to fix the issue") {
 								vscode.env.openExternal(
 									vscode.Uri.parse(
-										"https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Cline-Deleting-Code-with-%22Rest-of-Code-Here%22-Comments",
+										"https://github.com/assista/assista/wiki/Troubleshooting-%E2%80%90-Assista-Deleting-Code-with-%22Rest-of-Code-Here%22-Comments",
 									),
 								)
 							}
@@ -197,39 +201,39 @@ export async function writeToFileTool(
 				...sharedMessageProps,
 				content: fileExists ? undefined : newContent,
 				diff: fileExists
-					? formatResponse.createPrettyPatch(relPath, cline.diffViewProvider.originalContent, newContent)
+					? formatResponse.createPrettyPatch(relPath, assista.diffViewProvider.originalContent, newContent)
 					: undefined,
-			} satisfies ClineSayTool)
+			} satisfies AssistaSayTool)
 
-			const didApprove = await askApproval("tool", completeMessage)
+			const didApprove = await askApproval("tool", completeMessage, undefined, isWriteProtected)
 
 			if (!didApprove) {
-				await cline.diffViewProvider.revertChanges()
+				await assista.diffViewProvider.revertChanges()
 				return
 			}
 
 			// Call saveChanges to update the DiffViewProvider properties
-			await cline.diffViewProvider.saveChanges()
+			await assista.diffViewProvider.saveChanges()
 
 			// Track file edit operation
 			if (relPath) {
-				await cline.fileContextTracker.trackFileContext(relPath, "roo_edited" as RecordSource)
+				await assista.fileContextTracker.trackFileContext(relPath, "assista_edited" as RecordSource)
 			}
 
-			cline.didEditFile = true // used to determine if we should wait for busy terminal to update before sending api request
+			assista.didEditFile = true // used to determine if we should wait for busy terminal to update before sending api request
 
 			// Get the formatted response message
-			const message = await cline.diffViewProvider.pushToolWriteResult(cline, cline.cwd, !fileExists)
+			const message = await assista.diffViewProvider.pushToolWriteResult(assista, assista.cwd, !fileExists)
 
 			pushToolResult(message)
 
-			await cline.diffViewProvider.reset()
+			await assista.diffViewProvider.reset()
 
 			return
 		}
 	} catch (error) {
 		await handleError("writing file", error)
-		await cline.diffViewProvider.reset()
+		await assista.diffViewProvider.reset()
 		return
 	}
 }

@@ -1,6 +1,6 @@
 "use server"
 
-import { client, getProductionClient, copyRun } from "@roo-code/evals"
+import { client, getProductionClient, copyRun } from "@cybrosys-assista/evals"
 
 export async function copyRunToProduction(runId: number) {
 	try {

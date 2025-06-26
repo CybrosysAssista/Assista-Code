@@ -1,4 +1,4 @@
-import type { TokenUsage, ClineMessage } from "@roo-code/types"
+import type { TokenUsage, AssistaMessage } from "@cybrosys-assista/types"
 
 export type ParsedApiReqStartedTextType = {
 	tokensIn: number
@@ -9,13 +9,13 @@ export type ParsedApiReqStartedTextType = {
 }
 
 /**
- * Calculates API metrics from an array of ClineMessages.
+ * Calculates API metrics from an array of AssistaMessages.
  *
  * This function processes 'condense_context' messages and 'api_req_started' messages that have been
  * combined with their corresponding 'api_req_finished' messages by the combineApiRequests function.
  * It extracts and sums up the tokensIn, tokensOut, cacheWrites, cacheReads, and cost from these messages.
  *
- * @param messages - An array of ClineMessage objects to process.
+ * @param messages - An array of AssistaMessage objects to process.
  * @returns An ApiMetrics object containing totalTokensIn, totalTokensOut, totalCacheWrites, totalCacheReads, totalCost, and contextTokens.
  *
  * @example
@@ -25,7 +25,7 @@ export type ParsedApiReqStartedTextType = {
  * const { totalTokensIn, totalTokensOut, totalCost } = getApiMetrics(messages);
  * // Result: { totalTokensIn: 10, totalTokensOut: 20, totalCost: 0.005 }
  */
-export function getApiMetrics(messages: ClineMessage[]) {
+export function getApiMetrics(messages: AssistaMessage[]) {
 	const result: TokenUsage = {
 		totalTokensIn: 0,
 		totalTokensOut: 0,

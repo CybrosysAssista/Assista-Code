@@ -1,6 +1,6 @@
 import OpenAI from "openai"
 
-import type { ModelInfo } from "@roo-code/types"
+import type { ModelInfo } from "@cybrosys-assista/types"
 
 import { ApiHandlerOptions, RouterName, ModelRecord } from "../../shared/api"
 

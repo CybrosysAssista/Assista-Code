@@ -1,5 +1,5 @@
 {
-	"name": "@roo-code/config-typescript",
+	"name": "@cybrosys-assista/config-typescript",
 	"private": true,
 	"publishConfig": {
 		"access": "public"

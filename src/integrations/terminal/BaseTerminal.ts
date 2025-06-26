@@ -1,16 +1,16 @@
 import { truncateOutput, applyRunLengthEncoding, processBackspaces, processCarriageReturns } from "../misc/extract-text"
 
 import type {
-	RooTerminalProvider,
-	RooTerminal,
-	RooTerminalCallbacks,
-	RooTerminalProcess,
-	RooTerminalProcessResultPromise,
+	AssistaTerminalProvider,
+	AssistaTerminal,
+	AssistaTerminalCallbacks,
+	AssistaTerminalProcess,
+	AssistaTerminalProcessResultPromise,
 	ExitCodeDetails,
 } from "./types"
 
-export abstract class BaseTerminal implements RooTerminal {
-	public readonly provider: RooTerminalProvider
+export abstract class BaseTerminal implements AssistaTerminal {
+	public readonly provider: AssistaTerminalProvider
 	public readonly id: number
 	public readonly initialCwd: string
 
@@ -19,10 +19,10 @@ export abstract class BaseTerminal implements RooTerminal {
 	protected streamClosed: boolean
 
 	public taskId?: string
-	public process?: RooTerminalProcess
-	public completedProcesses: RooTerminalProcess[] = []
+	public process?: AssistaTerminalProcess
+	public completedProcesses: AssistaTerminalProcess[] = []
 
-	constructor(provider: RooTerminalProvider, id: number, cwd: string) {
+	constructor(provider: AssistaTerminalProvider, id: number, cwd: string) {
 		this.provider = provider
 		this.id = id
 		this.initialCwd = cwd
@@ -37,7 +37,7 @@ export abstract class BaseTerminal implements RooTerminal {
 
 	abstract isClosed(): boolean
 
-	abstract runCommand(command: string, callbacks: RooTerminalCallbacks): RooTerminalProcessResultPromise
+	abstract runCommand(command: string, callbacks: AssistaTerminalCallbacks): AssistaTerminalProcessResultPromise
 
 	/**
 	 * Sets the active stream for this terminal and notifies the process
@@ -50,7 +50,7 @@ export abstract class BaseTerminal implements RooTerminal {
 				this.running = false
 
 				console.warn(
-					`[Terminal ${this.provider}/${this.id}] process is undefined, so cannot set terminal stream (probably user-initiated non-Roo command)`,
+					`[Terminal ${this.provider}/${this.id}] process is undefined, so cannot set terminal stream (probably user-initiated non-Assista command)`,
 				)
 
 				return
@@ -116,7 +116,7 @@ export abstract class BaseTerminal implements RooTerminal {
 	 * Gets all processes with unretrieved output
 	 * @returns Array of processes with unretrieved output
 	 */
-	public getProcessesWithOutput(): RooTerminalProcess[] {
+	public getProcessesWithOutput(): AssistaTerminalProcess[] {
 		// Clean the queue first to remove any processes without output
 		this.cleanCompletedProcessQueue()
 		return [...this.completedProcesses]

@@ -6,13 +6,13 @@ import { getReadablePath } from "../../utils/path"
 import { Task } from "../task/Task"
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
-import { ClineSayTool } from "../../shared/ExtensionMessage"
+import { AssistaSayTool } from "../../shared/ExtensionMessage"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
 import { fileExistsAtPath } from "../../utils/fs"
 import { insertGroups } from "../diff/insert-groups"
 
 export async function insertContentTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -23,75 +23,78 @@ export async function insertContentTool(
 	const line: string | undefined = block.params.line
 	const content: string | undefined = block.params.content
 
-	const sharedMessageProps: ClineSayTool = {
+	const sharedMessageProps: AssistaSayTool = {
 		tool: "insertContent",
-		path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
+		path: getReadablePath(assista.cwd, removeClosingTag("path", relPath)),
 		diff: content,
 		lineNumber: line ? parseInt(line, 10) : undefined,
 	}
 
 	try {
 		if (block.partial) {
-			await cline.ask("tool", JSON.stringify(sharedMessageProps), block.partial).catch(() => {})
+			await assista.ask("tool", JSON.stringify(sharedMessageProps), block.partial).catch(() => {})
 			return
 		}
 
 		// Validate required parameters
 		if (!relPath) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("insert_content")
-			pushToolResult(await cline.sayAndCreateMissingParamError("insert_content", "path"))
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("insert_content")
+			pushToolResult(await assista.sayAndCreateMissingParamError("insert_content", "path"))
 			return
 		}
 
 		if (!line) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("insert_content")
-			pushToolResult(await cline.sayAndCreateMissingParamError("insert_content", "line"))
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("insert_content")
+			pushToolResult(await assista.sayAndCreateMissingParamError("insert_content", "line"))
 			return
 		}
 
 		if (!content) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("insert_content")
-			pushToolResult(await cline.sayAndCreateMissingParamError("insert_content", "content"))
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("insert_content")
+			pushToolResult(await assista.sayAndCreateMissingParamError("insert_content", "content"))
 			return
 		}
 
-		const accessAllowed = cline.rooIgnoreController?.validateAccess(relPath)
+		const accessAllowed = assista.assistaIgnoreController?.validateAccess(relPath)
 
 		if (!accessAllowed) {
-			await cline.say("rooignore_error", relPath)
-			pushToolResult(formatResponse.toolError(formatResponse.rooIgnoreError(relPath)))
+			await assista.say("assistaignore_error", relPath)
+			pushToolResult(formatResponse.toolError(formatResponse.assistaIgnoreError(relPath)))
 			return
 		}
 
-		const absolutePath = path.resolve(cline.cwd, relPath)
+		// Check if file is write-protected
+		const isWriteProtected = assista.assistaProtectedController?.isWriteProtected(relPath) || false
+
+		const absolutePath = path.resolve(assista.cwd, relPath)
 		const fileExists = await fileExistsAtPath(absolutePath)
 
 		if (!fileExists) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("insert_content")
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("insert_content")
 			const formattedError = `File does not exist at path: ${absolutePath}\n\n<error_details>\nThe specified file could not be found. Please verify the file path and try again.\n</error_details>`
-			await cline.say("error", formattedError)
+			await assista.say("error", formattedError)
 			pushToolResult(formattedError)
 			return
 		}
 
 		const lineNumber = parseInt(line, 10)
 		if (isNaN(lineNumber) || lineNumber < 0) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("insert_content")
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("insert_content")
 			pushToolResult(formatResponse.toolError("Invalid line number. Must be a non-negative integer."))
 			return
 		}
 
-		cline.consecutiveMistakeCount = 0
+		assista.consecutiveMistakeCount = 0
 
 		// Read the file
 		const fileContent = await fs.readFile(absolutePath, "utf8")
-		cline.diffViewProvider.editType = "modify"
-		cline.diffViewProvider.originalContent = fileContent
+		assista.diffViewProvider.editType = "modify"
+		assista.diffViewProvider.originalContent = fileContent
 		const lines = fileContent.split("\n")
 
 		const updatedContent = insertGroups(lines, [
@@ -102,12 +105,12 @@ export async function insertContentTool(
 		]).join("\n")
 
 		// Show changes in diff view
-		if (!cline.diffViewProvider.isEditing) {
-			await cline.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => {})
+		if (!assista.diffViewProvider.isEditing) {
+			await assista.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => {})
 			// First open with original content
-			await cline.diffViewProvider.open(relPath)
-			await cline.diffViewProvider.update(fileContent, false)
-			cline.diffViewProvider.scrollToFirstDiff()
+			await assista.diffViewProvider.open(relPath)
+			await assista.diffViewProvider.update(fileContent, false)
+			assista.diffViewProvider.scrollToFirstDiff()
 			await delay(200)
 		}
 
@@ -118,46 +121,47 @@ export async function insertContentTool(
 			return
 		}
 
-		await cline.diffViewProvider.update(updatedContent, true)
+		await assista.diffViewProvider.update(updatedContent, true)
 
 		const completeMessage = JSON.stringify({
 			...sharedMessageProps,
 			diff,
 			lineNumber: lineNumber,
-		} satisfies ClineSayTool)
+			isProtected: isWriteProtected,
+		} satisfies AssistaSayTool)
 
-		const didApprove = await cline
-			.ask("tool", completeMessage, false)
+		const didApprove = await assista
+			.ask("tool", completeMessage, isWriteProtected)
 			.then((response) => response.response === "yesButtonClicked")
 
 		if (!didApprove) {
-			await cline.diffViewProvider.revertChanges()
+			await assista.diffViewProvider.revertChanges()
 			pushToolResult("Changes were rejected by the user.")
 			return
 		}
 
 		// Call saveChanges to update the DiffViewProvider properties
-		await cline.diffViewProvider.saveChanges()
+		await assista.diffViewProvider.saveChanges()
 
 		// Track file edit operation
 		if (relPath) {
-			await cline.fileContextTracker.trackFileContext(relPath, "roo_edited" as RecordSource)
+			await assista.fileContextTracker.trackFileContext(relPath, "assista_edited" as RecordSource)
 		}
 
-		cline.didEditFile = true
+		assista.didEditFile = true
 
 		// Get the formatted response message
-		const message = await cline.diffViewProvider.pushToolWriteResult(
-			cline,
-			cline.cwd,
+		const message = await assista.diffViewProvider.pushToolWriteResult(
+			assista,
+			assista.cwd,
 			false, // Always false for insert_content
 		)
 
 		pushToolResult(message)
 
-		await cline.diffViewProvider.reset()
+		await assista.diffViewProvider.reset()
 	} catch (error) {
 		handleError("insert content", error)
-		await cline.diffViewProvider.reset()
+		await assista.diffViewProvider.reset()
 	}
 }

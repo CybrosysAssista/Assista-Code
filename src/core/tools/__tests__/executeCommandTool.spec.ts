@@ -1,8 +1,6 @@
 // npx vitest run src/core/tools/__tests__/executeCommandTool.spec.ts
 
-import { describe, expect, it, vitest, beforeEach } from "vitest"
-
-import type { ToolUsage } from "@roo-code/types"
+import type { ToolUsage } from "@cybrosys-assista/types"
 
 import { Task } from "../../task/Task"
 import { formatResponse } from "../../prompts/responses"
@@ -32,24 +30,24 @@ import { executeCommandTool } from "../executeCommandTool"
 beforeEach(() => {
 	// Reset the mock implementation for executeCommandTool
 	// @ts-expect-error - TypeScript doesn't like this pattern
-	executeCommandTool.mockImplementation(async (cline, block, askApproval, handleError, pushToolResult) => {
+	executeCommandTool.mockImplementation(async (assista, block, askApproval, handleError, pushToolResult) => {
 		if (!block.params.command) {
-			cline.consecutiveMistakeCount++
-			cline.recordToolError("execute_command")
-			const errorMessage = await cline.sayAndCreateMissingParamError("execute_command", "command")
+			assista.consecutiveMistakeCount++
+			assista.recordToolError("execute_command")
+			const errorMessage = await assista.sayAndCreateMissingParamError("execute_command", "command")
 			pushToolResult(errorMessage)
 			return
 		}
 
-		const ignoredFileAttemptedToAccess = cline.rooIgnoreController?.validateCommand(block.params.command)
+		const ignoredFileAttemptedToAccess = assista.assistaIgnoreController?.validateCommand(block.params.command)
 		if (ignoredFileAttemptedToAccess) {
-			await cline.say("rooignore_error", ignoredFileAttemptedToAccess)
+			await assista.say("assistaignore_error", ignoredFileAttemptedToAccess)
 			// Call the mocked formatResponse functions with the correct arguments
-			const mockRooIgnoreError = "RooIgnore error"
-			;(formatResponse.rooIgnoreError as any).mockReturnValue(mockRooIgnoreError)
+			const mockAssistaIgnoreError = "AssistaIgnore error"
+			;(formatResponse.assistaIgnoreError as any).mockReturnValue(mockAssistaIgnoreError)
 			;(formatResponse.toolError as any).mockReturnValue("Tool error")
-			formatResponse.rooIgnoreError(ignoredFileAttemptedToAccess)
-			formatResponse.toolError(mockRooIgnoreError)
+			formatResponse.assistaIgnoreError(ignoredFileAttemptedToAccess)
+			formatResponse.toolError(mockAssistaIgnoreError)
 			pushToolResult("Tool error")
 			return
 		}
@@ -62,10 +60,10 @@ beforeEach(() => {
 		// Get the custom working directory if provided
 		const customCwd = block.params.cwd
 
-		const [userRejected, result] = await mockExecuteCommand(cline, block.params.command, customCwd)
+		const [userRejected, result] = await mockExecuteCommand(assista, block.params.command, customCwd)
 
 		if (userRejected) {
-			cline.didRejectTool = true
+			assista.didRejectTool = true
 		}
 
 		pushToolResult(result)
@@ -74,7 +72,7 @@ beforeEach(() => {
 
 describe("executeCommandTool", () => {
 	// Setup common test variables
-	let mockCline: any & { consecutiveMistakeCount: number; didRejectTool: boolean }
+	let mockAssista: any & { consecutiveMistakeCount: number; didRejectTool: boolean }
 	let mockAskApproval: any
 	let mockHandleError: any
 	let mockPushToolResult: any
@@ -86,13 +84,13 @@ describe("executeCommandTool", () => {
 		vitest.clearAllMocks()
 
 		// Create mock implementations with eslint directives to handle the type issues
-		mockCline = {
+		mockAssista = {
 			ask: vitest.fn().mockResolvedValue(undefined),
 			say: vitest.fn().mockResolvedValue(undefined),
 			sayAndCreateMissingParamError: vitest.fn().mockResolvedValue("Missing parameter error"),
 			consecutiveMistakeCount: 0,
 			didRejectTool: false,
-			rooIgnoreController: {
+			assistaIgnoreController: {
 				validateCommand: vitest.fn().mockReturnValue(null),
 			},
 			recordToolUsage: vitest.fn().mockReturnValue({} as ToolUsage),
@@ -154,7 +152,7 @@ describe("executeCommandTool", () => {
 
 			// Execute
 			await executeCommandTool(
-				mockCline as unknown as Task,
+				mockAssista as unknown as Task,
 				mockToolUse,
 				mockAskApproval as unknown as AskApproval,
 				mockHandleError as unknown as HandleError,
@@ -175,7 +173,7 @@ describe("executeCommandTool", () => {
 
 			// Execute
 			await executeCommandTool(
-				mockCline as unknown as Task,
+				mockAssista as unknown as Task,
 				mockToolUse,
 				mockAskApproval as unknown as AskApproval,
 				mockHandleError as unknown as HandleError,
@@ -198,7 +196,7 @@ describe("executeCommandTool", () => {
 
 			// Execute
 			await executeCommandTool(
-				mockCline as unknown as Task,
+				mockAssista as unknown as Task,
 				mockToolUse,
 				mockAskApproval as unknown as AskApproval,
 				mockHandleError as unknown as HandleError,
@@ -207,8 +205,8 @@ describe("executeCommandTool", () => {
 			)
 
 			// Verify
-			expect(mockCline.consecutiveMistakeCount).toBe(1)
-			expect(mockCline.sayAndCreateMissingParamError).toHaveBeenCalledWith("execute_command", "command")
+			expect(mockAssista.consecutiveMistakeCount).toBe(1)
+			expect(mockAssista.sayAndCreateMissingParamError).toHaveBeenCalledWith("execute_command", "command")
 			expect(mockPushToolResult).toHaveBeenCalledWith("Missing parameter error")
 			expect(mockAskApproval).not.toHaveBeenCalled()
 			expect(mockExecuteCommand).not.toHaveBeenCalled()
@@ -221,7 +219,7 @@ describe("executeCommandTool", () => {
 
 			// Execute
 			await executeCommandTool(
-				mockCline as unknown as Task,
+				mockAssista as unknown as Task,
 				mockToolUse,
 				mockAskApproval as unknown as AskApproval,
 				mockHandleError as unknown as HandleError,
@@ -235,22 +233,22 @@ describe("executeCommandTool", () => {
 			expect(mockPushToolResult).not.toHaveBeenCalled()
 		})
 
-		it("should handle rooignore validation failures", async () => {
+		it("should handle assistaignore validation failures", async () => {
 			// Setup
 			mockToolUse.params.command = "cat .env"
 			// Override the validateCommand mock to return a filename
 			const validateCommandMock = vitest.fn().mockReturnValue(".env")
-			mockCline.rooIgnoreController = {
+			mockAssista.assistaIgnoreController = {
 				validateCommand: validateCommandMock,
 			}
 
-			const mockRooIgnoreError = "RooIgnore error"
-			;(formatResponse.rooIgnoreError as any).mockReturnValue(mockRooIgnoreError)
+			const mockAssistaIgnoreError = "AssistaIgnore error"
+			;(formatResponse.assistaIgnoreError as any).mockReturnValue(mockAssistaIgnoreError)
 			;(formatResponse.toolError as any).mockReturnValue("Tool error")
 
 			// Execute
 			await executeCommandTool(
-				mockCline as unknown as Task,
+				mockAssista as unknown as Task,
 				mockToolUse,
 				mockAskApproval as unknown as AskApproval,
 				mockHandleError as unknown as HandleError,
@@ -260,9 +258,9 @@ describe("executeCommandTool", () => {
 
 			// Verify
 			expect(validateCommandMock).toHaveBeenCalledWith("cat .env")
-			expect(mockCline.say).toHaveBeenCalledWith("rooignore_error", ".env")
-			expect(formatResponse.rooIgnoreError).toHaveBeenCalledWith(".env")
-			expect(formatResponse.toolError).toHaveBeenCalledWith(mockRooIgnoreError)
+			expect(mockAssista.say).toHaveBeenCalledWith("assistaignore_error", ".env")
+			expect(formatResponse.assistaIgnoreError).toHaveBeenCalledWith(".env")
+			expect(formatResponse.toolError).toHaveBeenCalledWith(mockAssistaIgnoreError)
 			expect(mockPushToolResult).toHaveBeenCalled()
 			expect(mockAskApproval).not.toHaveBeenCalled()
 			expect(mockExecuteCommand).not.toHaveBeenCalled()

@@ -1,5 +1,5 @@
 {
-	"extension.displayName": "Cybrosys Assista (abans Roo Cline)",
+	"extension.displayName": "Cybrosys Assista",
 	"extension.description": "Un equip complet de desenvolupament d'agents d'IA al teu editor.",
 	"command.newTask.title": "Nova Tasca",
 	"command.explainCode.title": "Explicar Codi",
@@ -29,6 +29,7 @@
 	"settings.vsCodeLmModelSelector.description": "Configuració per a l'API del model de llenguatge VSCode",
 	"settings.vsCodeLmModelSelector.vendor.description": "El proveïdor del model de llenguatge (p. ex. copilot)",
 	"settings.vsCodeLmModelSelector.family.description": "La família del model de llenguatge (p. ex. gpt-4)",
-	"settings.customStoragePath.description": "Ruta d'emmagatzematge personalitzada. Deixeu-la buida per utilitzar la ubicació predeterminada. Admet rutes absolutes (p. ex. 'D:\\RooCodeStorage')",
-	"settings.rooCodeCloudEnabled.description": "Habilitar Cybrosys Assista Cloud."
+	"settings.customStoragePath.description": "Ruta d'emmagatzematge personalitzada. Deixeu-la buida per utilitzar la ubicació predeterminada. Admet rutes absolutes (p. ex. 'D:\\CybrosysAssistaStorage')",
+	"settings.cybrosysAssistaCloudEnabled.description": "Habilitar Cybrosys Assista Cloud.",
+	"settings.enableCodeActions.description": "Habilitar correccions ràpides de Cybrosys Assista."
 }

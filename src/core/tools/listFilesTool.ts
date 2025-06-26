@@ -1,16 +1,17 @@
 import * as path from "path"
 
 import { Task } from "../task/Task"
-import { ClineSayTool } from "../../shared/ExtensionMessage"
+import { AssistaSayTool } from "../../shared/ExtensionMessage"
 import { formatResponse } from "../prompts/responses"
 import { listFiles } from "../../services/glob/list-files"
 import { getReadablePath } from "../../utils/path"
+import { isPathOutsideWorkspace } from "../../utils/pathUtils"
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
 
 /**
  * Implements the list_files tool.
  *
- * @param cline - The instance of Cline that is executing this tool.
+ * @param assista - The instance of Assista that is executing this tool.
  * @param block - The block of assistant message content that specifies the
  *   parameters for this tool.
  * @param askApproval - A function that asks the user for approval to show a
@@ -23,7 +24,7 @@ import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } f
  */
 
 export async function listFilesTool(
-	cline: Task,
+	assista: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
@@ -34,39 +35,44 @@ export async function listFilesTool(
 	const recursiveRaw: string | undefined = block.params.recursive
 	const recursive = recursiveRaw?.toLowerCase() === "true"
 
-	const sharedMessageProps: ClineSayTool = {
+	// Calculate if the path is outside workspace
+	const absolutePath = relDirPath ? path.resolve(assista.cwd, relDirPath) : assista.cwd
+	const isOutsideWorkspace = isPathOutsideWorkspace(absolutePath)
+
+	const sharedMessageProps: AssistaSayTool = {
 		tool: !recursive ? "listFilesTopLevel" : "listFilesRecursive",
-		path: getReadablePath(cline.cwd, removeClosingTag("path", relDirPath)),
+		path: getReadablePath(assista.cwd, removeClosingTag("path", relDirPath)),
+		isOutsideWorkspace,
 	}
 
 	try {
 		if (block.partial) {
-			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: "" } satisfies ClineSayTool)
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: "" } satisfies AssistaSayTool)
+			await assista.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
 			if (!relDirPath) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("list_files")
-				pushToolResult(await cline.sayAndCreateMissingParamError("list_files", "path"))
+				assista.consecutiveMistakeCount++
+				assista.recordToolError("list_files")
+				pushToolResult(await assista.sayAndCreateMissingParamError("list_files", "path"))
 				return
 			}
 
-			cline.consecutiveMistakeCount = 0
+			assista.consecutiveMistakeCount = 0
 
-			const absolutePath = path.resolve(cline.cwd, relDirPath)
 			const [files, didHitLimit] = await listFiles(absolutePath, recursive, 200)
-			const { showRooIgnoredFiles = true } = (await cline.providerRef.deref()?.getState()) ?? {}
+			const { showAssistaIgnoredFiles = true } = (await assista.providerRef.deref()?.getState()) ?? {}
 
 			const result = formatResponse.formatFilesList(
 				absolutePath,
 				files,
 				didHitLimit,
-				cline.rooIgnoreController,
-				showRooIgnoredFiles,
+				assista.assistaIgnoreController,
+				showAssistaIgnoredFiles,
+				assista.assistaProtectedController,
 			)
 
-			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: result } satisfies ClineSayTool)
+			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: result } satisfies AssistaSayTool)
 			const didApprove = await askApproval("tool", completeMessage)
 
 			if (!didApprove) {

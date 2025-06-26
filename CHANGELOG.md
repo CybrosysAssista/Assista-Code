@@ -1,4 +1,121 @@
-# Roo Code Changelog
+# Cybrosys Assista Changelog
+
+## [3.21.5] - 2025-06-23
+
+- Fix Qdrant URL prefix handling for QdrantClient initialization (thanks @CW-B-W!)
+- Improve LM Studio model detection to show all downloaded models (thanks @daniel-lxs!)
+- Resolve Claude Code provider JSON parsing and reasoning block display
+
+## [3.21.4] - 2025-06-23
+
+- Fix start line not working in multiple apply diff (thanks @samhvw8!)
+- Resolve diff editor issues with markdown preview associations (thanks @daniel-lxs!)
+- Resolve URL port handling bug for HTTPS URLs in Qdrant (thanks @benashby!)
+- Mark unused Ollama schema properties as optional (thanks @daniel-lxs!)
+- Close the local browser when used as fallback for remote (thanks @markijbema!)
+- Add Claude Code provider for local CLI integration (thanks @BarreiroT!)
+
+## [3.21.3] - 2025-06-21
+
+- Add profile-specific context condensing thresholds (thanks @SannidhyaSah!)
+- Fix context length for lmstudio and ollama (thanks @thecolorblue!)
+- Resolve MCP tool eye icon state and hide in chat context (thanks @daniel-lxs!)
+
+## [3.21.2] - 2025-06-20
+
+- Add LaTeX math equation rendering in chat window
+- Add toggle for excluding MCP server tools from the prompt (thanks @Rexarrior!)
+- Add symlink support to list_files tool
+- Fix marketplace blanking after populating
+- Fix recursive directory scanning in @ mention "Add Folder" functionality (thanks @village-way!)
+- Resolve phantom subtask display on cancel during API retry
+- Correct Gemini 2.5 Flash pricing (thanks @daniel-lxs!)
+- Resolve marketplace timeout issues and display installed MCPs (thanks @daniel-lxs!)
+- Onboarding tweaks to emphasize modes (thanks @brunobergher!)
+- Rename 'Boomerang Tasks' to 'Task Orchestration' for clarity
+- Remove command execution from attempt_completion
+- Fix markdown for links followed by punctuation (thanks @xyOz-dev!)
+
+## [3.21.1] - 2025-06-19
+
+- Fix tree-sitter issues that were preventing codebase indexing from working correctly
+- Improve error handling for codebase search embeddings
+- Resolve MCP server execution on Windows with node version managers
+- Default 'Enable MCP Server Creation' to false
+- Rate limit correctly when starting a subtask (thanks @olweraltuve!)
+
+## [3.21.0] - 2025-06-17
+
+- Add Assista Marketplace to make it easy to discover and install great MCPs and modes!
+- Add Gemini 2.5 models (Pro, Flash and Flash Lite) (thanks @daniel-lxs!)
+- Add support for Excel (.xlsx) files in tools (thanks @chrarnoldus!)
+- Add max tokens checkbox option for OpenAI compatible provider (thanks @AlexandruSmirnov!)
+- Update provider models and prices for Groq & Mistral (thanks @KanTakahiro!)
+- Add proper error handling for API conversation history issues (thanks @KJ7LNW!)
+- Fix ambiguous model id error (thanks @elianiva!)
+- Fix save/discard/revert flow for Prompt Settings (thanks @hassoncs!)
+- Fix codebase indexing alignment with list-files hidden directory filtering (thanks @daniel-lxs!)
+- Fix subtask completion mismatch (thanks @feifei325!)
+- Fix Windows path normalization in MCP variable injection (thanks @daniel-lxs!)
+- Update marketplace branding to 'Assista Marketplace' (thanks @SannidhyaSah!)
+- Refactor to more consistent history UI (thanks @elianiva!)
+- Adjust context menu positioning to be near Copilot
+- Update evals Docker setup to work on Windows (thanks @StevenTCramer!)
+- Include current working directory in terminal details
+- Encourage use of start_line in multi-file diff to match legacy diff
+- Always focus the panel when clicked to ensure menu buttons are visible (thanks @hassoncs!)
+
+## [3.20.3] - 2025-06-13
+
+- Resolve diff editor race condition in multi-monitor setups (thanks @daniel-lxs!)
+- Add logic to prevent auto-approving edits of configuration files
+- Adjust searching and listing files outside of the workspace to respect the auto-approve settings
+- Add Indonesian translation support (thanks @chrarnoldus and @daniel-lxs!)
+- Fix multi-file diff error handling and UI feedback (thanks @daniel-lxs!)
+- Improve prompt history navigation to not interfere with text editing (thanks @daniel-lxs!)
+- Fix errant maxReadFileLine default
+
+## [3.20.2] - 2025-06-13
+
+- Limit search_files to only look within the workspace for improved security
+- Force tar-fs >=2.1.3 for security vulnerability fix
+- Add cache breakpoints for custom vertex models on Unbound (thanks @pugazhendhi-m!)
+- Reapply reasoning for bedrock with fix (thanks @daniel-lxs!)
+- Sync BatchDiffApproval styling with BatchFilePermission for UI consistency (thanks @samhvw8!)
+- Add max height constraint to MCP execution response for better UX (thanks @samhvw8!)
+- Prevent MCP 'installed' label from being squeezed #4630 (thanks @daniel-lxs!)
+- Allow a lower context condesning threshold (thanks @SECKainersdorfer!)
+- Avoid type system duplication for cleaner codebase (thanks @EamonNerbonne!)
+
+## [3.20.1] - 2025-06-12
+
+- Temporarily revert thinking support for Bedrock models
+- Improve performance of MCP execution block
+- Add indexing status badge to chat view
+
+## [3.20.0] - 2025-06-12
+
+- Add experimental Marketplace for extensions and modes (thanks @Smartsheet-JB-Brown, @elianiva, @monkeyDluffy6017, @NamesMT, @daniel-lxs, Assista, and more!)
+- Add experimental multi-file edits (thanks @samhvw8!)
+- Move concurrent reads setting to context settings with default of 5
+- Improve MCP execution UX (thanks @samhvw8!)
+- Add magic variables support for MCPs with `workspaceFolder` injection (thanks @NamesMT!)
+- Add prompt history navigation via arrow up/down in prompt field
+- Add support for escaping context mentions (thanks @KJ7LNW!)
+- Add DeepSeek R1 support to Chutes provider
+- Add reasoning budget support to Bedrock models for extended thinking
+- Add mermaid diagram support buttons (thanks @qdaxb!)
+- Update XAI models and pricing (thanks @edwin-truthsearch-io!)
+- Update O3 model pricing
+- Add manual OpenAI-compatible format specification and parsing (thanks @dflatline!)
+- Add core tools integration tests for comprehensive coverage
+- Add JSDoc documentation for AssistaAsk and AssistaSay types (thanks @hannesrudolph!)
+- Populate whenToUse descriptions for built-in modes
+- Fix file write tool with early relPath & newContent validation checks (thanks @Ruakij!)
+- Fix TaskItem display and copy issues with HTML tags in task messages (thanks @forestyoo!)
+- Fix OpenRouter cost calculation with BYOK (thanks @chrarnoldus!)
+- Fix terminal busy state reset after manual commands complete
+- Fix undefined output on multi-file apply_diff operations (thanks @daniel-lxs!)
 
 ## [3.19.7] - 2025-06-11
 
@@ -32,10 +149,10 @@
 - Add OpenAI Compatible embedder for codebase indexing (thanks @SannidhyaSah!)
 - Fix multiple memory leaks in ChatView component (thanks @kiwina!)
 - Fix WorkspaceTracker resource leaks by disposing FileSystemWatcher (thanks @kiwina!)
-- Fix RooTips setTimeout cleanup to prevent state updates on unmounted components (thanks @kiwina!)
-- Fix FileSystemWatcher leak in RooIgnoreController (thanks @kiwina!)
+- Fix AssistaTips setTimeout cleanup to prevent state updates on unmounted components (thanks @kiwina!)
+- Fix FileSystemWatcher leak in AssistaIgnoreController (thanks @kiwina!)
 - Fix clipboard memory leak by clearing setTimeout in useCopyToClipboard (thanks @kiwina!)
-- Fix ClineProvider instance cleanup (thanks @xyOz-dev!)
+- Fix AssistaProvider instance cleanup (thanks @xyOz-dev!)
 - Enforce codebase_search as primary tool for code understanding tasks (thanks @hannesrudolph!)
 - Improve Docker setup for evals
 - Move evals into pnpm workspace, switch from SQLite to Postgres
@@ -79,9 +196,9 @@
 - Skip condense and show error if context grows during condensing
 - Transform Prompts tab into Modes tab and move support prompts to Settings for better organization
 - Add DeepSeek R1 0528 model support to Chutes provider (thanks @zeozeozeo!)
-- Fix @directory not respecting .rooignore files (thanks @xyOz-dev!)
-- Add rooignore checking for insert_content and search_and_replace tools
-- Fix menu breaking when Roo is moved between primary and secondary sidebars (thanks @chrarnoldus!)
+- Fix @directory not respecting .assistaignore files (thanks @xyOz-dev!)
+- Add assistaignore checking for insert_content and search_and_replace tools
+- Fix menu breaking when Assista is moved between primary and secondary sidebars (thanks @chrarnoldus!)
 - Resolve memory leak in ChatView by stabilizing callback props (thanks @samhvw8!)
 - Fix write_to_file to properly create empty files when content is empty (thanks @Ruakij!)
 - Fix chat input clearing during running tasks (thanks @xyOz-dev!)
@@ -94,7 +211,6 @@
 ## [3.18.5] - 2025-05-27
 
 - Add thinking controls for Requesty (thanks @dtrugman!)
-- Re-enable telemetry
 - Improve zh-TW Traditional Chinese locale (thanks @PeterDaveHello and @chrarnoldus!)
 - Improve model metadata for LiteLLM
 
@@ -141,7 +257,7 @@
 - Add support for Gemini 2.5 Flash preview models (thanks @shariqriazz and @daniel-lxs!)
 - Add button to task header to intelligently condense content with visual feedback
 - Add YAML support for mode definitions (thanks @R-omk!)
-- Add allowedMaxRequests feature to cap consecutive auto-approved requests (inspired by Cline, thanks @hassoncs!)
+- Add allowedMaxRequests feature to cap consecutive auto-approved requests (inspired by Assista, thanks @hassoncs!)
 - Add Qwen3 model series to the Chutes provider (thanks @zeozeozeo!)
 - Fix more causes of grey screen issues (thanks @xyOz-dev!)
 - Add LM Studio reasoning support (thanks @avtc!)
@@ -160,7 +276,7 @@
 
 ## [3.17.2] - 2025-05-15
 
-- Revert "Switch to the new Roo message parser" (appears to cause a tool parsing bug)
+- Revert "Switch to the new Assista message parser" (appears to cause a tool parsing bug)
 - Lock the versions of vsce and ovsx
 
 ## [3.17.1] - 2025-05-15
@@ -174,15 +290,15 @@
 - Add "when to use" section to mode definitions to enable better orchestration
 - Add experimental feature to intelligently condense the task context instead of truncating it
 - Fix one of the causes of the gray screen issue (thanks @xyOz-dev!)
-- Focus improvements for better UI interactions (thanks Cline!)
-- Switch to the new Roo message parser for improved performance (thanks Cline!)
+- Focus improvements for better UI interactions (thanks Assista!)
+- Switch to the new Assista message parser for improved performance (thanks Assista!)
 - Enable source maps for improved debugging (thanks @KJ7LNW!)
 - Update OpenRouter provider to use provider-specific model info (thanks @daniel-lxs!)
 - Fix Requesty cost/token reporting (thanks @dtrugman!)
 - Improve command execution UI
 - Add more in-app links to relevant documentation
 - Update the new task tool description and the ask mode custom instructions in the system prompt
-- Add IPC types to roo-code.d.ts
+- Add IPC types to cybrosys-assista.d.ts
 - Add build VSIX workflow to pull requests (thanks @SmartManoj!)
 - Improve apply_diff tool to intelligently deduce line numbers (thanks @samhvw8!)
 - Fix command validation for shell array indexing (thanks @KJ7LNW!)
@@ -231,7 +347,6 @@
 - Add LiteLLM provider support
 - Improve stability by detecting and preventing tool loops
 - Add Dutch localization (thanks @Githubguy132010!)
-- Add editor name to telemetry for better analytics
 - Migrate to Tailwind CSS for improved UI consistency
 - Fix footer button wrapping in About section on narrow screens (thanks @ecmasx!)
 - Update evals defaults
@@ -249,7 +364,7 @@
 - Fix display issue of the programming language dropdown in the code block component (thanks @zhangtony239)
 - MCP server errors are now captured and shown in a new "Errors" tab (thanks @robertheadley)
 - Error logging will no longer break MCP functionality if the server is properly connected (thanks @ksze)
-- You can now toggle the `terminal.integrated.inheritEnv` VSCode setting directly for the Roo Code settings (thanks @KJ7LNW)
+- You can now toggle the `terminal.integrated.inheritEnv` VSCode setting directly for the Cybrosys Assista settings (thanks @KJ7LNW)
 - Add `gemini-2.5-pro-preview-05-06` to the Vertex and Gemini providers (thanks @zetaloop)
 - Ensure evals exercises are up-to-date before running evals (thanks @shariqriazz)
 - Lots of general UI improvements (thanks @elianiva)
@@ -266,7 +381,7 @@
 
 ## [3.15.4] - 2025-05-04
 
-- Fix a nasty bug that would cause Roo Code to hang, particularly in orchestrator mode
+- Fix a nasty bug that would cause Cybrosys Assista to hang, particularly in orchestrator mode
 - Improve Gemini caching efficiency
 
 ## [3.15.3] - 2025-05-02
@@ -284,7 +399,6 @@
 - Add config option to overwrite OpenAI's API base (thanks @GOODBOY008!)
 - Fixes to padding and height issues when resizing the sidebar (thanks @zhangtony239!)
 - Remove tool groups from orchestrator mode definition
-- Add telemetry for title button clicks
 
 ## [3.15.1] - 2025-04-30
 
@@ -305,8 +419,8 @@
 - Improve the auto-approve toggle buttons for some high-contrast VSCode themes
 - Offload expensive count token operations to a web worker (thanks @samhvw8)
 - Improve support for mult-root workspaces (thanks @snoyiatk)
-- Simplify and streamline Roo Code's quick actions
-- Allow Roo Code settings to be imported from the welcome screen (thanks @julionav)
+- Simplify and streamline Cybrosys Assista's quick actions
+- Allow Cybrosys Assista settings to be imported from the welcome screen (thanks @julionav)
 - Remove unused types (thanks @wkordalski)
 - Improve the performance of mode switching (thanks @dlab-anton)
 - Fix importing & exporting of custom modes (thanks @julionav)
@@ -320,7 +434,7 @@
 - Clean up settings data model
 - Omit reasoning params for non-reasoning models
 - Clearer documentation for adding settings (thanks @shariqriazz!)
-- Fix word wrapping in Roo message title (thanks @zhangtony239!)
+- Fix word wrapping in Assista message title (thanks @zhangtony239!)
 - Update default model id for Unbound from claude 3.5 to 3.7 (thanks @pugazhendhi-m!)
 
 ## [3.14.2] - 2025-04-24
@@ -343,26 +457,26 @@
 - Fix file drag and drop on Windows and when using SSH tunnels (thanks @NyxJae!)
 - Correctly revert changes and suggest alternative tools when write_to_file fails on a missing line count
 - Allow interpolation of `workspace`, `mode`, `language`, `shell`, and `operatingSystem` into custom system prompt overrides (thanks @daniel-lxs!)
-- Fix interpolation bug in the “add to context” code action (thanks @elianiva!)
+- Fix interpolation bug in the "add to context" code action (thanks @elianiva!)
 - Preserve editor state and prevent tab unpinning during diffs (thanks @seedlord!)
 - Improvements to icon rendering on Linux (thanks @elianiva!)
 - Improvements to Requesty model list fetching (thanks @dtrugman!)
-- Fix user feedback not being added to conversation history in API error state, redundant ‘TASK RESUMPTION’ prompts, and error messages not showing after cancelling API requests (thanks @System233!)
+- Fix user feedback not being added to conversation history in API error state, redundant 'TASK RESUMPTION' prompts, and error messages not showing after cancelling API requests (thanks @System233!)
 - Track tool use errors in evals
 - Fix MCP hub error when dragging extension to another sidebar
 - Improve display of long MCP tool arguments
-- Fix redundant ‘TASK RESUMPTION’ prompts (thanks @System233!)
+- Fix redundant 'TASK RESUMPTION' prompts (thanks @System233!)
 - Fix bug opening files when editor has no workspace root
 - Make the VS Code LM provider show the correct model information (thanks @QuinsZouls!)
 - Fixes to make the focusInput command more reliable (thanks @hongzio!)
 - Better handling of aftercursor content in context mentions (thanks @elianiva!)
 - Support injecting environment variables in MCP config (thanks @NamesMT!)
-- Better handling of FakeAI “controller” object (thanks @wkordalski)
+- Better handling of FakeAI "controller" object (thanks @wkordalski)
 - Remove unnecessary calculation from VS Code LM provider (thanks @d-oit!)
 - Allow Amazon Bedrock Marketplace ARNs (thanks @mlopezr!)
 - Give better loading feedback on chat rows (thanks @elianiva!)
 - Performance improvements to task size calculations
-- Don’t immediately show a model ID error when changing API providers
+- Don't immediately show a model ID error when changing API providers
 - Fix apply_diff edge cases
 - Use a more sensible task export icon
 - Use path aliases in webview source files
@@ -378,7 +492,6 @@
 
 - Support Gemini 2.5 Flash thinking mode (thanks @monotykamary)
 - Make auto-approval toggle on/off states more obvious (thanks @sachasayan)
-- Add telemetry for shell integration errors
 - Fix the path of files dragging into the chat textarea on Windows (thanks @NyxJae)
 
 ## [3.13.0] - 2025-04-17
@@ -399,7 +512,6 @@
 
 - Add OpenAI o3 & 4o-mini (thanks @PeterDaveHello!)
 - Improve file/folder context mention UI (thanks @elianiva!)
-- Improve diff error telemetry
 
 ## [3.12.1] - 2025-04-16
 
@@ -407,20 +519,18 @@
 
 ## [3.12.0] - 2025-04-15
 
-- Add xAI provider and expose reasoning effort options for Grok on OpenRouter (thanks Cline!)
+- Add xAI provider and expose reasoning effort options for Grok on OpenRouter (thanks Assista!)
 - Make diff editing config per-profile and improve pre-diff string normalization
 - Make checkpoints faster and more reliable
 - Add a search bar to mode and profile select dropdowns (thanks @samhvw8!)
-- Add telemetry for code action usage, prompt enhancement usage, and consecutive mistake errors
 - Suppress zero cost values in the task header (thanks @do-it!)
 - Make JSON parsing safer to avoid crashing the webview on bad input
 - Allow users to bind a keyboard shortcut for accepting suggestions or input in the chat view (thanks @axkirillov!)
 
 ## [3.11.17] - 2025-04-14
 
-- Improvements to OpenAI cache reporting and cost estimates (thanks @monotykamary and Cline!)
+- Improvements to OpenAI cache reporting and cost estimates (thanks @monotykamary and Assista!)
 - Visual improvements to the auto-approve toggles (thanks @sachasayan!)
-- Bugfix to diff apply logic (thanks @avtc for the test case!) and telemetry to track errors going forward
 - Fix race condition in capturing short-running terminal commands (thanks @KJ7LNW!)
 - Fix eslint error (thanks @nobu007!)
 
@@ -470,12 +580,12 @@
 - Improve readFileTool XML output format (thanks @KJ7LNW!)
 - Add o1-pro support (thanks @arthurauffray!)
 - Follow symlinked rules files/directories to allow for more flexible rule setups
-- Focus Roo Code in the sidebar when running tasks in the sidebar via the API
+- Focus Cybrosys Assista in the sidebar when running tasks in the sidebar via the API
 - Improve subtasks UI
 
 ## [3.11.10] - 2025-04-08
 
-- Fix bug where nested .roo/rules directories are not respected properly (thanks @taisukeoe!)
+- Fix bug where nested .assista/rules directories are not respected properly (thanks @taisukeoe!)
 - Handle long command output more efficiently in the chat row (thanks @samhvw8!)
 - Fix cache usage tracking for OpenAI-compatible providers
 - Add custom translation instructions for zh-CN (thanks @System233!)
@@ -484,15 +594,15 @@
 ## [3.11.9] - 2025-04-07
 
 - Rate-limit setting updated to be per-profile (thanks @ross and @olweraltuve!)
-- You can now place multiple rules files in the .roo/rules/ and .roo/rules-{mode}/ folders (thanks @upamune!)
+- You can now place multiple rules files in the .assista/rules/ and .assista/rules-{mode}/ folders (thanks @upamune!)
 - Prevent unnecessary autoscroll when buttons appear (thanks @shtse8!)
 - Add Gemini 2.5 Pro Preview to Vertex AI (thanks @nbihan-mediware!)
-- Tidy up following ClineProvider refactor (thanks @diarmidmackenzie!)
+- Tidy up following AssistaProvider refactor (thanks @diarmidmackenzie!)
 - Clamp negative line numbers when reading files (thanks @KJ7LNW!)
 - Enhance Rust tree-sitter parser with advanced language structures (thanks @KJ7LNW!)
 - Persist settings on api.setConfiguration (thanks @gtaylor!)
 - Add deep links to settings sections
-- Add command to focus Roo Code input field (thanks @axkirillov!)
+- Add command to focus Cybrosys Assista input field (thanks @axkirillov!)
 - Add resize and hover actions to the browser (thanks @SplittyDev!)
 - Add resumeTask and isTaskInHistory to the API (thanks @franekp!)
 - Fix bug displaying boolean/numeric suggested answers
@@ -504,7 +614,7 @@
 - Add searchable dropdown to API config profiles on the settings screen (thanks @samhvw8!)
 - Add workspace tracking to history items in preparation for future filtering (thanks @samhvw8!)
 - Fix search highlighting UI in history search (thanks @samhvw8!)
-- Add support for .roorules and give deprecation warning for .clinerules (thanks @upamune!)
+- Add support for .assistarules and give deprecation warning for .assistarules (thanks @upamune!)
 - Fix nodejs version format in .tool-versions file (thanks @upamune!)
 
 ## [3.11.7] - 2025-04-04
@@ -541,7 +651,7 @@
 - Fix issue where prompts and settings tabs were not scrollable when accessed from dropdown menus
 - Update AWS region dropdown menu to the most recent data (thanks @Smartsheet-JB-Brown!)
 - Fix prompt enhancement for Bedrock (thanks @Smartsheet-JB-Brown!)
-- Allow processes to access the Roo Code API via a unix socket
+- Allow processes to access the Cybrosys Assista API via a unix socket
 - Improve zh-TW Traditional Chinese translations (thanks @PeterDaveHello!)
 - Add support for Azure AI Inference Service with DeepSeek-V3 model (thanks @thomasjeung!)
 - Fix off-by-one error in tree-sitter line numbers
@@ -561,12 +671,11 @@
 
 ## [3.11.1] - 2025-03-30
 
-- Relax provider profiles schema and add telemetry
 
 ## [3.11.0] - 2025-03-30
 
 - Replace single-block-diff with multi-block-diff fast editing strategy
-- Support project-level MCP config in .roo/mcp.json (thanks @aheizi!)
+- Support project-level MCP config in .assista/mcp.json (thanks @aheizi!)
 - Show OpenRouter and Requesty key balance on the settings screen
 - Support import/export of settings
 - Add pinning and sorting for API configuration dropdown (thanks @jwcraig!)
@@ -577,8 +686,8 @@
 - Improvements to partial file reads (thanks @KJ7LNW!)
 - Fix list_code_definition_names to support files (thanks @KJ7LNW!)
 - Refactor tool-calling logic to make the code a lot easier to work with (thanks @diarmidmackenzie, @bramburn, @KJ7LNW, and everyone else who helped!)
-- Prioritize “Add to Context” in the code actions and include line numbers (thanks @samhvw8!)
-- Add an activation command that other extensions can use to interface with Roo Code (thanks @gtaylor!)
+- Prioritize "Add to Context" in the code actions and include line numbers (thanks @samhvw8!)
+- Add an activation command that other extensions can use to interface with Cybrosys Assista (thanks @gtaylor!)
 - Preserve language characters in file @-mentions (thanks @aheizi!)
 - Browser tool improvements (thanks @afshawnlotfi!)
 - Display info about partial reads in the chat row
@@ -607,21 +716,21 @@
 - Rename and migrate global MCP and modes files (thanks @StevenTCramer!)
 - Add watchPaths option to McpHub for file change detection (thanks @01Rian!)
 - Read image responses from MCP calls (thanks @nevermorec!)
-- Add taskCreated event to API and subscribe to Cline events earlier (thanks @wkordalski!)
+- Add taskCreated event to API and subscribe to Assista events earlier (thanks @wkordalski!)
 - Fixes to numeric formatting suffix internationalization (thanks @feifei325!)
 - Fix open tab support in the context mention suggestions (thanks @aheizi!)
-- Better display of OpenRouter “overloaded” error messages
+- Better display of OpenRouter "overloaded" error messages
 - Fix browser tool visibility in system prompt preview (thanks @cannuri!)
 - Fix the supportsPromptCache value for OpenAI models (thanks @PeterDaveHello!)
 - Fix readme links to docs (thanks @kvokka!)
-- Run ‘npm audit fix’ on all of our libraries
+- Run 'npm audit fix' on all of our libraries
 
 ## [3.10.3] - 2025-03-23
 
 - Update the welcome page to provide 1-click OAuth flows with LLM routers (thanks @dtrugman!)
 - Switch to a more direct method of tracking OpenRouter tokens/spend
 - Make partial file reads backwards-compatible with custom system prompts and give users more control over the chunk size
-- Fix issues where questions and suggestions weren’t showing up for non-streaming models and were hard to read in some themes
+- Fix issues where questions and suggestions weren't showing up for non-streaming models and were hard to read in some themes
 - A variety of fixes and improvements to experimental multi-block diff (thanks @KJ7LNW!)
 - Fix opacity of drop-down menus in settings (thanks @KJ7LNW!)
 - Fix bugs with reading and mentioning binary files like PDFs
@@ -634,7 +743,6 @@
 
 - Fixes to context mentions on Windows
 - Fixes to German translations (thanks @cannuri!)
-- Fixes to telemetry banner internationalization
 - Sonnet 3.7 non-thinking now correctly uses 8192 max output tokens
 
 ## [3.10.1] - 2025-03-20
@@ -666,13 +774,13 @@
 
 ## [3.9.1] - 2025-03-18
 
-- Pass current language to system prompt correctly so Roo thinks and speaks in the selected language
+- Pass current language to system prompt correctly so Assista thinks and speaks in the selected language
 
 ## [3.9.0] - 2025-03-18
 
-- Internationalize Roo Code into Catalan, German, Spanish, French, Hindi, Italian, Japanese, Korean, Polish, Portuguese, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese (thanks @feifei325!)
+- Internationalize Cybrosys Assista into Catalan, German, Spanish, French, Hindi, Italian, Japanese, Korean, Polish, Portuguese, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese (thanks @feifei325!)
 - Bring back support for MCP over SSE (thanks @aheizi!)
-- Add a text-to-speech option to have Roo talk to you as it works (thanks @heyseth!)
+- Add a text-to-speech option to have Assista talk to you as it works (thanks @heyseth!)
 - Choose a specific provider when using OpenRouter (thanks PhunkyBob!)
 - Support batch deletion of task history (thanks @aheizi!)
 - Internationalize Human Relay, adjust the layout, and make it work on the welcome screen (thanks @NyxJae!)
@@ -680,12 +788,12 @@
 - Fix display updating for Bedrock custom ARNs that are prompt routers (thanks @Smartsheet-JB-Brown!)
 - Fix to exclude search highlighting when copying items from task history (thanks @im47cn!)
 - Fix context mentions to work with multiple-workspace projects (thanks @teddyOOXX!)
-- Fix to task history saving when running multiple Roos (thanks @samhvw8!)
+- Fix to task history saving when running multiple Assistas (thanks @samhvw8!)
 - Improve task deletion when underlying files are missing (thanks @GitlyHallows!)
 - Improve support for NixOS & direnv (thanks @wkordalski!)
-- Fix wheel scrolling when Roo is opened in editor tabs (thanks @GitlyHallows!)
-- Don’t automatically mention the file when using the "Add to context" code action (thanks @qdaxb!)
-- Expose task stack in `RooCodeAPI` (thanks @franekp!)
+- Fix wheel scrolling when Assista is opened in editor tabs (thanks @GitlyHallows!)
+- Don't automatically mention the file when using the "Add to context" code action (thanks @qdaxb!)
+- Expose task stack in `CybrosysAssistaAPI` (thanks @franekp!)
 - Give the models visibility into the current task's API cost
 
 ## [3.8.6] - 2025-03-13
@@ -718,12 +826,11 @@
 - Update Bedrock prices to the latest (thanks @Smartsheet-JB-Brown!)
 - Fixes to OpenRouter custom baseUrl support
 - Fix usage tracking for SiliconFlow and other providers that include usage on every chunk
-- Telemetry for checkpoint save/restore/diff and diff strategies
 
 ## [3.8.4] - 2025-03-09
 
 - Roll back multi-diff progress indicator temporarily to fix a double-confirmation in saving edits
-- Add an option in the prompts tab to save tokens by disabling the ability to ask Roo to create/edit custom modes for you (thanks @hannesrudolph!)
+- Add an option in the prompts tab to save tokens by disabling the ability to ask Assista to create/edit custom modes for you (thanks @hannesrudolph!)
 
 ## [3.8.3] - 2025-03-09
 
@@ -746,21 +853,19 @@
 - Fix bug with enhance prompt on Sonnet 3.7 with a high thinking budget (thanks @moqimoqidea!)
 - Fix bug with the context window management for thinking models (thanks @ReadyPlayerEmma!)
 - Fix bug where checkpoints were no longer enabled by default
-- Add extension and VSCode versions to telemetry
 
 ## [3.8.0] - 2025-03-07
 
-- Add opt-in telemetry to help us improve Roo Code faster (thanks Cline!)
 - Fix terminal overload / gray screen of death, and other terminal issues
 - Add a new experimental diff editing strategy that applies multiple diff edits at once (thanks @qdaxb!)
-- Add support for a .rooignore to prevent Roo Code from read/writing certain files, with a setting to also exclude them from search/lists (thanks Cline!)
+- Add support for a .assistaignore to prevent Cybrosys Assista from read/writing certain files, with a setting to also exclude them from search/lists (thanks Assista!)
 - Update the new_task tool to return results to the parent task on completion, supporting better orchestration (thanks @shaybc!)
-- Support running Roo in multiple editor windows simultaneously (thanks @samhvw8!)
+- Support running Assista in multiple editor windows simultaneously (thanks @samhvw8!)
 - Make checkpoints asynchronous and exclude more files to speed them up
 - Redesign the settings page to make it easier to navigate
 - Add credential-based authentication for Vertex AI, enabling users to easily switch between Google Cloud accounts (thanks @eonghk!)
 - Update the DeepSeek provider with the correct baseUrl and track caching correctly (thanks @olweraltuve!)
-- Add a new “Human Relay” provider that allows you to manually copy information to a Web AI when needed, and then paste the AI's response back into Roo Code (thanks @NyxJae)!
+- Add a new "Human Relay" provider that allows you to manually copy information to a Web AI when needed, and then paste the AI's response back into Cybrosys Assista (thanks @NyxJae)!
 - Add observability for OpenAI providers (thanks @refactorthis!)
 - Support speculative decoding for LM Studio local models (thanks @adamwlarson!)
 - Improve UI for mode/provider selectors in chat
@@ -789,7 +894,7 @@
 
 - Add Gemini models on Vertex AI (thanks @ashktn!)
 - Keyboard shortcuts to switch modes (thanks @aheizi!)
-- Add support for Mermaid diagrams (thanks Cline!)
+- Add support for Mermaid diagrams (thanks Assista!)
 
 ## [3.7.9] - 2025-03-01
 
@@ -823,7 +928,7 @@
 
 ## [3.7.5] - 2025-02-26
 
-- Fix context window truncation math (see [#1173](https://github.com/RooCodeInc/Roo-Code/issues/1173))
+- Fix context window truncation math (see [#1173](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues/1173))
 - Fix various issues with the model picker (thanks @System233!)
 - Fix model input / output cost parsing (thanks @System233!)
 - Add drag-and-drop for files
@@ -849,7 +954,7 @@
 
 ## [3.7.0] - 2025-02-24
 
-- Introducing Roo Code 3.7, with support for the new Claude Sonnet 3.7. Because who cares about skipping version numbers anymore? Thanks @lupuletic and @cte for the PRs!
+- Introducing Cybrosys Assista 3.7, with support for the new Claude Sonnet 3.7. Because who cares about skipping version numbers anymore? Thanks @lupuletic and @cte for the PRs!
 
 ## [3.3.26] - 2025-02-27
 
@@ -877,7 +982,7 @@
 - Add support for setting custom preferred languages on the Prompts tab, as well as adding Catalan to the list of languages (thanks @alarno!)
 - Add a button to delete MCP servers (thanks @hannesrudolph!)
 - Fix a bug where the button to copy the system prompt preview always copied the Code mode version
-- Fix a bug where the .roomodes file was not automatically created when adding custom modes from the Prompts tab
+- Fix a bug where the .assistamodes file was not automatically created when adding custom modes from the Prompts tab
 - Allow setting a wildcard (`*`) to auto-approve all command execution (use with caution!)
 
 ## [3.3.21] - 2025-02-17
@@ -885,13 +990,13 @@
 - Fix input box revert issue and configuration loss during profile switch (thanks @System233!)
 - Fix default preferred language for zh-cn and zh-tw (thanks @System233!)
 - Fix Mistral integration (thanks @d-oit!)
-- Feature to mention `@terminal` to pull terminal output into context (thanks Cline!)
-- Fix system prompt to make sure Roo knows about all available modes
+- Feature to mention `@terminal` to pull terminal output into context (thanks Assista!)
+- Fix system prompt to make sure Assista knows about all available modes
 - Enable streaming mode for OpenAI o1
 
 ## [3.3.20] - 2025-02-14
 
-- Support project-specific custom modes in a .roomodes file
+- Support project-specific custom modes in a .assistamodes file
 - Add more Mistral models (thanks @d-oit and @bramburn!)
 - By popular request, make it so Ask mode can't write to Markdown files and is purely for chatting with
 - Add a setting to control the number of open editor tabs to tell the model about (665 is probably too many!)
@@ -903,7 +1008,7 @@
 - Honor the VS Code theme for dialog backgrounds
 - Make it possible to clear out the default custom instructions for built-in modes
 - Add a help button that links to our new documentation site (which we would love help from the community to improve!)
-- Switch checkpoints logic to use a shadow git repository to work around issues with hot reloads and polluting existing repositories (thanks Cline for the inspiration!)
+- Switch checkpoints logic to use a shadow git repository to work around issues with hot reloads and polluting existing repositories (thanks Assista for the inspiration!)
 
 ## [3.3.18] - 2025-02-11
 
@@ -990,11 +1095,11 @@
 - Capture reasoning from more variants of DeepSeek R1 (thanks @Szpadel!)
 - Use an exponential backoff for API retries (if delay after first error is 5s, delay after second consecutive error will be 10s, then 20s, etc)
 - Add a slider in advanced settings to enable rate limiting requests to avoid overloading providers (i.e. wait at least 10 seconds between API requests)
-- Prompt tweaks to make Roo better at creating new custom modes for you
+- Prompt tweaks to make Assista better at creating new custom modes for you
 
 ## [3.3.6]
 
-- Add a "new task" tool that allows Roo to start new tasks with an initial message and mode
+- Add a "new task" tool that allows Assista to start new tasks with an initial message and mode
 - Fix a bug that was preventing the use of qwen-max and potentially other OpenAI-compatible providers (thanks @Szpadel!)
 - Add support for perplexity/sonar-reasoning (thanks @Szpadel!)
 - Visual fixes to dropdowns (thanks @psv2522!)
@@ -1038,7 +1143,7 @@
 - Ask and Architect modes can now edit markdown files
 - Custom modes can now be restricted to specific file patterns (for example, a technical writer who can only edit markdown files 👋)
 - Support for configuring the Bedrock provider with AWS Profiles
-- New Roo Code community Discord at https://roocode.com/discord!
+- New Cybrosys Assista community Discord at https://cybrosysassista.com/discord!
 
 ## [3.2.8]
 
@@ -1070,15 +1175,15 @@
 
 ## [3.2.0 - 3.2.2]
 
-- **Name Change From Roo Cline to Roo Code:** We're excited to announce our new name! After growing beyond 50,000 installations, we've rebranded from Roo Cline to Roo Code to better reflect our identity as we chart our own course.
+- **Name Change From Cybrosys Assista to Cybrosys Assista:** We're excited to announce our new name! After growing beyond 50,000 installations, we've rebranded from Cybrosys Assista to Cybrosys Assista to better reflect our identity as we chart our own course.
 
-- **Custom Modes:** Create your own personas for Roo Code! While our built-in modes (Code, Architect, Ask) are still here, you can now shape entirely new ones:
+- **Custom Modes:** Create your own personas for Cybrosys Assista! While our built-in modes (Code, Architect, Ask) are still here, you can now shape entirely new ones:
     - Define custom prompts
     - Choose which tools each mode can access
     - Create specialized assistants for any workflow
     - Just type "Create a new mode for <X>" or visit the Prompts tab in the top menu to get started
 
-Join us at https://www.reddit.com/r/RooCode to share your custom modes and be part of our next chapter!
+Join us at https://www.reddit.com/r/CybrosysAssista to share your custom modes and be part of our next chapter!
 
 ## [3.1.7]
 
@@ -1088,7 +1193,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [3.1.6]
 
-- Add Mistral (thanks Cline!)
+- Add Mistral (thanks Assista!)
 - Fix bug with VSCode LM configuration profile saving (thanks @samhvw8!)
 
 ## [3.1.4 - 3.1.5]
@@ -1097,7 +1202,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [3.1.3]
 
-- Add auto-approve chat bar (thanks Cline!)
+- Add auto-approve chat bar (thanks Assista!)
 - Fix bug with VS Code Language Models integration
 
 ## [3.1.2]
@@ -1114,12 +1219,12 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [3.1.0]
 
-- You can now customize the role definition and instructions for each chat mode (Code, Architect, and Ask), either through the new Prompts tab in the top menu or mode-specific .clinerules-mode files. Prompt Enhancements have also been revamped: the "Enhance Prompt" button now works with any provider and API configuration, giving you the ability to craft messages with fully customizable prompts for even better results.
+- You can now customize the role definition and instructions for each chat mode (Code, Architect, and Ask), either through the new Prompts tab in the top menu or mode-specific .assistarules-mode files. Prompt Enhancements have also been revamped: the "Enhance Prompt" button now works with any provider and API configuration, giving you the ability to craft messages with fully customizable prompts for even better results.
 - Add a button to copy markdown out of the chat
 
 ## [3.0.3]
 
-- Update required vscode engine to ^1.84.0 to match cline
+- Update required vscode engine to ^1.84.0 to match assista
 
 ## [3.0.2]
 
@@ -1131,7 +1236,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [3.0.0]
 
-- This release adds chat modes! Now you can ask Roo Code questions about system architecture or the codebase without immediately jumping into writing code. You can even assign different API configuration profiles to each mode if you prefer to use different models for thinking vs coding. Would love feedback in the new Roo Code Reddit! https://www.reddit.com/r/RooCode
+- This release adds chat modes! Now you can ask Cybrosys Assista questions about system architecture or the codebase without immediately jumping into writing code. You can even assign different API configuration profiles to each mode if you prefer to use different models for thinking vs coding. Would love feedback in the new Cybrosys Assista Reddit! https://www.reddit.com/r/CybrosysAssista
 
 ## [2.2.46]
 
@@ -1252,7 +1357,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [2.2.16]
 
-- Incorporate Premshay's [PR](https://github.com/RooCodeInc/Roo-Code/pull/60) to add support for Amazon Nova and Meta Llama Models via Bedrock (3, 3.1, 3.2) and unified Bedrock calls using BedrockClient and Bedrock Runtime API
+- Incorporate Premshay's [PR](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/pull/60) to add support for Amazon Nova and Meta Llama Models via Bedrock (3, 3.1, 3.2) and unified Bedrock calls using BedrockClient and Bedrock Runtime API
 
 ## [2.2.14 - 2.2.15]
 
@@ -1296,7 +1401,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [2.2.0]
 
-- Incorporate MCP changes from Cline 2.2.0
+- Incorporate MCP changes from Assista 2.2.0
 
 ## [2.1.21]
 
@@ -1324,7 +1429,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [2.1.15]
 
-- Incorporate dbasclpy's [PR](https://github.com/RooCodeInc/Roo-Code/pull/54) to add support for gemini-exp-1206
+- Incorporate dbasclpy's [PR](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/pull/54) to add support for gemini-exp-1206
 - Make it clear that diff editing is very experimental
 
 ## [2.1.14]
@@ -1334,27 +1439,27 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [2.1.13]
 
-- Fix https://github.com/RooCodeInc/Roo-Code/issues/50 where sound effects were not respecting settings
+- Fix https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues/50 where sound effects were not respecting settings
 
 ## [2.1.12]
 
-- Incorporate JoziGila's [PR](https://github.com/cline/cline/pull/158) to add support for editing through diffs
+- Incorporate JoziGila's [PR](https://github.com/assista/assista/pull/158) to add support for editing through diffs
 
 ## [2.1.11]
 
-- Incorporate lloydchang's [PR](https://github.com/RooCodeInc/Roo-Code/pull/42) to add support for OpenRouter compression
+- Incorporate lloydchang's [PR](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/pull/42) to add support for OpenRouter compression
 
 ## [2.1.10]
 
-- Incorporate HeavenOSK's [PR](https://github.com/cline/cline/pull/818) to add sound effects to Cline
+- Incorporate HeavenOSK's [PR](https://github.com/assista/assista/pull/818) to add sound effects to Assista
 
 ## [2.1.9]
 
-- Add instructions for using .clinerules on the settings screen
+- Add instructions for using .assistarules on the settings screen
 
 ## [2.1.8]
 
-- Roo Cline now allows configuration of which commands are allowed without approval!
+- Cybrosys Assista now allows configuration of which commands are allowed without approval!
 
 ## [2.1.7]
 
@@ -1362,13 +1467,13 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [2.2.0]
 
-- Add support for Model Context Protocol (MCP), enabling Cline to use custom tools like web-search tool or GitHub tool
+- Add support for Model Context Protocol (MCP), enabling Assista to use custom tools like web-search tool or GitHub tool
 - Add MCP server management tab accessible via the server icon in the menu bar
-- Add ability for Cline to dynamically create new MCP servers based on user requests (e.g., "add a tool that gets the latest npm docs")
+- Add ability for Assista to dynamically create new MCP servers based on user requests (e.g., "add a tool that gets the latest npm docs")
 
 ## [2.1.6]
 
-- Roo Cline now runs in all VSCode-compatible editors
+- Cybrosys Assista now runs in all VSCode-compatible editors
 
 ## [2.1.5]
 
@@ -1376,13 +1481,13 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [2.1.4]
 
-- Roo Cline now can run side-by-side with Cline
+- Cybrosys Assista now can run side-by-side with Assista
 
 ## [2.1.3]
 
-- Roo Cline now allows browser actions without approval when `alwaysAllowBrowser` is true
+- Cybrosys Assista now allows browser actions without approval when `alwaysAllowBrowser` is true
 
 ## [2.1.2]
 
 - Support for auto-approval of write operations and command execution
-- Support for .clinerules custom instructions
+- Support for .assistarules custom instructions

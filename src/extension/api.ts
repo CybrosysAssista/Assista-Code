@@ -4,10 +4,10 @@ import fs from "fs/promises"
 import * as path from "path"
 
 import {
-	RooCodeAPI,
-	RooCodeSettings,
-	RooCodeEvents,
-	RooCodeEventName,
+	CybrosysAssistaAPI,
+	CybrosysAssistaSettings,
+	CybrosysAssistaEvents,
+	CybrosysAssistaEventName,
 	ProviderSettings,
 	ProviderSettingsEntry,
 	isSecretStateKey,
@@ -15,26 +15,26 @@ import {
 	IpcMessageType,
 	TaskCommandName,
 	TaskEvent,
-} from "@roo-code/types"
-import { IpcServer } from "@roo-code/ipc"
+} from "@cybrosys-assista/types"
+import { IpcServer } from "@cybrosys-assista/ipc"
 
 import { Package } from "../shared/package"
 import { getWorkspacePath } from "../utils/path"
-import { ClineProvider } from "../core/webview/ClineProvider"
-import { openClineInNewTab } from "../activate/registerCommands"
+import { AssistaProvider } from "../core/webview/AssistaProvider"
+import { openAssistaInNewTab } from "../activate/registerCommands"
 
-export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
+export class API extends EventEmitter<CybrosysAssistaEvents> implements CybrosysAssistaAPI {
 	private readonly outputChannel: vscode.OutputChannel
-	private readonly sidebarProvider: ClineProvider
+	private readonly sidebarProvider: AssistaProvider
 	private readonly context: vscode.ExtensionContext
 	private readonly ipc?: IpcServer
-	private readonly taskMap = new Map<string, ClineProvider>()
+	private readonly taskMap = new Map<string, AssistaProvider>()
 	private readonly log: (...args: unknown[]) => void
 	private logfile?: string
 
 	constructor(
 		outputChannel: vscode.OutputChannel,
-		provider: ClineProvider,
+		provider: AssistaProvider,
 		socketPath?: string,
 		enableLogging = false,
 	) {
@@ -50,7 +50,7 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 				console.log(args)
 			}
 
-			this.logfile = path.join(getWorkspacePath(), "roo-code-messages.log")
+			this.logfile = path.join(getWorkspacePath(), "cybrosys-assista-messages.log")
 		} else {
 			this.log = () => {}
 		}
@@ -83,11 +83,11 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 		}
 	}
 
-	public override emit<K extends keyof RooCodeEvents>(
+	public override emit<K extends keyof CybrosysAssistaEvents>(
 		eventName: K,
-		...args: K extends keyof RooCodeEvents ? RooCodeEvents[K] : never
+		...args: K extends keyof CybrosysAssistaEvents ? CybrosysAssistaEvents[K] : never
 	) {
-		const data = { eventName: eventName as RooCodeEventName, payload: args } as TaskEvent
+		const data = { eventName: eventName as CybrosysAssistaEventName, payload: args } as TaskEvent
 		this.ipc?.broadcast({ type: IpcMessageType.TaskEvent, origin: IpcOrigin.Server, data })
 		return super.emit(eventName, ...args)
 	}
@@ -98,18 +98,18 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 		images,
 		newTab,
 	}: {
-		configuration: RooCodeSettings
+		configuration: CybrosysAssistaSettings
 		text?: string
 		images?: string[]
 		newTab?: boolean
 	}) {
-		let provider: ClineProvider
+		let provider: AssistaProvider
 
 		if (newTab) {
 			await vscode.commands.executeCommand("workbench.action.files.revert")
 			await vscode.commands.executeCommand("workbench.action.closeAllEditors")
 
-			provider = await openClineInNewTab({ context: this.context, outputChannel: this.outputChannel })
+			provider = await openAssistaInNewTab({ context: this.context, outputChannel: this.outputChannel })
 			this.registerListeners(provider)
 		} else {
 			await vscode.commands.executeCommand(`${Package.name}.SidebarProvider.focus`)
@@ -127,21 +127,25 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 			}
 		}
 
-		await provider.removeClineFromStack()
+		await provider.removeAssistaFromStack()
 		await provider.postStateToWebview()
 		await provider.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
 		await provider.postMessageToWebview({ type: "invoke", invoke: "newChat", text, images })
 
-		const { taskId } = await provider.initClineWithTask(text, images, undefined, {
+		const assista = await provider.initAssistaWithTask(text, images, undefined, {
 			consecutiveMistakeLimit: Number.MAX_SAFE_INTEGER,
 		})
 
-		return taskId
+		if (!assista) {
+			throw new Error("Failed to create task due to policy restrictions")
+		}
+
+		return assista.taskId
 	}
 
 	public async resumeTask(taskId: string): Promise<void> {
 		const { historyItem } = await this.sidebarProvider.getTaskWithId(taskId)
-		await this.sidebarProvider.initClineWithHistoryItem(historyItem)
+		await this.sidebarProvider.initAssistaWithHistoryItem(historyItem)
 		await this.sidebarProvider.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
 	}
 
@@ -192,53 +196,57 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 		return this.sidebarProvider.viewLaunched
 	}
 
-	private registerListeners(provider: ClineProvider) {
-		provider.on("clineCreated", (cline) => {
-			cline.on("taskStarted", async () => {
-				this.emit(RooCodeEventName.TaskStarted, cline.taskId)
-				this.taskMap.set(cline.taskId, provider)
-				await this.fileLog(`[${new Date().toISOString()}] taskStarted -> ${cline.taskId}\n`)
+	private registerListeners(provider: AssistaProvider) {
+		provider.on("assistaCreated", (assista) => {
+			assista.on("taskStarted", async () => {
+				this.emit(CybrosysAssistaEventName.TaskStarted, assista.taskId)
+				this.taskMap.set(assista.taskId, provider)
+				await this.fileLog(`[${new Date().toISOString()}] taskStarted -> ${assista.taskId}\n`)
 			})
 
-			cline.on("message", async (message) => {
-				this.emit(RooCodeEventName.Message, { taskId: cline.taskId, ...message })
+			assista.on("message", async (message) => {
+				this.emit(CybrosysAssistaEventName.Message, { taskId: assista.taskId, ...message })
 
 				if (message.message.partial !== true) {
 					await this.fileLog(`[${new Date().toISOString()}] ${JSON.stringify(message.message, null, 2)}\n`)
 				}
 			})
 
-			cline.on("taskModeSwitched", (taskId, mode) => this.emit(RooCodeEventName.TaskModeSwitched, taskId, mode))
+			assista.on("taskModeSwitched", (taskId, mode) => this.emit(CybrosysAssistaEventName.TaskModeSwitched, taskId, mode))
 
-			cline.on("taskAskResponded", () => this.emit(RooCodeEventName.TaskAskResponded, cline.taskId))
+			assista.on("taskAskResponded", () => this.emit(CybrosysAssistaEventName.TaskAskResponded, assista.taskId))
 
-			cline.on("taskAborted", () => {
-				this.emit(RooCodeEventName.TaskAborted, cline.taskId)
-				this.taskMap.delete(cline.taskId)
+			assista.on("taskAborted", () => {
+				this.emit(CybrosysAssistaEventName.TaskAborted, assista.taskId)
+				this.taskMap.delete(assista.taskId)
 			})
 
-			cline.on("taskCompleted", async (_, tokenUsage, toolUsage) => {
-				this.emit(RooCodeEventName.TaskCompleted, cline.taskId, tokenUsage, toolUsage)
-				this.taskMap.delete(cline.taskId)
+			assista.on("taskCompleted", async (_, tokenUsage, toolUsage) => {
+				let isSubtask = false
+				if (assista.rootTask != undefined) {
+					isSubtask = true
+				}
+				this.emit(CybrosysAssistaEventName.TaskCompleted, assista.taskId, tokenUsage, toolUsage, { isSubtask: isSubtask })
+				this.taskMap.delete(assista.taskId)
 
 				await this.fileLog(
-					`[${new Date().toISOString()}] taskCompleted -> ${cline.taskId} | ${JSON.stringify(tokenUsage, null, 2)} | ${JSON.stringify(toolUsage, null, 2)}\n`,
+					`[${new Date().toISOString()}] taskCompleted -> ${assista.taskId} | ${JSON.stringify(tokenUsage, null, 2)} | ${JSON.stringify(toolUsage, null, 2)}\n`,
 				)
 			})
 
-			cline.on("taskSpawned", (childTaskId) => this.emit(RooCodeEventName.TaskSpawned, cline.taskId, childTaskId))
-			cline.on("taskPaused", () => this.emit(RooCodeEventName.TaskPaused, cline.taskId))
-			cline.on("taskUnpaused", () => this.emit(RooCodeEventName.TaskUnpaused, cline.taskId))
+			assista.on("taskSpawned", (childTaskId) => this.emit(CybrosysAssistaEventName.TaskSpawned, assista.taskId, childTaskId))
+			assista.on("taskPaused", () => this.emit(CybrosysAssistaEventName.TaskPaused, assista.taskId))
+			assista.on("taskUnpaused", () => this.emit(CybrosysAssistaEventName.TaskUnpaused, assista.taskId))
 
-			cline.on("taskTokenUsageUpdated", (_, usage) =>
-				this.emit(RooCodeEventName.TaskTokenUsageUpdated, cline.taskId, usage),
+			assista.on("taskTokenUsageUpdated", (_, usage) =>
+				this.emit(CybrosysAssistaEventName.TaskTokenUsageUpdated, assista.taskId, usage),
 			)
 
-			cline.on("taskToolFailed", (taskId, tool, error) =>
-				this.emit(RooCodeEventName.TaskToolFailed, taskId, tool, error),
+			assista.on("taskToolFailed", (taskId, tool, error) =>
+				this.emit(CybrosysAssistaEventName.TaskToolFailed, taskId, tool, error),
 			)
 
-			this.emit(RooCodeEventName.TaskCreated, cline.taskId)
+			this.emit(CybrosysAssistaEventName.TaskCreated, assista.taskId)
 		})
 	}
 
@@ -289,13 +297,13 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 
 	// Global Settings Management
 
-	public getConfiguration(): RooCodeSettings {
+	public getConfiguration(): CybrosysAssistaSettings {
 		return Object.fromEntries(
 			Object.entries(this.sidebarProvider.getValues()).filter(([key]) => !isSecretStateKey(key)),
 		)
 	}
 
-	public async setConfiguration(values: RooCodeSettings) {
+	public async setConfiguration(values: CybrosysAssistaSettings) {
 		await this.sidebarProvider.contextProxy.setValues(values)
 		await this.sidebarProvider.providerSettingsManager.saveConfig(values.currentApiConfigName || "default", values)
 		await this.sidebarProvider.postStateToWebview()

@@ -1,5 +1,5 @@
 {
-	"greeting": "Welcome to Cybrosys Assista",
+	"greeting": "Welcome to Cybrosys Assista!",
 	"task": {
 		"title": "Task",
 		"seeMore": "See more",
@@ -12,7 +12,11 @@
 		"closeAndStart": "Close task and start a new one",
 		"export": "Export task history",
 		"share": "Share task",
-		"delete": "Delete Task (Shift + Click to skip confirmation)"
+		"delete": "Delete Task (Shift + Click to skip confirmation)",
+		"shareWithOrganization": "Share with Organization",
+		"shareWithOrganizationDescription": "Only members of your organization can access",
+		"sharePublicly": "Share Publicly",
+		"sharePubliclyDescription": "Anyone with the link can access"
 	},
 	"unpin": "Unpin",
 	"pin": "Pin",
@@ -81,9 +85,9 @@
 	"scrollToBottom": "Scroll to bottom of chat",
 	"about": "Generate, refactor, and debug code with AI assistance. Check out our <DocsLink>documentation</DocsLink> to learn more.",
 	"onboarding": "Your task list in this workspace is empty.",
-	"rooTips": {
+	"assistaTips": {
 		"boomerangTasks": {
-			"title": "Boomerang Tasks",
+			"title": "Task Orchestration",
 			"description": "Split tasks into smaller, manageable parts"
 		},
 		"stickyModels": {
@@ -156,6 +160,8 @@
 		"didRead": "Assista read this file:",
 		"wantsToEdit": "Assista wants to edit this file:",
 		"wantsToEditOutsideWorkspace": "Assista wants to edit this file outside of the workspace:",
+		"wantsToEditProtected": "Assista wants to edit a protected configuration file:",
+		"wantsToApplyBatchChanges": "Assista wants to apply changes to multiple files:",
 		"wantsToCreate": "Assista wants to create a new file:",
 		"wantsToSearchReplace": "Assista wants to search and replace in this file:",
 		"didSearchReplace": "Assista performed search and replace on this file:",
@@ -166,12 +172,20 @@
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Assista wants to view the top level files in this directory:",
 		"didViewTopLevel": "Assista viewed the top level files in this directory:",
+		"wantsToViewTopLevelOutsideWorkspace": "Assista wants to view the top level files in this directory (outside workspace):",
+		"didViewTopLevelOutsideWorkspace": "Assista viewed the top level files in this directory (outside workspace):",
 		"wantsToViewRecursive": "Assista wants to recursively view all files in this directory:",
 		"didViewRecursive": "Assista recursively viewed all files in this directory:",
+		"wantsToViewRecursiveOutsideWorkspace": "Assista wants to recursively view all files in this directory (outside workspace):",
+		"didViewRecursiveOutsideWorkspace": "Assista recursively viewed all files in this directory (outside workspace):",
 		"wantsToViewDefinitions": "Assista wants to view source code definition names used in this directory:",
 		"didViewDefinitions": "Assista viewed source code definition names used in this directory:",
+		"wantsToViewDefinitionsOutsideWorkspace": "Assista wants to view source code definition names used in this directory (outside workspace):",
+		"didViewDefinitionsOutsideWorkspace": "Assista viewed source code definition names used in this directory (outside workspace):",
 		"wantsToSearch": "Assista wants to search this directory for <code>{{regex}}</code>:",
-		"didSearch": "Assista searched this directory for <code>{{regex}}</code>:"
+		"didSearch": "Assista searched this directory for <code>{{regex}}</code>:",
+		"wantsToSearchOutsideWorkspace": "Assista wants to search this directory (outside workspace) for <code>{{regex}}</code>:",
+		"didSearchOutsideWorkspace": "Assista searched this directory (outside workspace) for <code>{{regex}}</code>:"
 	},
 	"codebaseSearch": {
 		"wantsToSearch": "Assista wants to search the codebase for <code>{{query}}</code>:",
@@ -215,15 +229,15 @@
 	"autoApprove": {
 		"title": "Auto-approve:",
 		"none": "None",
-		"description": "Auto-approve allows Assista Code to perform actions without asking for permission. Only enable for actions you fully trust. More detailed configuration available in <settingsLink>Settings</settingsLink>."
+		"description": "Auto-approve allows Cybrosys Assista to perform actions without asking for permission. Only enable for actions you fully trust. More detailed configuration available in <settingsLink>Settings</settingsLink>."
 	},
 	"announcement": {
 		"title": "🎉 Cybrosys Assista {{version}} Released",
-		"description": "Cybrosys Assista {{version}} brings powerful new features and improvements based on your feedback.",
+		"description": "Cybrosys Assista {{version}} brings major new features and improvements based on your feedback.",
 		"whatsNew": "What's New",
-		"feature1": "<bold>Intelligent Context Condensing Enabled by Default</bold>: Context condensing is now enabled by default with configurable settings for when automatic condensing happens",
-		"feature2": "<bold>Manual Condensing Button</bold>: New button in the task header allows you to manually trigger context condensing at any time",
-		"feature3": "<bold>Enhanced Condensing Settings</bold>: Fine-tune when and how automatic condensing occurs through the <contextSettingsLink>Context Settings</contextSettingsLink>",
+		"feature1": "<bold>Assista Marketplace Launch</bold>: The marketplace is now live! Discover and install modes and MCPs easier than ever before.",
+		"feature2": "<bold>Gemini 2.5 Models</bold>: Added support for new Gemini 2.5 Pro, Flash, and Flash Lite models.",
+		"feature3": "<bold>Excel File Support & More</bold>: Added Excel (.xlsx) file support and numerous bug fixes and improvements!",
 		"hideButton": "Hide announcement",
 		"detailsDiscussLinks": "Get more details and discuss in <discordLink>Discord</discordLink> and <redditLink>Reddit</redditLink> 🚀"
 	},
@@ -235,7 +249,7 @@
 		"copyToInput": "Copy to input (same as shift + click)"
 	},
 	"browser": {
-		"rooWantsToUse": "Assista wants to use the browser:",
+		"assistaWantsToUse": "Assista wants to use the browser:",
 		"consoleLogs": "Console Logs",
 		"noNewLogs": "(No new logs)",
 		"screenshot": "Browser screenshot",
@@ -269,7 +283,7 @@
 	"profileViolationWarning": "The current profile violates your organization's settings",
 	"shellIntegration": {
 		"title": "Command Execution Warning",
-		"description": "Your command is being executed without VSCode terminal shell integration. To suppress this warning you can disable shell integration in the <strong>Terminal</strong> section of the <settingsLink>Assista Code settings</settingsLink> or troubleshoot VSCode terminal integration using the link below.",
+		"description": "Your command is being executed without VSCode terminal shell integration. To suppress this warning you can disable shell integration in the <strong>Terminal</strong> section of the <settingsLink>Cybrosys Assista settings</settingsLink> or troubleshoot VSCode terminal integration using the link below.",
 		"troubleshooting": "Click here for shell integration documentation."
 	},
 	"ask": {
@@ -278,5 +292,12 @@
 			"description": "Assista has reached the auto-approved limit of {{count}} API request(s). Would you like to reset the count and proceed with the task?",
 			"button": "Reset and Continue"
 		}
+	},
+	"indexingStatus": {
+		"ready": "Index ready",
+		"indexing": "Indexing {{percentage}}%",
+		"indexed": "Indexed",
+		"error": "Index error",
+		"status": "Index status"
 	}
 }

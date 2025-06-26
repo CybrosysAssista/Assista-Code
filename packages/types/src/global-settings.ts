@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { type Keys, keysOf } from "./type-fu.js"
+import { type Keys } from "./type-fu.js"
 import {
 	type ProviderSettings,
 	PROVIDER_SETTINGS_KEYS,
@@ -10,7 +10,6 @@ import {
 import { historyItemSchema } from "./history.js"
 import { codebaseIndexModelsSchema, codebaseIndexConfigSchema } from "./codebase-index.js"
 import { experimentsSchema } from "./experiment.js"
-import { telemetrySettingsSchema } from "./telemetry.js"
 import { modeConfigSchema } from "./mode.js"
 import { customModePromptsSchema, customSupportPromptsSchema } from "./mode.js"
 import { languagesSchema } from "./vscode.js"
@@ -36,6 +35,7 @@ export const globalSettingsSchema = z.object({
 	alwaysAllowReadOnlyOutsideWorkspace: z.boolean().optional(),
 	alwaysAllowWrite: z.boolean().optional(),
 	alwaysAllowWriteOutsideWorkspace: z.boolean().optional(),
+	alwaysAllowWriteProtected: z.boolean().optional(),
 	writeDelayMs: z.number().optional(),
 	alwaysAllowBrowser: z.boolean().optional(),
 	alwaysApproveResubmit: z.boolean().optional(),
@@ -66,7 +66,7 @@ export const globalSettingsSchema = z.object({
 
 	maxOpenTabsContext: z.number().optional(),
 	maxWorkspaceFiles: z.number().optional(),
-	showRooIgnoredFiles: z.boolean().optional(),
+	showAssistaIgnoredFiles: z.boolean().optional(),
 	maxReadFileLine: z.number().optional(),
 
 	terminalOutputLineLimit: z.number().optional(),
@@ -90,8 +90,6 @@ export const globalSettingsSchema = z.object({
 
 	language: languagesSchema.optional(),
 
-	telemetrySetting: telemetrySettingsSchema.optional(),
-
 	mcpEnabled: z.boolean().optional(),
 	enableMcpServerCreation: z.boolean().optional(),
 
@@ -102,131 +100,25 @@ export const globalSettingsSchema = z.object({
 	customSupportPrompts: customSupportPromptsSchema.optional(),
 	enhancementApiConfigId: z.string().optional(),
 	historyPreviewCollapsed: z.boolean().optional(),
+	profileThresholds: z.record(z.string(), z.number()).optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>
 
-export const GLOBAL_SETTINGS_KEYS = keysOf<GlobalSettings>()([
-	"currentApiConfigName",
-	"listApiConfigMeta",
-	"pinnedApiConfigs",
-
-	"lastShownAnnouncementId",
-	"customInstructions",
-	"taskHistory",
-
-	"condensingApiConfigId",
-	"customCondensingPrompt",
-
-	"autoApprovalEnabled",
-	"alwaysAllowReadOnly",
-	"alwaysAllowReadOnlyOutsideWorkspace",
-	"alwaysAllowWrite",
-	"alwaysAllowWriteOutsideWorkspace",
-	"writeDelayMs",
-	"alwaysAllowBrowser",
-	"alwaysApproveResubmit",
-	"requestDelaySeconds",
-	"alwaysAllowMcp",
-	"alwaysAllowModeSwitch",
-	"alwaysAllowSubtasks",
-	"alwaysAllowExecute",
-	"allowedCommands",
-	"allowedMaxRequests",
-	"autoCondenseContext",
-	"autoCondenseContextPercent",
-	"maxConcurrentFileReads",
-
-	"browserToolEnabled",
-	"browserViewportSize",
-	"screenshotQuality",
-	"remoteBrowserEnabled",
-	"remoteBrowserHost",
-
-	"enableCheckpoints",
-
-	"ttsEnabled",
-	"ttsSpeed",
-	"soundEnabled",
-	"soundVolume",
-
-	"maxOpenTabsContext",
-	"maxWorkspaceFiles",
-	"showRooIgnoredFiles",
-	"maxReadFileLine",
-
-	"terminalOutputLineLimit",
-	"terminalShellIntegrationTimeout",
-	"terminalShellIntegrationDisabled",
-	"terminalCommandDelay",
-	"terminalPowershellCounter",
-	"terminalZshClearEolMark",
-	"terminalZshOhMy",
-	"terminalZshP10k",
-	"terminalZdotdir",
-	"terminalCompressProgressBar",
-
-	"rateLimitSeconds",
-	"diffEnabled",
-	"fuzzyMatchThreshold",
-	"experiments",
-
-	"codebaseIndexModels",
-	"codebaseIndexConfig",
-
-	"language",
-
-	"telemetrySetting",
-	"mcpEnabled",
-	"enableMcpServerCreation",
-
-	"mode",
-	"modeApiConfigs",
-	"customModes",
-	"customModePrompts",
-	"customSupportPrompts",
-	"enhancementApiConfigId",
-	"cachedChromeHostUrl",
-	"historyPreviewCollapsed",
-])
+export const GLOBAL_SETTINGS_KEYS = globalSettingsSchema.keyof().options
 
 /**
- * RooCodeSettings
+ * CybrosysAssistaSettings
  */
 
-export const rooCodeSettingsSchema = providerSettingsSchema.merge(globalSettingsSchema)
+export const cybrosysAssistaSettingsSchema = providerSettingsSchema.merge(globalSettingsSchema)
 
-export type RooCodeSettings = GlobalSettings & ProviderSettings
+export type CybrosysAssistaSettings = GlobalSettings & ProviderSettings
 
 /**
  * SecretState
  */
-
-export type SecretState = Pick<
-	ProviderSettings,
-	| "apiKey"
-	| "glamaApiKey"
-	| "openRouterApiKey"
-	| "awsAccessKey"
-	| "awsSecretKey"
-	| "awsSessionToken"
-	| "openAiApiKey"
-	| "geminiApiKey"
-	| "openAiNativeApiKey"
-	| "deepSeekApiKey"
-	| "mistralApiKey"
-	| "unboundApiKey"
-	| "requestyApiKey"
-	| "xaiApiKey"
-	| "groqApiKey"
-	| "chutesApiKey"
-	| "litellmApiKey"
-	| "codeIndexOpenAiKey"
-	| "codeIndexQdrantApiKey"
-	| "codebaseIndexOpenAiCompatibleApiKey"
->
-
-export const SECRET_STATE_KEYS = keysOf<SecretState>()([
+export const SECRET_STATE_KEYS = [
 	"apiKey",
 	"glamaApiKey",
 	"openRouterApiKey",
@@ -247,7 +139,8 @@ export const SECRET_STATE_KEYS = keysOf<SecretState>()([
 	"codeIndexOpenAiKey",
 	"codeIndexQdrantApiKey",
 	"codebaseIndexOpenAiCompatibleApiKey",
-])
+] as const satisfies readonly (keyof ProviderSettings)[]
+export type SecretState = Pick<ProviderSettings, (typeof SECRET_STATE_KEYS)[number]>
 
 export const isSecretStateKey = (key: string): key is Keys<SecretState> =>
 	SECRET_STATE_KEYS.includes(key as Keys<SecretState>)
@@ -256,10 +149,10 @@ export const isSecretStateKey = (key: string): key is Keys<SecretState> =>
  * GlobalState
  */
 
-export type GlobalState = Omit<RooCodeSettings, Keys<SecretState>>
+export type GlobalState = Omit<CybrosysAssistaSettings, Keys<SecretState>>
 
 export const GLOBAL_STATE_KEYS = [...GLOBAL_SETTINGS_KEYS, ...PROVIDER_SETTINGS_KEYS].filter(
-	(key: Keys<RooCodeSettings>) => !SECRET_STATE_KEYS.includes(key as Keys<SecretState>),
+	(key: Keys<CybrosysAssistaSettings>) => !SECRET_STATE_KEYS.includes(key as Keys<SecretState>),
 ) as Keys<GlobalState>[]
 
 export const isGlobalStateKey = (key: string): key is Keys<GlobalState> =>
@@ -270,7 +163,7 @@ export const isGlobalStateKey = (key: string): key is Keys<GlobalState> =>
  */
 
 // Default settings when running evals (unless overridden).
-export const EVALS_SETTINGS: RooCodeSettings = {
+export const EVALS_SETTINGS: CybrosysAssistaSettings = {
 	apiProvider: "openrouter",
 	openRouterUseMiddleOutTransform: false,
 
@@ -283,6 +176,7 @@ export const EVALS_SETTINGS: RooCodeSettings = {
 	alwaysAllowReadOnlyOutsideWorkspace: false,
 	alwaysAllowWrite: true,
 	alwaysAllowWriteOutsideWorkspace: false,
+	alwaysAllowWriteProtected: false,
 	writeDelayMs: 1000,
 	alwaysAllowBrowser: true,
 	alwaysApproveResubmit: true,
@@ -322,11 +216,10 @@ export const EVALS_SETTINGS: RooCodeSettings = {
 	rateLimitSeconds: 0,
 	maxOpenTabsContext: 20,
 	maxWorkspaceFiles: 200,
-	showRooIgnoredFiles: true,
+	showAssistaIgnoredFiles: true,
 	maxReadFileLine: -1, // -1 to enable full file reading.
 
 	language: "en",
-	telemetrySetting: "enabled",
 
 	mcpEnabled: false,
 

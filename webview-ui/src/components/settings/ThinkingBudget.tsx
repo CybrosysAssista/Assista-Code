@@ -1,9 +1,9 @@
 import { useEffect } from "react"
 import { Checkbox } from "vscrui"
 
-import { type ProviderSettings, type ModelInfo, type ReasoningEffort, reasoningEfforts } from "@roo-code/types"
+import { type ProviderSettings, type ModelInfo, type ReasoningEffort, reasoningEfforts } from "@cybrosys-assista/types"
 
-import { DEFAULT_HYBRID_REASONING_MODEL_MAX_TOKENS, DEFAULT_HYBRID_REASONING_MODEL_THINKING_TOKENS } from "@roo/api"
+import { DEFAULT_HYBRID_REASONING_MODEL_MAX_TOKENS, DEFAULT_HYBRID_REASONING_MODEL_THINKING_TOKENS } from "@assista/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { Slider, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/ui"
@@ -65,7 +65,11 @@ export const ThinkingBudget = ({ apiConfiguration, setApiConfigurationField, mod
 						<div className="flex items-center gap-1">
 							<Slider
 								min={8192}
-								max={modelInfo.maxTokens}
+								max={Math.max(
+									modelInfo.maxTokens || 8192,
+									customMaxOutputTokens,
+									DEFAULT_HYBRID_REASONING_MODEL_MAX_TOKENS,
+								)}
 								step={1024}
 								value={[customMaxOutputTokens]}
 								onValueChange={([value]) => setApiConfigurationField("modelMaxTokens", value)}

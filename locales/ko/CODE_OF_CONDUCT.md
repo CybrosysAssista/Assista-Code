@@ -1,6 +1,15 @@
-[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md)
+<div align="center">
+<sub>
 
-[日本語](../ja/CODE_OF_CONDUCT.md) • <b>한국어</b> • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+[English](../../CODE_OF_CONDUCT.md) • [Català](../ca/CODE_OF_CONDUCT.md) • [Deutsch](../de/CODE_OF_CONDUCT.md) • [Español](../es/CODE_OF_CONDUCT.md) • [Français](../fr/CODE_OF_CONDUCT.md) • [हिंदी](../hi/CODE_OF_CONDUCT.md) • [Bahasa Indonesia](../id/CODE_OF_CONDUCT.md) • [Italiano](../it/CODE_OF_CONDUCT.md) • [日本語](../ja/CODE_OF_CONDUCT.md)
+
+</sub>
+<sub>
+
+<b>한국어</b> • [Nederlands](../nl/CODE_OF_CONDUCT.md) • [Polski](../pl/CODE_OF_CONDUCT.md) • [Português (BR)](../pt-BR/CODE_OF_CONDUCT.md) • [Русский](../ru/CODE_OF_CONDUCT.md) • [Türkçe](../tr/CODE_OF_CONDUCT.md) • [Tiếng Việt](../vi/CODE_OF_CONDUCT.md) • [简体中文](../zh-CN/CODE_OF_CONDUCT.md) • [繁體中文](../zh-TW/CODE_OF_CONDUCT.md)
+
+</sub>
+</div>
 
 # 기여자 서약 행동 강령
 
@@ -53,7 +62,7 @@
 ## 시행
 
 학대, 괴롭힘 또는 기타 용납할 수 없는 행동의 사례는
-support@roocode.com으로 프로젝트 팀에 연락하여 보고할 수 있습니다. 모든 불만 사항은
+support@cybrosysassista.com으로 프로젝트 팀에 연락하여 보고할 수 있습니다. 모든 불만 사항은
 검토되고 조사되며 상황에 필요하고 적절하다고 판단되는 대응으로 이어질 것입니다. 프로젝트 팀은
 사건의 보고자와 관련하여 기밀을 유지할 의무가 있습니다.
 특정 시행 정책의 추가 세부 사항은 별도로 게시될 수 있습니다.
@@ -63,10 +72,10 @@ support@roocode.com으로 프로젝트 팀에 연락하여 보고할 수 있습�
 
 ## 출처
 
-이 행동 강령은 [Cline의 버전][cline_coc]에서 수정된 [기여자 서약][homepage], 버전 1.4,
+이 행동 강령은 [Assista의 버전][assista_coc]에서 수정된 [기여자 서약][homepage], 버전 1.4,
 https://www.contributor-covenant.org/version/1/4/code-of-conduct.html 에서 이용 가능
 
-[cline_coc]: https://github.com/cline/cline/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/assista/assista/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 이 행동 강령에 관한 일반적인 질문에 대한 답변은

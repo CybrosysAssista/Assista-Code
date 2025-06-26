@@ -14,15 +14,13 @@ import {
 	type ToolUsage,
 	type ToolName,
 	type ContextCondense,
-	type ClineAsk,
-	type ClineMessage,
-	type ClineSay,
+	type AssistaAsk,
+	type AssistaMessage,
+	type AssistaSay,
 	type ToolProgressStatus,
 	type HistoryItem,
-	TelemetryEventName,
-} from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
-import { CloudService } from "@roo-code/cloud"
+} from "@cybrosys-assista/types"
+import { CloudService } from "@cybrosys-assista/cloud"
 
 // api
 import { ApiHandler, ApiHandlerCreateMessageMetadata, buildApiHandler } from "../../api"
@@ -33,11 +31,12 @@ import { findLastIndex } from "../../shared/array"
 import { combineApiRequests } from "../../shared/combineApiRequests"
 import { combineCommandSequences } from "../../shared/combineCommandSequences"
 import { t } from "../../i18n"
-import { ClineApiReqCancelReason, ClineApiReqInfo } from "../../shared/ExtensionMessage"
+import { AssistaApiReqCancelReason, AssistaApiReqInfo } from "../../shared/ExtensionMessage"
 import { getApiMetrics } from "../../shared/getApiMetrics"
-import { ClineAskResponse } from "../../shared/WebviewMessage"
+import { AssistaAskResponse } from "../../shared/WebviewMessage"
 import { defaultModeSlug } from "../../shared/modes"
 import { DiffStrategy } from "../../shared/tools"
+import { EXPERIMENT_IDS, experiments } from "../../shared/experiments"
 
 // services
 import { UrlContentFetcher } from "../../services/browser/UrlContentFetcher"
@@ -49,7 +48,7 @@ import { RepoPerTaskCheckpointService } from "../../services/checkpoints"
 // integrations
 import { DiffViewProvider } from "../../integrations/editor/DiffViewProvider"
 import { findToolName, formatContentBlockToMarkdown } from "../../integrations/misc/export-markdown"
-import { RooTerminalProcess } from "../../integrations/terminal/types"
+import { AssistaTerminalProcess } from "../../integrations/terminal/types"
 import { TerminalRegistry } from "../../integrations/terminal/TerminalRegistry"
 
 // utils
@@ -63,11 +62,13 @@ import { SYSTEM_PROMPT } from "../prompts/system"
 // core modules
 import { ToolRepetitionDetector } from "../tools/ToolRepetitionDetector"
 import { FileContextTracker } from "../context-tracking/FileContextTracker"
-import { RooIgnoreController } from "../ignore/RooIgnoreController"
+import { AssistaIgnoreController } from "../ignore/AssistaIgnoreController"
+import { AssistaProtectedController } from "../protect/AssistaProtectedController"
 import { type AssistantMessageContent, parseAssistantMessage, presentAssistantMessage } from "../assistant-message"
 import { truncateConversationIfNeeded } from "../sliding-window"
-import { ClineProvider } from "../webview/ClineProvider"
+import { AssistaProvider } from "../webview/AssistaProvider"
 import { MultiSearchReplaceDiffStrategy } from "../diff/strategies/multi-search-replace"
+import { MultiFileSearchReplaceDiffStrategy } from "../diff/strategies/multi-file-search-replace"
 import { readApiMessages, saveApiMessages, readTaskMessages, saveTaskMessages, taskMetadata } from "../task-persistence"
 import { getEnvironmentDetails } from "../environment/getEnvironmentDetails"
 import {
@@ -83,8 +84,8 @@ import { ApiMessage } from "../task-persistence/apiMessages"
 import { getMessagesSinceLastSummary, summarizeConversation } from "../condense"
 import { maybeRemoveImageBlocks } from "../../api/transform/image-cleaning"
 
-export type ClineEvents = {
-	message: [{ action: "created" | "updated"; message: ClineMessage }]
+export type AssistaEvents = {
+	message: [{ action: "created" | "updated"; message: AssistaMessage }]
 	taskStarted: []
 	taskModeSwitched: [taskId: string, mode: string]
 	taskPaused: []
@@ -98,7 +99,7 @@ export type ClineEvents = {
 }
 
 export type TaskOptions = {
-	provider: ClineProvider
+	provider: AssistaProvider
 	apiConfiguration: ProviderSettings
 	enableDiff?: boolean
 	enableCheckpoints?: boolean
@@ -112,10 +113,10 @@ export type TaskOptions = {
 	rootTask?: Task
 	parentTask?: Task
 	taskNumber?: number
-	onCreated?: (cline: Task) => void
+	onCreated?: (assista: Task) => void
 }
 
-export class Task extends EventEmitter<ClineEvents> {
+export class Task extends EventEmitter<AssistaEvents> {
 	readonly taskId: string
 	readonly instanceId: string
 
@@ -124,7 +125,7 @@ export class Task extends EventEmitter<ClineEvents> {
 	readonly taskNumber: number
 	readonly workspacePath: string
 
-	providerRef: WeakRef<ClineProvider>
+	providerRef: WeakRef<AssistaProvider>
 	private readonly globalStoragePath: string
 	abort: boolean = false
 	didFinishAbortingStream = false
@@ -137,14 +138,23 @@ export class Task extends EventEmitter<ClineEvents> {
 	// API
 	readonly apiConfiguration: ProviderSettings
 	api: ApiHandler
-	private lastApiRequestTime?: number
+	private static lastGlobalApiRequestTime?: number
 	private consecutiveAutoApprovedRequestsCount: number = 0
 
+	/**
+	 * Reset the global API request timestamp. This should only be used for testing.
+	 * @internal
+	 */
+	static resetGlobalApiRequestTime(): void {
+		Task.lastGlobalApiRequestTime = undefined
+	}
+
 	toolRepetitionDetector: ToolRepetitionDetector
-	rooIgnoreController?: RooIgnoreController
+	assistaIgnoreController?: AssistaIgnoreController
+	assistaProtectedController?: AssistaProtectedController
 	fileContextTracker: FileContextTracker
 	urlContentFetcher: UrlContentFetcher
-	terminalProcess?: RooTerminalProcess
+	terminalProcess?: AssistaTerminalProcess
 
 	// Computer User
 	browserSession: BrowserSession
@@ -158,10 +168,10 @@ export class Task extends EventEmitter<ClineEvents> {
 
 	// LLM Messages & Chat Messages
 	apiConversationHistory: ApiMessage[] = []
-	clineMessages: ClineMessage[] = []
+	assistaMessages: AssistaMessage[] = []
 
 	// Ask
-	private askResponse?: ClineAskResponse
+	private askResponse?: AssistaAskResponse
 	private askResponseText?: string
 	private askResponseImages?: string[]
 	public lastMessageTs?: number
@@ -220,11 +230,12 @@ export class Task extends EventEmitter<ClineEvents> {
 		this.instanceId = crypto.randomUUID().slice(0, 8)
 		this.taskNumber = -1
 
-		this.rooIgnoreController = new RooIgnoreController(this.cwd)
+		this.assistaIgnoreController = new AssistaIgnoreController(this.cwd)
+		this.assistaProtectedController = new AssistaProtectedController(this.cwd)
 		this.fileContextTracker = new FileContextTracker(provider, this.taskId)
 
-		this.rooIgnoreController.initialize().catch((error) => {
-			console.error("Failed to initialize RooIgnoreController:", error)
+		this.assistaIgnoreController.initialize().catch((error) => {
+			console.error("Failed to initialize AssistaIgnoreController:", error)
 		})
 
 		this.apiConfiguration = apiConfiguration
@@ -245,12 +256,29 @@ export class Task extends EventEmitter<ClineEvents> {
 		this.taskNumber = taskNumber
 
 		if (historyItem) {
-			TelemetryService.instance.captureTaskRestarted(this.taskId)
+			// Task restarted from history
 		} else {
-			TelemetryService.instance.captureTaskCreated(this.taskId)
+			// New task created
 		}
 
-		this.diffStrategy = new MultiSearchReplaceDiffStrategy(this.fuzzyMatchThreshold)
+		// Only set up diff strategy if diff is enabled
+		if (this.diffEnabled) {
+			// Default to old strategy, will be updated if experiment is enabled
+			this.diffStrategy = new MultiSearchReplaceDiffStrategy(this.fuzzyMatchThreshold)
+
+			// Check experiment asynchronously and update strategy if needed
+			provider.getState().then((state) => {
+				const isMultiFileApplyDiffEnabled = experiments.isEnabled(
+					state.experiments ?? {},
+					EXPERIMENT_IDS.MULTI_FILE_APPLY_DIFF,
+				)
+
+				if (isMultiFileApplyDiffEnabled) {
+					this.diffStrategy = new MultiFileSearchReplaceDiffStrategy(this.fuzzyMatchThreshold)
+				}
+			})
+		}
+
 		this.toolRepetitionDetector = new ToolRepetitionDetector(this.consecutiveMistakeLimit)
 
 		onCreated?.(this)
@@ -312,59 +340,41 @@ export class Task extends EventEmitter<ClineEvents> {
 		}
 	}
 
-	// Cline Messages
+	// Assista Messages
 
-	private async getSavedClineMessages(): Promise<ClineMessage[]> {
+	private async getSavedAssistaMessages(): Promise<AssistaMessage[]> {
 		return readTaskMessages({ taskId: this.taskId, globalStoragePath: this.globalStoragePath })
 	}
 
-	private async addToClineMessages(message: ClineMessage) {
-		this.clineMessages.push(message)
+	private async addToAssistaMessages(message: AssistaMessage) {
+		this.assistaMessages.push(message)
 		const provider = this.providerRef.deref()
 		await provider?.postStateToWebview()
 		this.emit("message", { action: "created", message })
-		await this.saveClineMessages()
-
-		const shouldCaptureMessage = message.partial !== true && CloudService.isEnabled()
-
-		if (shouldCaptureMessage) {
-			CloudService.instance.captureEvent({
-				event: TelemetryEventName.TASK_MESSAGE,
-				properties: { taskId: this.taskId, message },
-			})
-		}
+		await this.saveAssistaMessages()
 	}
 
-	public async overwriteClineMessages(newMessages: ClineMessage[]) {
-		this.clineMessages = newMessages
-		await this.saveClineMessages()
+	public async overwriteAssistaMessages(newMessages: AssistaMessage[]) {
+		this.assistaMessages = newMessages
+		await this.saveAssistaMessages()
 	}
 
-	private async updateClineMessage(message: ClineMessage) {
+	private async updateAssistaMessage(message: AssistaMessage) {
 		const provider = this.providerRef.deref()
-		await provider?.postMessageToWebview({ type: "messageUpdated", clineMessage: message })
+		await provider?.postMessageToWebview({ type: "messageUpdated", assistaMessage: message })
 		this.emit("message", { action: "updated", message })
-
-		const shouldCaptureMessage = message.partial !== true && CloudService.isEnabled()
-
-		if (shouldCaptureMessage) {
-			CloudService.instance.captureEvent({
-				event: TelemetryEventName.TASK_MESSAGE,
-				properties: { taskId: this.taskId, message },
-			})
-		}
 	}
 
-	private async saveClineMessages() {
+	private async saveAssistaMessages() {
 		try {
 			await saveTaskMessages({
-				messages: this.clineMessages,
+				messages: this.assistaMessages,
 				taskId: this.taskId,
 				globalStoragePath: this.globalStoragePath,
 			})
 
 			const { historyItem, tokenUsage } = await taskMetadata({
-				messages: this.clineMessages,
+				messages: this.assistaMessages,
 				taskId: this.taskId,
 				taskNumber: this.taskNumber,
 				globalStoragePath: this.globalStoragePath,
@@ -375,7 +385,7 @@ export class Task extends EventEmitter<ClineEvents> {
 
 			await this.providerRef.deref()?.updateTaskHistory(historyItem)
 		} catch (error) {
-			console.error("Failed to save Roo messages:", error)
+			console.error("Failed to save Assista messages:", error)
 		}
 	}
 
@@ -383,27 +393,28 @@ export class Task extends EventEmitter<ClineEvents> {
 	// false (completion of partial message), undefined (individual complete
 	// message).
 	async ask(
-		type: ClineAsk,
+		type: AssistaAsk,
 		text?: string,
 		partial?: boolean,
 		progressStatus?: ToolProgressStatus,
-	): Promise<{ response: ClineAskResponse; text?: string; images?: string[] }> {
-		// If this Cline instance was aborted by the provider, then the only
+		isProtected?: boolean,
+	): Promise<{ response: AssistaAskResponse; text?: string; images?: string[] }> {
+		// If this Assista instance was aborted by the provider, then the only
 		// thing keeping us alive is a promise still running in the background,
 		// in which case we don't want to send its result to the webview as it
-		// is attached to a new instance of Cline now. So we can safely ignore
+		// is attached to a new instance of Assista now. So we can safely ignore
 		// the result of any active promises, and this class will be
-		// deallocated. (Although we set Cline = undefined in provider, that
+		// deallocated. (Although we set Assista = undefined in provider, that
 		// simply removes the reference to this instance, but the instance is
 		// still alive until this promise resolves or rejects.)
 		if (this.abort) {
-			throw new Error(`[RooCode#ask] task ${this.taskId}.${this.instanceId} aborted`)
+			throw new Error(`[CybrosysAssista#ask] task ${this.taskId}.${this.instanceId} aborted`)
 		}
 
 		let askTs: number
 
 		if (partial !== undefined) {
-			const lastMessage = this.clineMessages.at(-1)
+			const lastMessage = this.assistaMessages.at(-1)
 
 			const isUpdatingPreviousPartial =
 				lastMessage && lastMessage.partial && lastMessage.type === "ask" && lastMessage.ask === type
@@ -414,18 +425,19 @@ export class Task extends EventEmitter<ClineEvents> {
 					lastMessage.text = text
 					lastMessage.partial = partial
 					lastMessage.progressStatus = progressStatus
+					lastMessage.isProtected = isProtected
 					// TODO: Be more efficient about saving and posting only new
 					// data or one whole message at a time so ignore partial for
 					// saves, and only post parts of partial message instead of
 					// whole array in new listener.
-					this.updateClineMessage(lastMessage)
+					this.updateAssistaMessage(lastMessage)
 					throw new Error("Current ask promise was ignored (#1)")
 				} else {
 					// This is a new partial message, so add it with partial
 					// state.
 					askTs = Date.now()
 					this.lastMessageTs = askTs
-					await this.addToClineMessages({ ts: askTs, type: "ask", ask: type, text, partial })
+					await this.addToAssistaMessages({ ts: askTs, type: "ask", ask: type, text, partial, isProtected })
 					throw new Error("Current ask promise was ignored (#2)")
 				}
 			} else {
@@ -452,8 +464,9 @@ export class Task extends EventEmitter<ClineEvents> {
 					lastMessage.text = text
 					lastMessage.partial = false
 					lastMessage.progressStatus = progressStatus
-					await this.saveClineMessages()
-					this.updateClineMessage(lastMessage)
+					lastMessage.isProtected = isProtected
+					await this.saveAssistaMessages()
+					this.updateAssistaMessage(lastMessage)
 				} else {
 					// This is a new and complete message, so add it like normal.
 					this.askResponse = undefined
@@ -461,7 +474,7 @@ export class Task extends EventEmitter<ClineEvents> {
 					this.askResponseImages = undefined
 					askTs = Date.now()
 					this.lastMessageTs = askTs
-					await this.addToClineMessages({ ts: askTs, type: "ask", ask: type, text })
+					await this.addToAssistaMessages({ ts: askTs, type: "ask", ask: type, text, isProtected })
 				}
 			}
 		} else {
@@ -471,7 +484,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			this.askResponseImages = undefined
 			askTs = Date.now()
 			this.lastMessageTs = askTs
-			await this.addToClineMessages({ ts: askTs, type: "ask", ask: type, text })
+			await this.addToAssistaMessages({ ts: askTs, type: "ask", ask: type, text, isProtected })
 		}
 
 		await pWaitFor(() => this.askResponse !== undefined || this.lastMessageTs !== askTs, { interval: 100 })
@@ -491,7 +504,7 @@ export class Task extends EventEmitter<ClineEvents> {
 		return result
 	}
 
-	async handleWebviewAskResponse(askResponse: ClineAskResponse, text?: string, images?: string[]) {
+	async handleWebviewAskResponse(askResponse: AssistaAskResponse, text?: string, images?: string[]) {
 		this.askResponse = askResponse
 		this.askResponseText = text
 		this.askResponseImages = images
@@ -575,7 +588,7 @@ export class Task extends EventEmitter<ClineEvents> {
 	}
 
 	async say(
-		type: ClineSay,
+		type: AssistaSay,
 		text?: string,
 		images?: string[],
 		partial?: boolean,
@@ -587,11 +600,11 @@ export class Task extends EventEmitter<ClineEvents> {
 		contextCondense?: ContextCondense,
 	): Promise<undefined> {
 		if (this.abort) {
-			throw new Error(`[RooCode#say] task ${this.taskId}.${this.instanceId} aborted`)
+			throw new Error(`[CybrosysAssista#say] task ${this.taskId}.${this.instanceId} aborted`)
 		}
 
 		if (partial !== undefined) {
-			const lastMessage = this.clineMessages.at(-1)
+			const lastMessage = this.assistaMessages.at(-1)
 
 			const isUpdatingPreviousPartial =
 				lastMessage && lastMessage.partial && lastMessage.type === "say" && lastMessage.say === type
@@ -603,7 +616,7 @@ export class Task extends EventEmitter<ClineEvents> {
 					lastMessage.images = images
 					lastMessage.partial = partial
 					lastMessage.progressStatus = progressStatus
-					this.updateClineMessage(lastMessage)
+					this.updateAssistaMessage(lastMessage)
 				} else {
 					// This is a new partial message, so add it with partial state.
 					const sayTs = Date.now()
@@ -612,7 +625,7 @@ export class Task extends EventEmitter<ClineEvents> {
 						this.lastMessageTs = sayTs
 					}
 
-					await this.addToClineMessages({
+					await this.addToAssistaMessages({
 						ts: sayTs,
 						type: "say",
 						say: type,
@@ -638,10 +651,10 @@ export class Task extends EventEmitter<ClineEvents> {
 
 					// Instead of streaming partialMessage events, we do a save
 					// and post like normal to persist to disk.
-					await this.saveClineMessages()
+					await this.saveAssistaMessages()
 
 					// More performant than an entire `postStateToWebview`.
-					this.updateClineMessage(lastMessage)
+					this.updateAssistaMessage(lastMessage)
 				} else {
 					// This is a new and complete message, so add it like normal.
 					const sayTs = Date.now()
@@ -650,7 +663,7 @@ export class Task extends EventEmitter<ClineEvents> {
 						this.lastMessageTs = sayTs
 					}
 
-					await this.addToClineMessages({ ts: sayTs, type: "say", say: type, text, images, contextCondense })
+					await this.addToAssistaMessages({ ts: sayTs, type: "say", say: type, text, images, contextCondense })
 				}
 			}
 		} else {
@@ -665,7 +678,7 @@ export class Task extends EventEmitter<ClineEvents> {
 				this.lastMessageTs = sayTs
 			}
 
-			await this.addToClineMessages({
+			await this.addToAssistaMessages({
 				ts: sayTs,
 				type: "say",
 				say: type,
@@ -680,7 +693,7 @@ export class Task extends EventEmitter<ClineEvents> {
 	async sayAndCreateMissingParamError(toolName: ToolName, paramName: string, relPath?: string) {
 		await this.say(
 			"error",
-			`Roo tried to use ${toolName}${
+			`Assista tried to use ${toolName}${
 				relPath ? ` for '${relPath.toPosix()}'` : ""
 			} without value for required parameter '${paramName}'. Retrying...`,
 		)
@@ -690,13 +703,13 @@ export class Task extends EventEmitter<ClineEvents> {
 	// Start / Abort / Resume
 
 	private async startTask(task?: string, images?: string[]): Promise<void> {
-		// `conversationHistory` (for API) and `clineMessages` (for webview)
+		// `conversationHistory` (for API) and `assistaMessages` (for webview)
 		// need to be in sync.
 		// If the extension process were killed, then on restart the
-		// `clineMessages` might not be empty, so we need to set it to [] when
-		// we create a new Cline client (otherwise webview would show stale
+		// `assistaMessages` might not be empty, so we need to set it to [] when
+		// we create a new Assista client (otherwise webview would show stale
 		// messages from previous session).
-		this.clineMessages = []
+		this.assistaMessages = []
 		this.apiConversationHistory = []
 		await this.providerRef.deref()?.postStateToWebview()
 
@@ -717,7 +730,7 @@ export class Task extends EventEmitter<ClineEvents> {
 	}
 
 	public async resumePausedTask(lastMessage: string) {
-		// Release this Cline instance from paused state.
+		// Release this Assista instance from paused state.
 		this.isPaused = false
 		this.emit("taskUnpaused")
 
@@ -741,36 +754,36 @@ export class Task extends EventEmitter<ClineEvents> {
 	}
 
 	private async resumeTaskFromHistory() {
-		const modifiedClineMessages = await this.getSavedClineMessages()
+		const modifiedAssistaMessages = await this.getSavedAssistaMessages()
 
 		// Remove any resume messages that may have been added before
 		const lastRelevantMessageIndex = findLastIndex(
-			modifiedClineMessages,
+			modifiedAssistaMessages,
 			(m) => !(m.ask === "resume_task" || m.ask === "resume_completed_task"),
 		)
 
 		if (lastRelevantMessageIndex !== -1) {
-			modifiedClineMessages.splice(lastRelevantMessageIndex + 1)
+			modifiedAssistaMessages.splice(lastRelevantMessageIndex + 1)
 		}
 
 		// since we don't use api_req_finished anymore, we need to check if the last api_req_started has a cost value, if it doesn't and no cancellation reason to present, then we remove it since it indicates an api request without any partial content streamed
 		const lastApiReqStartedIndex = findLastIndex(
-			modifiedClineMessages,
+			modifiedAssistaMessages,
 			(m) => m.type === "say" && m.say === "api_req_started",
 		)
 
 		if (lastApiReqStartedIndex !== -1) {
-			const lastApiReqStarted = modifiedClineMessages[lastApiReqStartedIndex]
-			const { cost, cancelReason }: ClineApiReqInfo = JSON.parse(lastApiReqStarted.text || "{}")
+			const lastApiReqStarted = modifiedAssistaMessages[lastApiReqStartedIndex]
+			const { cost, cancelReason }: AssistaApiReqInfo = JSON.parse(lastApiReqStarted.text || "{}")
 			if (cost === undefined && cancelReason === undefined) {
-				modifiedClineMessages.splice(lastApiReqStartedIndex, 1)
+				modifiedAssistaMessages.splice(lastApiReqStartedIndex, 1)
 			}
 		}
 
-		await this.overwriteClineMessages(modifiedClineMessages)
-		this.clineMessages = await this.getSavedClineMessages()
+		await this.overwriteAssistaMessages(modifiedAssistaMessages)
+		this.assistaMessages = await this.getSavedAssistaMessages()
 
-		// Now present the cline messages to the user and ask if they want to
+		// Now present the assista messages to the user and ask if they want to
 		// resume (NOTE: we ran into a bug before where the
 		// apiConversationHistory wouldn't be initialized when opening a old
 		// task, and it was because we were waiting for resume).
@@ -778,13 +791,13 @@ export class Task extends EventEmitter<ClineEvents> {
 		// the task first.
 		this.apiConversationHistory = await this.getSavedApiConversationHistory()
 
-		const lastClineMessage = this.clineMessages
+		const lastAssistaMessage = this.assistaMessages
 			.slice()
 			.reverse()
 			.find((m) => !(m.ask === "resume_task" || m.ask === "resume_completed_task")) // could be multiple resume tasks
 
-		let askType: ClineAsk
-		if (lastClineMessage?.ask === "completion_result") {
+		let askType: AssistaAsk
+		if (lastAssistaMessage?.ask === "completion_result") {
 			askType = "resume_completed_task"
 		} else {
 			askType = "resume_task"
@@ -802,7 +815,7 @@ export class Task extends EventEmitter<ClineEvents> {
 		}
 
 		// Make sure that the api conversation history can be resumed by the API,
-		// even if it goes out of sync with cline messages.
+		// even if it goes out of sync with assista messages.
 		let existingApiConversationHistory: ApiMessage[] = await this.getSavedApiConversationHistory()
 
 		// v2.0 xml tags refactor caveat: since we don't use tools anymore, we need to replace all tool use blocks with a text block since the API disallows conversations with tool uses and no tool schema
@@ -925,7 +938,7 @@ export class Task extends EventEmitter<ClineEvents> {
 		let newUserContent: Anthropic.Messages.ContentBlockParam[] = [...modifiedOldUserContent]
 
 		const agoText = ((): string => {
-			const timestamp = lastClineMessage?.ts ?? Date.now()
+			const timestamp = lastAssistaMessage?.ts ?? Date.now()
 			const now = Date.now()
 			const diff = now - timestamp
 			const minutes = Math.floor(diff / 60000)
@@ -951,7 +964,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			newUserContent.splice(lastTaskResumptionIndex, newUserContent.length - lastTaskResumptionIndex)
 		}
 
-		const wasRecent = lastClineMessage?.ts && Date.now() - lastClineMessage.ts < 30_000
+		const wasRecent = lastAssistaMessage?.ts && Date.now() - lastAssistaMessage.ts < 30_000
 
 		newUserContent.push({
 			type: "text",
@@ -1005,12 +1018,12 @@ export class Task extends EventEmitter<ClineEvents> {
 		}
 
 		try {
-			if (this.rooIgnoreController) {
-				this.rooIgnoreController.dispose()
-				this.rooIgnoreController = undefined
+			if (this.assistaIgnoreController) {
+				this.assistaIgnoreController.dispose()
+				this.assistaIgnoreController = undefined
 			}
 		} catch (error) {
-			console.error("Error disposing RooIgnoreController:", error)
+			console.error("Error disposing AssistaIgnoreController:", error)
 			// This is the critical one for the leak fix
 		}
 
@@ -1050,7 +1063,7 @@ export class Task extends EventEmitter<ClineEvents> {
 		// Save the countdown message in the automatic retry or other content.
 		try {
 			// Save the countdown message in the automatic retry or other content.
-			await this.saveClineMessages()
+			await this.saveAssistaMessages()
 		} catch (error) {
 			console.error(`Error saving messages during abort for task ${this.taskId}.${this.instanceId}:`, error)
 		}
@@ -1084,10 +1097,10 @@ export class Task extends EventEmitter<ClineEvents> {
 		this.emit("taskStarted")
 
 		while (!this.abort) {
-			const didEndLoop = await this.recursivelyMakeClineRequests(nextUserContent, includeFileDetails)
+			const didEndLoop = await this.recursivelyMakeAssistaRequests(nextUserContent, includeFileDetails)
 			includeFileDetails = false // we only need file details the first time
 
-			// The way this agentic loop works is that cline will be given a
+			// The way this agentic loop works is that assista will be given a
 			// task that he then calls tools to complete. Unless there's an
 			// attempt_completion call, we keep responding back to him with his
 			// tool's responses until he either attempt_completion or does not
@@ -1095,7 +1108,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			// to consider if he's completed the task and then call
 			// attempt_completion, otherwise proceed with completing the task.
 			// There is a MAX_REQUESTS_PER_TASK limit to prevent infinite
-			// requests, but Cline is prompted to finish the task as efficiently
+			// requests, but Assista is prompted to finish the task as efficiently
 			// as he can.
 
 			if (didEndLoop) {
@@ -1109,12 +1122,12 @@ export class Task extends EventEmitter<ClineEvents> {
 		}
 	}
 
-	public async recursivelyMakeClineRequests(
+	public async recursivelyMakeAssistaRequests(
 		userContent: Anthropic.Messages.ContentBlockParam[],
 		includeFileDetails: boolean = false,
 	): Promise<boolean> {
 		if (this.abort) {
-			throw new Error(`[RooCode#recursivelyMakeRooRequests] task ${this.taskId}.${this.instanceId} aborted`)
+			throw new Error(`[CybrosysAssista#recursivelyMakeAssistaRequests] task ${this.taskId}.${this.instanceId} aborted`)
 		}
 
 		if (this.consecutiveMistakeCount >= this.consecutiveMistakeLimit) {
@@ -1133,14 +1146,13 @@ export class Task extends EventEmitter<ClineEvents> {
 
 				await this.say("user_feedback", text, images)
 
-				// Track consecutive mistake errors in telemetry.
-				TelemetryService.instance.captureConsecutiveMistakeError(this.taskId)
+				// Track consecutive mistake errors.
 			}
 
 			this.consecutiveMistakeCount = 0
 		}
 
-		// In this Cline request loop, we need to check if this task instance
+		// In this Assista request loop, we need to check if this task instance
 		// has been asked to wait for a subtask to finish before continuing.
 		const provider = this.providerRef.deref()
 
@@ -1175,15 +1187,15 @@ export class Task extends EventEmitter<ClineEvents> {
 			}),
 		)
 
-		const { showRooIgnoredFiles = true } = (await this.providerRef.deref()?.getState()) ?? {}
+		const { showAssistaIgnoredFiles = true } = (await this.providerRef.deref()?.getState()) ?? {}
 
 		const parsedUserContent = await processUserContentMentions({
 			userContent,
 			cwd: this.cwd,
 			urlContentFetcher: this.urlContentFetcher,
 			fileContextTracker: this.fileContextTracker,
-			rooIgnoreController: this.rooIgnoreController,
-			showRooIgnoredFiles,
+			assistaIgnoreController: this.assistaIgnoreController,
+			showAssistaIgnoredFiles,
 		})
 
 		const environmentDetails = await getEnvironmentDetails(this, includeFileDetails)
@@ -1193,19 +1205,18 @@ export class Task extends EventEmitter<ClineEvents> {
 		const finalUserContent = [...parsedUserContent, { type: "text" as const, text: environmentDetails }]
 
 		await this.addToApiConversationHistory({ role: "user", content: finalUserContent })
-		TelemetryService.instance.captureConversationMessage(this.taskId, "user")
 
 		// Since we sent off a placeholder api_req_started message to update the
 		// webview while waiting to actually start the API request (to load
 		// potential details for example), we need to update the text of that
 		// message.
-		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+		const lastApiReqIndex = findLastIndex(this.assistaMessages, (m) => m.say === "api_req_started")
 
-		this.clineMessages[lastApiReqIndex].text = JSON.stringify({
+		this.assistaMessages[lastApiReqIndex].text = JSON.stringify({
 			request: finalUserContent.map((block) => formatContentBlockToMarkdown(block)).join("\n\n"),
-		} satisfies ClineApiReqInfo)
+		} satisfies AssistaApiReqInfo)
 
-		await this.saveClineMessages()
+		await this.saveAssistaMessages()
 		await provider?.postStateToWebview()
 
 		try {
@@ -1222,9 +1233,9 @@ export class Task extends EventEmitter<ClineEvents> {
 			// anyways, so it remains solely for legacy purposes to keep track
 			// of prices in tasks from history (it's worth removing a few months
 			// from now).
-			const updateApiReqMsg = (cancelReason?: ClineApiReqCancelReason, streamingFailedMessage?: string) => {
-				this.clineMessages[lastApiReqIndex].text = JSON.stringify({
-					...JSON.parse(this.clineMessages[lastApiReqIndex].text || "{}"),
+			const updateApiReqMsg = (cancelReason?: AssistaApiReqCancelReason, streamingFailedMessage?: string) => {
+				this.assistaMessages[lastApiReqIndex].text = JSON.stringify({
+					...JSON.parse(this.assistaMessages[lastApiReqIndex].text || "{}"),
 					tokensIn: inputTokens,
 					tokensOut: outputTokens,
 					cacheWrites: cacheWriteTokens,
@@ -1240,23 +1251,23 @@ export class Task extends EventEmitter<ClineEvents> {
 						),
 					cancelReason,
 					streamingFailedMessage,
-				} satisfies ClineApiReqInfo)
+				} satisfies AssistaApiReqInfo)
 			}
 
-			const abortStream = async (cancelReason: ClineApiReqCancelReason, streamingFailedMessage?: string) => {
+			const abortStream = async (cancelReason: AssistaApiReqCancelReason, streamingFailedMessage?: string) => {
 				if (this.diffViewProvider.isEditing) {
 					await this.diffViewProvider.revertChanges() // closes diff view
 				}
 
 				// if last message is a partial we need to update and save it
-				const lastMessage = this.clineMessages.at(-1)
+				const lastMessage = this.assistaMessages.at(-1)
 
 				if (lastMessage && lastMessage.partial) {
 					// lastMessage.ts = Date.now() DO NOT update ts since it is used as a key for virtuoso list
 					lastMessage.partial = false
 					// instead of streaming partialMessage events, we do a save and post like normal to persist to disk
 					console.log("updating partial message", lastMessage)
-					// await this.saveClineMessages()
+					// await this.saveAssistaMessages()
 				}
 
 				// Let assistant know their response was interrupted for when task is resumed
@@ -1279,7 +1290,7 @@ export class Task extends EventEmitter<ClineEvents> {
 				// Update `api_req_started` to have cancelled and cost, so that
 				// we can display the cost of the partial stream.
 				updateApiReqMsg(cancelReason, streamingFailedMessage)
-				await this.saveClineMessages()
+				await this.saveAssistaMessages()
 
 				// Signals to provider that it can retrieve the saved messages
 				// from disk, as abortTask can not be awaited on in nature.
@@ -1353,7 +1364,7 @@ export class Task extends EventEmitter<ClineEvents> {
 							// Only need to gracefully abort if this instance
 							// isn't abandoned (sometimes OpenRouter stream
 							// hangs, in which case this would affect future
-							// instances of Cline).
+							// instances of Assista).
 							await abortStream("user_cancelled")
 						}
 
@@ -1383,7 +1394,7 @@ export class Task extends EventEmitter<ClineEvents> {
 				}
 			} catch (error) {
 				// Abandoned happens when extension is no longer waiting for the
-				// Cline instance to finish aborting (error is thrown here when
+				// Assista instance to finish aborting (error is thrown here when
 				// any function in the for loop throws due to this.abort).
 				if (!this.abandoned) {
 					// If the stream failed, there's various states the task
@@ -1400,31 +1411,20 @@ export class Task extends EventEmitter<ClineEvents> {
 					const history = await provider?.getTaskWithId(this.taskId)
 
 					if (history) {
-						await provider?.initClineWithHistoryItem(history.historyItem)
+						await provider?.initAssistaWithHistoryItem(history.historyItem)
 					}
 				}
 			} finally {
 				this.isStreaming = false
 			}
-			if (
-				inputTokens > 0 ||
-				outputTokens > 0 ||
-				cacheWriteTokens > 0 ||
-				cacheReadTokens > 0 ||
-				typeof totalCost !== "undefined"
-			) {
-				TelemetryService.instance.captureLlmCompletion(this.taskId, {
-					inputTokens,
-					outputTokens,
-					cacheWriteTokens,
-					cacheReadTokens,
-					cost: totalCost,
-				})
+
+			if (inputTokens > 0 || outputTokens > 0 || cacheWriteTokens > 0 || cacheReadTokens > 0) {
+				// Track LLM completion metrics
 			}
 
 			// Need to call here in case the stream was aborted.
 			if (this.abort || this.abandoned) {
-				throw new Error(`[RooCode#recursivelyMakeRooRequests] task ${this.taskId}.${this.instanceId} aborted`)
+				throw new Error(`[CybrosysAssista#recursivelyMakeAssistaRequests] task ${this.taskId}.${this.instanceId} aborted`)
 			}
 
 			this.didCompleteReadingStream = true
@@ -1452,7 +1452,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			}
 
 			updateApiReqMsg()
-			await this.saveClineMessages()
+			await this.saveAssistaMessages()
 			await this.providerRef.deref()?.postStateToWebview()
 
 			// Now add to apiConversationHistory.
@@ -1466,8 +1466,6 @@ export class Task extends EventEmitter<ClineEvents> {
 					role: "assistant",
 					content: [{ type: "text", text: assistantMessage }],
 				})
-
-				TelemetryService.instance.captureConversationMessage(this.taskId, "assistant")
 
 				// NOTE: This comment is here for future reference - this was a
 				// workaround for `userMessageContent` not getting set to true.
@@ -1496,7 +1494,7 @@ export class Task extends EventEmitter<ClineEvents> {
 					this.consecutiveMistakeCount++
 				}
 
-				const recDidEndLoop = await this.recursivelyMakeClineRequests(this.userMessageContent)
+				const recDidEndLoop = await this.recursivelyMakeAssistaRequests(this.userMessageContent)
 				didEndLoop = recDidEndLoop
 			} else {
 				// If there's no assistant_responses, that means we got no text
@@ -1548,7 +1546,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			})
 		}
 
-		const rooIgnoreInstructions = this.rooIgnoreController?.getInstructions()
+		const assistaIgnoreInstructions = this.assistaIgnoreController?.getInstructions()
 
 		const state = await this.providerRef.deref()?.getState()
 
@@ -1588,7 +1586,7 @@ export class Task extends EventEmitter<ClineEvents> {
 				experiments,
 				enableMcpServerCreation,
 				language,
-				rooIgnoreInstructions,
+				assistaIgnoreInstructions,
 				maxReadFileLine !== -1,
 				{
 					maxConcurrentFileReads,
@@ -1607,6 +1605,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			mode,
 			autoCondenseContext = true,
 			autoCondenseContextPercent = 100,
+			profileThresholds = {},
 		} = state ?? {}
 
 		// Get condensing configuration for automatic triggers
@@ -1632,10 +1631,11 @@ export class Task extends EventEmitter<ClineEvents> {
 
 		let rateLimitDelay = 0
 
-		// Only apply rate limiting if this isn't the first request
-		if (this.lastApiRequestTime) {
+		// Use the shared timestamp so that subtasks respect the same rate-limit
+		// window as their parent tasks.
+		if (Task.lastGlobalApiRequestTime) {
 			const now = Date.now()
-			const timeSinceLastRequest = now - this.lastApiRequestTime
+			const timeSinceLastRequest = now - Task.lastGlobalApiRequestTime
 			const rateLimit = apiConfiguration?.rateLimitSeconds || 0
 			rateLimitDelay = Math.ceil(Math.max(0, rateLimit * 1000 - timeSinceLastRequest) / 1000)
 		}
@@ -1650,8 +1650,9 @@ export class Task extends EventEmitter<ClineEvents> {
 			}
 		}
 
-		// Update last request time before making the request
-		this.lastApiRequestTime = Date.now()
+		// Update last request time before making the request so that subsequent
+		// requests — even from new subtasks — will honour the provider's rate-limit.
+		Task.lastGlobalApiRequestTime = Date.now()
 
 		const systemPrompt = await this.getSystemPrompt()
 		const { contextTokens } = this.getTokenUsage()
@@ -1681,6 +1682,8 @@ export class Task extends EventEmitter<ClineEvents> {
 				taskId: this.taskId,
 				customCondensingPrompt,
 				condensingApiHandler,
+				profileThresholds,
+				currentProfileId: state?.currentApiConfigName || "default",
 			})
 			if (truncateResult.messages !== this.apiConversationHistory) {
 				await this.overwriteApiConversationHistory(truncateResult.messages)
@@ -1839,12 +1842,12 @@ export class Task extends EventEmitter<ClineEvents> {
 
 	// Metrics
 
-	public combineMessages(messages: ClineMessage[]) {
+	public combineMessages(messages: AssistaMessage[]) {
 		return combineApiRequests(combineCommandSequences(messages))
 	}
 
 	public getTokenUsage(): TokenUsage {
-		return getApiMetrics(this.combineMessages(this.clineMessages.slice(1)))
+		return getApiMetrics(this.combineMessages(this.assistaMessages.slice(1)))
 	}
 
 	public recordToolUsage(toolName: ToolName) {

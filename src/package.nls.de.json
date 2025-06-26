@@ -1,5 +1,5 @@
 {
-	"extension.displayName": "Cybrosys Assista (ehemals Roo Cline)",
+	"extension.displayName": "Cybrosys Assista",
 	"extension.description": "Ein komplettes KI-Agenten-Entwicklungsteam in deinem Editor.",
 	"command.newTask.title": "Neue Aufgabe",
 	"command.explainCode.title": "Code Erklären",
@@ -29,6 +29,7 @@
 	"settings.vsCodeLmModelSelector.description": "Einstellungen für die VSCode-Sprachmodell-API",
 	"settings.vsCodeLmModelSelector.vendor.description": "Der Anbieter des Sprachmodells (z.B. copilot)",
 	"settings.vsCodeLmModelSelector.family.description": "Die Familie des Sprachmodells (z.B. gpt-4)",
-	"settings.customStoragePath.description": "Benutzerdefinierter Speicherpfad. Leer lassen, um den Standardspeicherort zu verwenden. Unterstützt absolute Pfade (z.B. 'D:\\RooCodeStorage')",
-	"settings.rooCodeCloudEnabled.description": "Aktiviere Cybrosys Assista Cloud."
+	"settings.customStoragePath.description": "Benutzerdefinierter Speicherpfad. Leer lassen, um den Standardspeicherort zu verwenden. Unterstützt absolute Pfade (z.B. 'D:\\CybrosysAssistaStorage')",
+	"settings.cybrosysAssistaCloudEnabled.description": "Aktiviere Cybrosys Assista Cloud.",
+	"settings.enableCodeActions.description": "Cybrosys Assista Schnelle Problembehebung aktivieren."
 }

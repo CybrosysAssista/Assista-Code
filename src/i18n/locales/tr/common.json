@@ -1,6 +1,6 @@
 {
 	"extension": {
-		"name": "Roo Code",
+		"name": "Cybrosys Assista",
 		"description": "Düzenleyicinizde tam bir AI geliştirici ekibi."
 	},
 	"number_format": {
@@ -24,6 +24,11 @@
 	},
 	"errors": {
 		"invalid_data_uri": "Geçersiz veri URI formatı",
+		"error_copying_image": "Resim kopyalanırken hata oluştu: {{errorMessage}}",
+		"error_saving_image": "Resim kaydedilirken hata oluştu: {{errorMessage}}",
+		"error_opening_image": "Resim açılırken hata oluştu: {{error}}",
+		"could_not_open_file": "Dosya açılamadı: {{errorMessage}}",
+		"could_not_open_file_generic": "Dosya açılamadı!",
 		"checkpoint_timeout": "Kontrol noktasını geri yüklemeye çalışırken zaman aşımına uğradı.",
 		"checkpoint_failed": "Kontrol noktası geri yüklenemedi.",
 		"no_workspace": "Lütfen önce bir proje klasörü açın",
@@ -54,7 +59,17 @@
 		"condense_handler_invalid": "Bağlamı sıkıştırmak için API işleyicisi geçersiz",
 		"condense_context_grew": "Sıkıştırma sırasında bağlam boyutu arttı; bu deneme atlanıyor",
 		"share_task_failed": "Görev paylaşılamadı",
-		"share_no_active_task": "Paylaşılacak aktif görev yok"
+		"share_no_active_task": "Paylaşılacak aktif görev yok",
+		"share_auth_required": "Kimlik doğrulama gerekli. Görevleri paylaşmak için lütfen giriş yapın.",
+		"share_not_enabled": "Bu kuruluş için görev paylaşımı etkinleştirilmemiş.",
+		"share_task_not_found": "Görev bulunamadı veya erişim reddedildi.",
+		"claudeCode": {
+			"processExited": "Claude Code işlemi {{exitCode}} koduyla çıktı.",
+			"errorOutput": "Hata çıktısı: {{output}}",
+			"processExitedWithError": "Claude Code işlemi {{exitCode}} koduyla çıktı. Hata çıktısı: {{output}}",
+			"stoppedWithReason": "Claude Code şu nedenle durdu: {{reason}}",
+			"apiKeyModelPlanMismatch": "API anahtarları ve abonelik planları farklı modellere izin verir. Seçilen modelin planınıza dahil olduğundan emin olun."
+		}
 	},
 	"warnings": {
 		"no_terminal_content": "Seçili terminal içeriği yok",
@@ -67,7 +82,11 @@
 		"custom_storage_path_set": "Özel depolama yolu ayarlandı: {{path}}",
 		"default_storage_path": "Varsayılan depolama yoluna geri dönüldü",
 		"settings_imported": "Ayarlar başarıyla içe aktarıldı.",
-		"share_link_copied": "Paylaşım bağlantısı panoya kopyalandı"
+		"share_link_copied": "Paylaşım bağlantısı panoya kopyalandı",
+		"image_copied_to_clipboard": "Resim veri URI'si panoya kopyalandı",
+		"image_saved": "Resim {{path}} konumuna kaydedildi",
+		"organization_share_link_copied": "Kuruluş paylaşım bağlantısı panoya kopyalandı!",
+		"public_share_link_copied": "Herkese açık paylaşım bağlantısı panoya kopyalandı!"
 	},
 	"answers": {
 		"yes": "Evet",
@@ -82,18 +101,30 @@
 	},
 	"storage": {
 		"prompt_custom_path": "Konuşma geçmişi için özel depolama yolunu girin, varsayılan konumu kullanmak için boş bırakın",
-		"path_placeholder": "D:\\RooCodeStorage",
-		"enter_absolute_path": "Lütfen mutlak bir yol girin (örn. D:\\RooCodeStorage veya /home/user/storage)",
+		"path_placeholder": "D:\\CybrosysAssistaStorage",
+		"enter_absolute_path": "Lütfen mutlak bir yol girin (örn. D:\\CybrosysAssistaStorage veya /home/user/storage)",
 		"enter_valid_path": "Lütfen geçerli bir yol girin"
 	},
 	"input": {
-		"task_prompt": "Roo ne yapsın?",
+		"task_prompt": "Assista ne yapsın?",
 		"task_placeholder": "Görevini buraya yaz"
 	},
 	"settings": {
 		"providers": {
 			"groqApiKey": "Groq API Anahtarı",
-			"getGroqApiKey": "Groq API Anahtarı Al"
+			"getGroqApiKey": "Groq API Anahtarı Al",
+			"claudeCode": {
+				"pathLabel": "Claude Code Yolu",
+				"description": "Claude Code CLI'nizin isteğe bağlı yolu. Ayarlanmazsa varsayılan olarak 'claude' olur.",
+				"placeholder": "Varsayılan: claude"
+			}
+		}
+	},
+	"mdm": {
+		"errors": {
+			"cloud_auth_required": "Kuruluşunuz Cybrosys Assista Cloud kimlik doğrulaması gerektiriyor. Devam etmek için giriş yapın.",
+			"organization_mismatch": "Kuruluşunuzun Cybrosys Assista Cloud hesabıyla kimlik doğrulaması yapmalısınız.",
+			"verification_failed": "Kuruluş kimlik doğrulaması doğrulanamıyor."
 		}
 	}
 }

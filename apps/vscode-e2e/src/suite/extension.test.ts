@@ -1,7 +1,11 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
 
-suite("Roo Code Extension", () => {
+import { setDefaultSuiteTimeout } from "./test-utils"
+
+suite("Cybrosys Assista Extension", function () {
+	setDefaultSuiteTimeout(this)
+
 	test("Commands should be registered", async () => {
 		const expectedCommands = [
 			"SidebarProvider.open",
@@ -34,10 +38,10 @@ suite("Roo Code Extension", () => {
 			"terminalExplainCommand",
 		]
 
-		const commands = new Set((await vscode.commands.getCommands(true)).filter((cmd) => cmd.startsWith("roo-cline")))
+		const commands = new Set((await vscode.commands.getCommands(true)).filter((cmd) => cmd.startsWith("cybrosys-assista")))
 
 		for (const command of expectedCommands) {
-			assert.ok(commands.has(`roo-cline.${command}`), `Command ${command} should be registered`)
+			assert.ok(commands.has(`cybrosys-assista.${command}`), `Command ${command} should be registered`)
 		}
 	})
 })

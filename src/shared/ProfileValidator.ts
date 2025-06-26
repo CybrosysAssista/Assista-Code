@@ -1,4 +1,4 @@
-import { OrganizationAllowList, ProviderSettings } from "@roo-code/types"
+import { OrganizationAllowList, ProviderSettings } from "@cybrosys-assista/types"
 
 export class ProfileValidator {
 	public static isProfileAllowed(profile: ProviderSettings, allowList: OrganizationAllowList): boolean {

@@ -1,13 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk"
 
-import { TelemetryService } from "@roo-code/telemetry"
-
 import { t } from "../../i18n"
 import { ApiHandler } from "../../api"
 import { ApiMessage } from "../task-persistence/apiMessages"
 import { maybeRemoveImageBlocks } from "../../api/transform/image-cleaning"
 
 export const N_MESSAGES_TO_KEEP = 3
+export const MIN_CONDENSE_THRESHOLD = 5 // Minimum percentage of context window to trigger condensing
+export const MAX_CONDENSE_THRESHOLD = 100 // Maximum percentage of context window to trigger condensing
 
 const SUMMARY_PROMPT = `\
 Your task is to create a detailed summary of the conversation so far, paying close attention to the user's explicit requests and your previous actions.
@@ -63,7 +63,7 @@ export type SummarizeResponse = {
  * @param {ApiMessage[]} messages - The conversation messages
  * @param {ApiHandler} apiHandler - The API handler to use for token counting.
  * @param {string} systemPrompt - The system prompt for API requests, which should be considered in the context token count
- * @param {string} taskId - The task ID for the conversation, used for telemetry
+ * @param {string} taskId - The task ID for the conversation
  * @param {boolean} isAutomaticTrigger - Whether the summarization is triggered automatically
  * @returns {SummarizeResponse} - The result of the summarization operation (see above)
  */
@@ -73,7 +73,7 @@ export type SummarizeResponse = {
  * @param {ApiMessage[]} messages - The conversation messages
  * @param {ApiHandler} apiHandler - The API handler to use for token counting (fallback if condensingApiHandler not provided)
  * @param {string} systemPrompt - The system prompt for API requests (fallback if customCondensingPrompt not provided)
- * @param {string} taskId - The task ID for the conversation, used for telemetry
+ * @param {string} taskId - The task ID for the conversation
  * @param {number} prevContextTokens - The number of tokens currently in the context, used to ensure we don't grow the context
  * @param {boolean} isAutomaticTrigger - Whether the summarization is triggered automatically
  * @param {string} customCondensingPrompt - Optional custom prompt to use for condensing
@@ -90,13 +90,6 @@ export async function summarizeConversation(
 	customCondensingPrompt?: string,
 	condensingApiHandler?: ApiHandler,
 ): Promise<SummarizeResponse> {
-	TelemetryService.instance.captureContextCondensed(
-		taskId,
-		isAutomaticTrigger ?? false,
-		!!customCondensingPrompt?.trim(),
-		!!condensingApiHandler,
-	)
-
 	const response: SummarizeResponse = { messages, cost: 0, summary: "" }
 	const messagesToSummarize = getMessagesSinceLastSummary(messages.slice(0, -N_MESSAGES_TO_KEEP))
 
@@ -216,7 +209,7 @@ export function getMessagesSinceLastSummary(messages: ApiMessage[]): ApiMessage[
 	const messagesSinceSummary = messages.slice(lastSummaryIndex)
 
 	// Bedrock requires the first message to be a user message.
-	// See https://github.com/RooCodeInc/Roo-Code/issues/4147
+	// See https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues/4147
 	const userMessage: ApiMessage = {
 		role: "user",
 		content: "Please continue from the following summary:",

@@ -5,7 +5,7 @@ import { Fzf } from "fzf"
 import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
-import { useRooPortal } from "./hooks/useRooPortal"
+import { useAssistaPortal } from "./hooks/useAssistaPortal"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui"
 
 export enum DropdownOptionType {
@@ -63,7 +63,7 @@ export const SelectDropdown = React.memo(
 			const [open, setOpen] = React.useState(false)
 			const [searchValue, setSearchValue] = React.useState("")
 			const searchInputRef = React.useRef<HTMLInputElement>(null)
-			const portalContainer = useRooPortal("roo-portal")
+			const portalContainer = useAssistaPortal("assista-portal")
 
 			// Memoize the selected option to prevent unnecessary calculations
 			const selectedOption = React.useMemo(

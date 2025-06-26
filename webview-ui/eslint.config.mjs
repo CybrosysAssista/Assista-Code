@@ -1,4 +1,4 @@
-import { reactConfig } from "@roo-code/config-eslint/react"
+import { reactConfig } from "@cybrosys-assista/config-eslint/react"
 
 /** @type {import("eslint").Linter.Config} */
 export default [

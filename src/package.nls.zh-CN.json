@@ -1,5 +1,5 @@
 {
-	"extension.displayName": "Cybrosys Assista (原名 Roo Cline)",
+	"extension.displayName": "Cybrosys Assista",
 	"extension.description": "在你的编辑器中提供完整的 AI 代理开发团队。",
 	"command.newTask.title": "新建任务",
 	"command.explainCode.title": "解释代码",
@@ -29,6 +29,7 @@
 	"settings.vsCodeLmModelSelector.description": "VSCode 语言模型 API 的设置",
 	"settings.vsCodeLmModelSelector.vendor.description": "语言模型的供应商（例如：copilot）",
 	"settings.vsCodeLmModelSelector.family.description": "语言模型的系列（例如：gpt-4）",
-	"settings.customStoragePath.description": "自定义存储路径。留空以使用默认位置。支持绝对路径（例如：'D:\\RooCodeStorage'）",
-	"settings.rooCodeCloudEnabled.description": "启用 Cybrosys Assista Cloud。"
+	"settings.customStoragePath.description": "自定义存储路径。留空以使用默认位置。支持绝对路径（例如：'D:\\CybrosysAssistaStorage'）",
+	"settings.cybrosysAssistaCloudEnabled.description": "启用 Cybrosys Assista Cloud。",
+	"settings.enableCodeActions.description": "启用 Cybrosys Assista 快速修复"
 }

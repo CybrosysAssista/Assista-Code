@@ -1,9 +1,9 @@
 import { useCallback } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId } from "@cybrosys-assista/types"
 
-import type { RouterModels } from "@roo/api"
+import type { RouterModels } from "@assista/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { getGlamaAuthUrl } from "@src/oauth/urls"
@@ -18,6 +18,7 @@ type GlamaProps = {
 	routerModels?: RouterModels
 	uriScheme?: string
 	organizationAllowList: OrganizationAllowList
+	modelValidationError?: string
 }
 
 export const Glama = ({
@@ -26,6 +27,7 @@ export const Glama = ({
 	routerModels,
 	uriScheme,
 	organizationAllowList,
+	modelValidationError,
 }: GlamaProps) => {
 	const { t } = useAppTranslation()
 
@@ -67,6 +69,7 @@ export const Glama = ({
 				serviceName="Glama"
 				serviceUrl="https://glama.ai/models"
 				organizationAllowList={organizationAllowList}
+				errorMessage={modelValidationError}
 			/>
 		</>
 	)

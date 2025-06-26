@@ -1,5 +1,5 @@
 {
-	"extension.displayName": "Cybrosys Assista (ранее Roo Cline)",
+	"extension.displayName": "Cybrosys Assista",
 	"extension.description": "Целая команда ИИ-разработчиков в вашем редакторе.",
 	"views.contextMenu.label": "Cybrosys Assista",
 	"views.terminalMenu.label": "Cybrosys Assista",
@@ -29,6 +29,7 @@
 	"settings.vsCodeLmModelSelector.description": "Настройки для VSCode Language Model API",
 	"settings.vsCodeLmModelSelector.vendor.description": "Поставщик языковой модели (например, copilot)",
 	"settings.vsCodeLmModelSelector.family.description": "Семейство языковой модели (например, gpt-4)",
-	"settings.customStoragePath.description": "Пользовательский путь хранения. Оставьте пустым для использования пути по умолчанию. Поддерживает абсолютные пути (например, 'D:\\RooCodeStorage')",
-	"settings.rooCodeCloudEnabled.description": "Включить Cybrosys Assista Cloud."
+	"settings.customStoragePath.description": "Пользовательский путь хранения. Оставьте пустым для использования пути по умолчанию. Поддерживает абсолютные пути (например, 'D:\\CybrosysAssistaStorage')",
+	"settings.cybrosysAssistaCloudEnabled.description": "Включить Cybrosys Assista Cloud.",
+	"settings.enableCodeActions.description": "Включить быстрые исправления Cybrosys Assista."
 }

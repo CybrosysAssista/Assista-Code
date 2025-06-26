@@ -1,14 +1,14 @@
-import type { ClineMessage } from "@roo-code/types"
+import type { AssistaMessage } from "@cybrosys-assista/types"
 
 /**
- * Combines API request start and finish messages in an array of ClineMessages.
+ * Combines API request start and finish messages in an array of AssistaMessages.
  *
  * This function looks for pairs of 'api_req_started' and 'api_req_finished' messages.
  * When it finds a pair, it combines them into a single 'api_req_combined' message.
  * The JSON data in the text fields of both messages are merged.
  *
- * @param messages - An array of ClineMessage objects to process.
- * @returns A new array of ClineMessage objects with API requests combined.
+ * @param messages - An array of AssistaMessage objects to process.
+ * @returns A new array of AssistaMessage objects with API requests combined.
  *
  * @example
  * const messages = [
@@ -18,7 +18,7 @@ import type { ClineMessage } from "@roo-code/types"
  * const result = combineApiRequests(messages);
  * // Result: [{ type: "say", say: "api_req_started", text: '{"request":"GET /api/data","cost":0.005}', ts: 1000 }]
  */
-export function combineApiRequests(messages: ClineMessage[]): ClineMessage[] {
+export function combineApiRequests(messages: AssistaMessage[]): AssistaMessage[] {
 	if (messages.length === 0) {
 		return []
 	}
@@ -40,7 +40,7 @@ export function combineApiRequests(messages: ClineMessage[]): ClineMessage[] {
 		return messages
 	}
 
-	const result: ClineMessage[] = []
+	const result: AssistaMessage[] = []
 	const startedIndices: number[] = []
 
 	for (const message of messages) {
