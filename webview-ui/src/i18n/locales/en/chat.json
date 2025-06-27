@@ -101,6 +101,26 @@
 		"customizableModes": {
 			"title": "Customizable Modes",
 			"description": "Specialized personas with their own behaviors and assigned models"
+		},
+		"codeMode": {
+			"title": "💻 Code Mode",
+			"description": "Write, refactor, and debug code across multiple languages"
+		},
+		"odooTechnical": {
+			"title": "🛠️ Odoo Technical Expert",
+			"description": "Handle models, APIs, QWeb, and backend logic"
+		},
+		"odooFunctional": {
+			"title": "📈 Odoo Functional Expert",
+			"description": "Understand workflows, setups, and client needs"
+		},
+		"odooOwlJS": {
+			"title": "🦉 Odoo OWL JS Expert",
+			"description": "Build UI components using OWL and JS"
+		},
+		"customModes": {
+			"title": "Customizable Modes",
+			"description": "Switch between expert personas for each task"
 		}
 	},
 	"selectMode": "Select mode for interaction",

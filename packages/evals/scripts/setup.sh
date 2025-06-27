@@ -328,8 +328,8 @@ code --install-extension redhat.java &>/dev/null || exit 1
 code --install-extension ms-python.python&>/dev/null || exit 1
 code --install-extension rust-lang.rust-analyzer &>/dev/null || exit 1
 
-if ! code --list-extensions 2>/dev/null | grep -q "Cybrosys-assista-ltd.cybrosys-assista"; then
-  code --install-extension Cybrosys-assista-ltd.cybrosys-assista &>/dev/null || exit 1
+if ! code --list-extensions 2>/dev/null | grep -q "CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista"; then
+  code --install-extension CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista &>/dev/null || exit 1
 fi
 
 echo "✅ Done"

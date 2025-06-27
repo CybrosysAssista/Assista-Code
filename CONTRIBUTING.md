@@ -55,7 +55,7 @@ Mention alignment with these areas in your PRs.
 ### 3. Join the Cybrosys Assista Community
 
 - **Primary:** Join our [Discord](https://discord.gg/cybrosysassista) and DM **Hannes Rudolph (`hrudolph`)**.
-- **Alternative:** Experienced contributors can engage directly via [GitHub Projects](https://github.com/orgs/CybrosysAssistaInc/projects/1).
+- **Alternative:** Experienced contributors can engage directly via [GitHub Projects](https://github.com/orgs/CybrosysAssista/projects/1).
 
 ## Finding & Planning Your Contribution
 
@@ -69,7 +69,7 @@ Mention alignment with these areas in your PRs.
 
 All contributions must begin with a GitHub Issue.
 
-- **Check existing issues**: Search [GitHub Issues](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues).
+- **Check existing issues**: Search [GitHub Issues](https://github.com/CybrosysAssista/Assista/issues).
 - **Create an issue**: Use appropriate templates:
     - **Bugs:** "Bug Report" template.
     - **Features:** "Detailed Feature Proposal" template. Approval required before starting.
@@ -79,14 +79,14 @@ All contributions must begin with a GitHub Issue.
 
 ### Deciding What to Work On
 
-- Check the [GitHub Project](https://github.com/orgs/CybrosysAssistaInc/projects/1) for unassigned "Good First Issues."
-- For docs, visit [Cybrosys Assista Docs](https://github.com/CybrosysAssistaInc/Cybrosys-Assista-Docs).
+- Check the [GitHub Project](https://github.com/orgs/CybrosysAssista/projects/1) for unassigned "Good First Issues."
+- For docs, visit [Cybrosys Assista Docs](https://github.com/CybrosysAssista/Assista-Docs).
 
 ### Reporting Bugs
 
 - Check for existing reports first.
-- Create new bugs using the ["Bug Report" template](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues/new/choose).
-- **Security issues**: Report privately via [security advisories](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/security/advisories/new).
+- Create new bugs using the ["Bug Report" template](https://github.com/CybrosysAssista/Assista/issues/new/choose).
+- **Security issues**: Report privately via [security advisories](https://github.com/CybrosysAssista/Assista/security/advisories/new).
 
 ## Development & Submission Process
 
@@ -95,7 +95,7 @@ All contributions must begin with a GitHub Issue.
 1. **Fork & Clone:**
 
 ```
-git clone https://github.com/YOUR_USERNAME/Cybrosys-Assista.git
+git clone https://github.com/YOUR_USERNAME/Assista.git
 ```
 
 2. **Install Dependencies:**

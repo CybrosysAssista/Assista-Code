@@ -1393,8 +1393,9 @@ export class AssistaProvider
 			ttsSpeed: ttsSpeed ?? 1.0,
 			diffEnabled: diffEnabled ?? true,
 			enableCheckpoints: enableCheckpoints ?? true,
-			shouldShowAnnouncement:
-				lastShownAnnouncementId !== this.latestAnnouncementId,
+			// shouldShowAnnouncement:
+			// 	lastShownAnnouncementId !== this.latestAnnouncementId,
+			shouldShowAnnouncement:false,
 			allowedCommands,
 			soundVolume: soundVolume ?? 0.5,
 			browserViewportSize: browserViewportSize ?? "900x600",

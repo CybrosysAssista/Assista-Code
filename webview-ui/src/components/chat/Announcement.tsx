@@ -105,10 +105,7 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 							<Trans i18nKey="chat:announcement.feature3" components={{ bold: <b />, code: <code /> }} />
 						</li>
 					</ul>
-					<Trans
-						i18nKey="chat:announcement.detailsDiscussLinks"
-						components={{ discordLink: <DiscordLink />, redditLink: <RedditLink /> }}
-					/>
+					<Trans i18nKey="chat:announcement.detailsDiscussLinks" />
 				</div>
 			</DialogContent>
 		</Dialog>

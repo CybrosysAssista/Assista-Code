@@ -50,7 +50,7 @@ export const mockExtensionContext: ExtensionContext = {
 	extension: {
 		packageJSON: {
 			version: "1.0.0",
-			publisher: "cybrosys-assista-ltd",
+			publisher: "cybrosystechnologiesodooofficialpartner",
 			name: "cybrosys-assista",
 		},
 	},

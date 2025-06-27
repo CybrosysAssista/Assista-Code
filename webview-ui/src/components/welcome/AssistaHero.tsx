@@ -19,7 +19,7 @@ const AssistaHero = () => {
 					maskSize: "contain",
 				}}
 				className="mx-auto">
-				<img src={imagesBaseUri + "/assista-logo.svg"} alt="Assista logo" className="h-8 opacity-0" />
+				<img src={imagesBaseUri + "/assista-logo.svg"} alt="Assista logo" className="h-16 opacity-0" />
 			</div>
 		</div>
 	)

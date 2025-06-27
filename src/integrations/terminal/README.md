@@ -60,7 +60,7 @@ Additional resources:
 - The original Assista PR has quite a bit of information:
     - https://github.com/assista/assista/pull/1089
 
-Contact me if you have any questions: - GitHub: KJ7LNW - Discord: kj7lnw - [cybrosys-assista at z.ewheeler.org]
+Contact me if you have any questions: - GitHub: KJ7LNW
 
 Cheers,
 -Eric, KJ7LNW

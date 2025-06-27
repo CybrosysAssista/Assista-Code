@@ -257,7 +257,7 @@ export class AuthService extends EventEmitter<AuthServiceEvents> {
 			const state = crypto.randomBytes(16).toString("hex")
 			await this.context.globalState.update(AUTH_STATE_KEY, state)
 			const packageJSON = this.context.extension?.packageJSON
-			const publisher = packageJSON?.publisher ?? "Cybrosys-assista-ltd"
+			const publisher = packageJSON?.publisher ?? "CybrosysTechnologiesOdooOfficialPartner"
 			const name = packageJSON?.name ?? "cybrosys-assista"
 			const params = new URLSearchParams({
 				state,

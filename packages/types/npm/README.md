@@ -10,7 +10,7 @@ To use this API in your extension:
 ```typescript
 import { CybrosysAssistaAPI } from "@cybrosys-assista/types"
 
-const extension = vscode.extensions.getExtension<CybrosysAssistaAPI>("Cybrosys-assista-ltd.cybrosys-assista")
+const extension = vscode.extensions.getExtension<CybrosysAssistaAPI>("CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista")
 
 if (!extension?.isActive) {
 	throw new Error("Extension is not activated")
@@ -38,10 +38,10 @@ await api.pressPrimaryButton()
 await api.pressSecondaryButton()
 ```
 
-**NOTE:** To ensure that the `Cybrosys-assista-ltd.cybrosys-assista` extension is activated before your extension, add it to the `extensionDependencies` in your `package.json`:
+**NOTE:** To ensure that the `CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista` extension is activated before your extension, add it to the `extensionDependencies` in your `package.json`:
 
 ```json
-"extensionDependencies": ["Cybrosys-assista-ltd.cybrosys-assista"]
+"extensionDependencies": ["CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista"]
 ```
 
 For detailed information on the available methods and their usage, refer to the `cybrosys-assista.d.ts` file.

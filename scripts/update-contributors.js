@@ -16,7 +16,7 @@ const readFileAsync = promisify(fs.readFile)
 const writeFileAsync = promisify(fs.writeFile)
 
 // GitHub API URL for fetching contributors
-const GITHUB_API_URL = "https://api.github.com/repos/CybrosysAssistaInc/Cybrosys-Assista/contributors?per_page=100"
+const GITHUB_API_URL = "https://api.github.com/repos/CybrosysAssista/Assista/contributors?per_page=100"
 const README_PATH = path.join(__dirname, "..", "README.md")
 const LOCALES_DIR = path.join(__dirname, "..", "locales")
 

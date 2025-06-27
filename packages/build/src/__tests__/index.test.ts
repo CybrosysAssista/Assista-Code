@@ -9,7 +9,7 @@ describe("generatePackageJson", () => {
 				name: "cybrosys-assista",
 				displayName: "%extension.displayName%",
 				description: "%extension.description%",
-				publisher: "cybrosys-assista-ltd",
+				publisher: "cybrosystechnologiesodooofficialpartner",
 				version: "3.17.2",
 				icon: "assets/icons/icon.png",
 				contributes: {
@@ -110,7 +110,7 @@ describe("generatePackageJson", () => {
 			overrideJson: {
 				name: "cybrosys-assista-nightly",
 				displayName: "Cybrosys Assista Nightly",
-				publisher: "cybrosys-assista-ltd",
+				publisher: "cybrosystechnologiesodooofficialpartner",
 				version: "0.0.1",
 				icon: "assets/icons/icon-nightly.png",
 				scripts: {},
@@ -122,7 +122,7 @@ describe("generatePackageJson", () => {
 			name: "cybrosys-assista-nightly",
 			displayName: "Cybrosys Assista Nightly",
 			description: "%extension.description%",
-			publisher: "cybrosys-assista-ltd",
+			publisher: "cybrosystechnologiesodooofficialpartner",
 			version: "0.0.1",
 			icon: "assets/icons/icon-nightly.png",
 			contributes: {

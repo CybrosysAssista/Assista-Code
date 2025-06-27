@@ -2,8 +2,8 @@
 	"name": "cybrosys-assista",
 	"displayName": "%extension.displayName%",
 	"description": "%extension.description%",
-	"publisher": "cybrosys-assista-ltd",
-	"version": "3.21.5",
+	"publisher": "CybrosysTechnologiesOdooOfficialPartner",
+	"version": "1.0.1",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -18,9 +18,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/CybrosysAssistaInc/Cybrosys-Assista"
+		"url": "https://github.com/CybrosysAssista/Assista"
 	},
-	"homepage": "https://github.com/CybrosysAssistaInc/Cybrosys-Assista",
+	"homepage": "https://github.com/CybrosysAssista/Assista",
 	"categories": [
 		"AI",
 		"Chat",

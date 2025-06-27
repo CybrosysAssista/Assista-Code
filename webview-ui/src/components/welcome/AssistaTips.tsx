@@ -8,15 +8,15 @@ import { buildDocLink } from "@src/utils/docLinks"
 const tips = [
 	{
 		icon: "codicon-account",
-		href: buildDocLink("basic-usage/using-modes", "tips"),
-		titleKey: "assistaTips.customizableModes.title",
-		descriptionKey: "assistaTips.customizableModes.description",
+		// href: buildDocLink("basic-usage/using-modes", "tips"),
+		titleKey: "assistaTips.customModes.title",
+		descriptionKey: "assistaTips.customModes.description",
 	},
 	{
 		icon: "codicon-list-tree",
-		href: buildDocLink("features/boomerang-tasks", "tips"),
-		titleKey: "assistaTips.boomerangTasks.title",
-		descriptionKey: "assistaTips.boomerangTasks.description",
+		// href: buildDocLink("features/boomerang-tasks", "tips"),
+		titleKey: "assistaTips.odooTechnical.title",
+		descriptionKey: "assistaTips.odooTechnical.description",
 	},
 ]
 
@@ -70,7 +70,9 @@ const AssistaTips = ({ cycle = false }: AssistaTipsProps) => {
 						{" "}
 						<span className={`codicon ${currentTip.icon}`}></span>
 						<span>
-							<VSCodeLink href={currentTip.href}>{t(currentTip.titleKey)}</VSCodeLink>:{" "}
+							{/* <VSCodeLink href={currentTip.href}> */}
+								{t(currentTip.titleKey)}
+								{/* </VSCodeLink>:{" "} */}
 							{t(currentTip.descriptionKey)}
 						</span>
 					</div>
@@ -82,9 +84,9 @@ const AssistaTips = ({ cycle = false }: AssistaTipsProps) => {
 						className="flex items-center gap-2 text-vscode-editor-foreground font-vscode max-w-[250px]">
 						<span className={`codicon ${tip.icon}`}></span>
 						<span>
-							<VSCodeLink className="forced-color-adjust-none" href={tip.href}>
+							{/* <VSCodeLink className="forced-color-adjust-none" href={tip.href}> */}
 								{t(tip.titleKey)}
-							</VSCodeLink>
+							{/* </VSCodeLink> */}
 							: {t(tip.descriptionKey)}
 						</span>
 					</div>

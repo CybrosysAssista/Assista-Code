@@ -8,7 +8,7 @@ import type { CybrosysAssistaAPI } from "@cybrosys-assista/types"
 import { waitFor } from "./utils"
 
 export async function run() {
-	const extension = vscode.extensions.getExtension<CybrosysAssistaAPI>("cybrosys-assista-ltd.cybrosys-assista")
+	const extension = vscode.extensions.getExtension<CybrosysAssistaAPI>("cybrosystechnologiesodooofficialpartner.cybrosys-assista")
 
 	if (!extension) {
 		throw new Error("Extension not found")

@@ -49,22 +49,6 @@ export function Footer() {
 								<span className="sr-only">GitHub</span>
 							</a>
 							<a
-								href={EXTERNAL_LINKS.DISCORD}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-muted-foreground transition-colors hover:text-foreground">
-								<FaDiscord className="h-6 w-6" />
-								<span className="sr-only">Discord</span>
-							</a>
-							<a
-								href={EXTERNAL_LINKS.REDDIT}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-muted-foreground transition-colors hover:text-foreground">
-								<FaReddit className="h-6 w-6" />
-								<span className="sr-only">Reddit</span>
-							</a>
-							<a
 								href={EXTERNAL_LINKS.X}
 								target="_blank"
 								rel="noopener noreferrer"
