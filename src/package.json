@@ -1,9 +1,9 @@
 {
-	"name": "cybrosys-assista",
-	"displayName": "%extension.displayName%",
+	"name": "assista-code",
+	"displayName": "Assista Code",
 	"description": "%extension.description%",
 	"publisher": "cybrosys-assista-ltd",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -18,9 +18,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/CybrosysAssista/Assista"
+		"url": "https://github.com/CybrosysAssista/Assista-Code"
 	},
-	"homepage": "https://github.com/CybrosysAssista/Assista",
+	"homepage": "https://github.com/CybrosysAssista/Assista-Code",
 	"categories": [
 		"AI",
 		"Chat",
@@ -54,120 +54,120 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "cybrosys-assista-ActivityBar",
+					"id": "assista-code-ActivityBar",
 					"title": "%views.activitybar.title%",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"cybrosys-assista-ActivityBar": [
+			"assista-code-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "cybrosys-assista.SidebarProvider",
+					"id": "assista-code.SidebarProvider",
 					"name": "%views.sidebar.name%"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "cybrosys-assista.plusButtonClicked",
+				"command": "assista-code.plusButtonClicked",
 				"title": "%command.newTask.title%",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cybrosys-assista.mcpButtonClicked",
+				"command": "assista-code.mcpButtonClicked",
 				"title": "%command.mcpServers.title%",
 				"icon": "$(server)"
 			},
 			{
-				"command": "cybrosys-assista.promptsButtonClicked",
+				"command": "assista-code.promptsButtonClicked",
 				"title": "%command.prompts.title%",
 				"icon": "$(organization)"
 			},
 			{
-				"command": "cybrosys-assista.historyButtonClicked",
+				"command": "assista-code.historyButtonClicked",
 				"title": "%command.history.title%",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cybrosys-assista.marketplaceButtonClicked",
+				"command": "assista-code.marketplaceButtonClicked",
 				"title": "%command.marketplace.title%",
 				"icon": "$(extensions)"
 			},
 			{
-				"command": "cybrosys-assista.popoutButtonClicked",
+				"command": "assista-code.popoutButtonClicked",
 				"title": "%command.openInEditor.title%",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "cybrosys-assista.accountButtonClicked",
+				"command": "assista-code.accountButtonClicked",
 				"title": "Account",
 				"icon": "$(account)",
-				"when": "config.cybrosys-assista.cybrosysAssistaCloudEnabled"
+				"when": "config.assista-code.assistaCodeCloudEnabled"
 			},
 			{
-				"command": "cybrosys-assista.settingsButtonClicked",
+				"command": "assista-code.settingsButtonClicked",
 				"title": "%command.settings.title%",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cybrosys-assista.openInNewTab",
+				"command": "assista-code.openInNewTab",
 				"title": "%command.openInNewTab.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.explainCode",
+				"command": "assista-code.explainCode",
 				"title": "%command.explainCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.fixCode",
+				"command": "assista-code.fixCode",
 				"title": "%command.fixCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.improveCode",
+				"command": "assista-code.improveCode",
 				"title": "%command.improveCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.addToContext",
+				"command": "assista-code.addToContext",
 				"title": "%command.addToContext.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.newTask",
+				"command": "assista-code.newTask",
 				"title": "%command.newTask.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.terminalAddToContext",
+				"command": "assista-code.terminalAddToContext",
 				"title": "%command.terminal.addToContext.title%",
 				"category": "Terminal"
 			},
 			{
-				"command": "cybrosys-assista.terminalFixCommand",
+				"command": "assista-code.terminalFixCommand",
 				"title": "%command.terminal.fixCommand.title%",
 				"category": "Terminal"
 			},
 			{
-				"command": "cybrosys-assista.terminalExplainCommand",
+				"command": "assista-code.terminalExplainCommand",
 				"title": "%command.terminal.explainCommand.title%",
 				"category": "Terminal"
 			},
 			{
-				"command": "cybrosys-assista.setCustomStoragePath",
+				"command": "assista-code.setCustomStoragePath",
 				"title": "%command.setCustomStoragePath.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.focusInput",
+				"command": "assista-code.focusInput",
 				"title": "%command.focusInput.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "cybrosys-assista.acceptInput",
+				"command": "assista-code.acceptInput",
 				"title": "%command.acceptInput.title%",
 				"category": "%configuration.title%"
 			}
@@ -175,138 +175,138 @@
 		"menus": {
 			"editor/context": [
 				{
-					"submenu": "cybrosys-assista.contextMenu",
+					"submenu": "assista-code.contextMenu",
 					"group": "1"
 				}
 			],
-			"cybrosys-assista.contextMenu": [
+			"assista-code.contextMenu": [
 				{
-					"command": "cybrosys-assista.addToContext",
+					"command": "assista-code.addToContext",
 					"group": "1_actions@1"
 				},
 				{
-					"command": "cybrosys-assista.explainCode",
+					"command": "assista-code.explainCode",
 					"group": "1_actions@2"
 				},
 				{
-					"command": "cybrosys-assista.improveCode",
+					"command": "assista-code.improveCode",
 					"group": "1_actions@3"
 				}
 			],
 			"terminal/context": [
 				{
-					"submenu": "cybrosys-assista.terminalMenu",
+					"submenu": "assista-code.terminalMenu",
 					"group": "2"
 				}
 			],
-			"cybrosys-assista.terminalMenu": [
+			"assista-code.terminalMenu": [
 				{
-					"command": "cybrosys-assista.terminalAddToContext",
+					"command": "assista-code.terminalAddToContext",
 					"group": "1_actions@1"
 				},
 				{
-					"command": "cybrosys-assista.terminalFixCommand",
+					"command": "assista-code.terminalFixCommand",
 					"group": "1_actions@2"
 				},
 				{
-					"command": "cybrosys-assista.terminalExplainCommand",
+					"command": "assista-code.terminalExplainCommand",
 					"group": "1_actions@3"
 				}
 			],
 			"view/title": [
 				{
-					"command": "cybrosys-assista.plusButtonClicked",
+					"command": "assista-code.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				},
 				{
-					"command": "cybrosys-assista.promptsButtonClicked",
+					"command": "assista-code.promptsButtonClicked",
 					"group": "navigation@2",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				},
 				{
-					"command": "cybrosys-assista.mcpButtonClicked",
+					"command": "assista-code.mcpButtonClicked",
 					"group": "navigation@3",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				},
 				{
-					"command": "cybrosys-assista.marketplaceButtonClicked",
+					"command": "assista-code.marketplaceButtonClicked",
 					"group": "navigation@4",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				},
 				{
-					"command": "cybrosys-assista.historyButtonClicked",
+					"command": "assista-code.historyButtonClicked",
 					"group": "navigation@5",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				},
 				{
-					"command": "cybrosys-assista.popoutButtonClicked",
+					"command": "assista-code.popoutButtonClicked",
 					"group": "navigation@6",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				},
 				{
-					"command": "cybrosys-assista.accountButtonClicked",
+					"command": "assista-code.accountButtonClicked",
 					"group": "navigation@7",
-					"when": "view == cybrosys-assista.SidebarProvider && config.cybrosys-assista.cybrosysAssistaCloudEnabled"
+					"when": "view == assista-code.SidebarProvider && config.assista-code.assistaCodeCloudEnabled"
 				},
 				{
-					"command": "cybrosys-assista.settingsButtonClicked",
+					"command": "assista-code.settingsButtonClicked",
 					"group": "navigation@8",
-					"when": "view == cybrosys-assista.SidebarProvider"
+					"when": "view == assista-code.SidebarProvider"
 				}
 			],
 			"editor/title": [
 				{
-					"command": "cybrosys-assista.plusButtonClicked",
+					"command": "assista-code.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider"
 				},
 				{
-					"command": "cybrosys-assista.promptsButtonClicked",
+					"command": "assista-code.promptsButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider"
 				},
 				{
-					"command": "cybrosys-assista.mcpButtonClicked",
+					"command": "assista-code.mcpButtonClicked",
 					"group": "navigation@3",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider"
 				},
 				{
-					"command": "cybrosys-assista.marketplaceButtonClicked",
+					"command": "assista-code.marketplaceButtonClicked",
 					"group": "navigation@4",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider"
 				},
 				{
-					"command": "cybrosys-assista.historyButtonClicked",
+					"command": "assista-code.historyButtonClicked",
 					"group": "navigation@5",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider"
 				},
 				{
-					"command": "cybrosys-assista.accountButtonClicked",
+					"command": "assista-code.accountButtonClicked",
 					"group": "navigation@6",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider && config.cybrosys-assista.cybrosysAssistaCloudEnabled"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider && config.assista-code.assistaCodeCloudEnabled"
 				},
 				{
-					"command": "cybrosys-assista.settingsButtonClicked",
+					"command": "assista-code.settingsButtonClicked",
 					"group": "navigation@7",
-					"when": "activeWebviewPanelId == cybrosys-assista.TabPanelProvider"
+					"when": "activeWebviewPanelId == assista-code.TabPanelProvider"
 				}
 			]
 		},
 		"submenus": [
 			{
-				"id": "cybrosys-assista.contextMenu",
+				"id": "assista-code.contextMenu",
 				"label": "%views.contextMenu.label%"
 			},
 			{
-				"id": "cybrosys-assista.terminalMenu",
+				"id": "assista-code.terminalMenu",
 				"label": "%views.terminalMenu.label%"
 			}
 		],
 		"configuration": {
 			"title": "%configuration.title%",
 			"properties": {
-				"cybrosys-assista.allowedCommands": {
+				"assista-code.allowedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -321,7 +321,7 @@
 					],
 					"description": "%commands.allowedCommands.description%"
 				},
-				"cybrosys-assista.vsCodeLmModelSelector": {
+				"assista-code.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
@@ -335,17 +335,17 @@
 					},
 					"description": "%settings.vsCodeLmModelSelector.description%"
 				},
-				"cybrosys-assista.customStoragePath": {
+				"assista-code.customStoragePath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.customStoragePath.description%"
 				},
-				"cybrosys-assista.cybrosysAssistaCloudEnabled": {
+				"assista-code.assistaCodeCloudEnabled": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.cybrosysAssistaCloudEnabled.description%"
 				},
-				"cybrosys-assista.enableCodeActions": {
+				"assista-code.enableCodeActions": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.enableCodeActions.description%"

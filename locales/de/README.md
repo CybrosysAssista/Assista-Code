@@ -26,7 +26,7 @@
 </p>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista" target="_blank"><img src="https://img.shields.io/badge/Download%20im%20VS%20Marketplace-blue?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Download im VS Marketplace"></a>
-<a href="https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Funktionsanfragen-yellow?style=for-the-badge" alt="Funktionsanfragen"></a>
+<a href="https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Funktionsanfragen-yellow?style=for-the-badge" alt="Funktionsanfragen"></a>
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista&ssr=false#review-details" target="_blank"><img src="https://img.shields.io/badge/Bewerten%20%26%20Rezensieren-green?style=for-the-badge" alt="Bewerten & Rezensieren"></a>
 <a href="https://docs.cybrosysassista.com" target="_blank"><img src="https://img.shields.io/badge/Dokumentation-6B46C1?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Dokumentation"></a>
 
@@ -106,7 +106,7 @@ Passen Sie Cybrosys Assista nach Ihren Wünschen an mit:
 
 - **Discord:** [Treten Sie unserem Discord-Server bei](https://discord.gg/cybrosysassista) für Echtzeit-Hilfe und Diskussionen
 - **Reddit:** [Besuchen Sie unser Subreddit](https://www.reddit.com/r/CybrosysAssista), um Erfahrungen und Tipps zu teilen
-- **GitHub:** [Probleme melden](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues) oder [Funktionen anfragen](https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
+- **GitHub:** [Probleme melden](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues) oder [Funktionen anfragen](https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
 
 ---
 

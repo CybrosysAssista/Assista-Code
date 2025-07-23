@@ -23,7 +23,7 @@
 <!-- <img src="https://media.githubusercontent.com/media/CybrosysAssista/Assista/main/src/assets/docs/demo.gif" width="100%" /> -->
 
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista" target="_blank"><img src="https://img.shields.io/badge/Скачать%20в%20VS%20Marketplace-blue?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Скачать в VS Marketplace"></a>
-<a href="https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Запросы%20функций-yellow?style=for-the-badge" alt="Запросы функций"></a>
+<a href="https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Запросы%20функций-yellow?style=for-the-badge" alt="Запросы функций"></a>
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista&ssr=false#review-details" target="_blank"><img src="https://img.shields.io/badge/Оценить%20%26%20Отзыв-green?style=for-the-badge" alt="Оценить & Отзыв"></a>
 <a href="https://docs.cybrosysassista.com" target="_blank"><img src="https://img.shields.io/badge/Документация-6B46C1?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Документация"></a>
 
@@ -101,7 +101,7 @@ MCP расширяет возможности Cybrosys Assista, позволяя
 
 ### Сообщество
 
-- **GitHub:** Сообщайте об [ошибках](https://github.com/CybrosysAssista/Assista/issues) или запрашивайте [функции](https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
+- **GitHub:** Сообщайте об [ошибках](https://github.com/CybrosysAssista/Assista-Code/issues) или запрашивайте [функции](https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
 
 ---
 
@@ -110,7 +110,7 @@ MCP расширяет возможности Cybrosys Assista, позволяя
 1. **Клонируйте** репозиторий:
 
 ```sh
-git clone https://github.com/CybrosysAssista/Assista.git
+git clone https://github.com/CybrosysAssista/Assista-Code.git
 ```
 
 2. **Установите зависимости**:

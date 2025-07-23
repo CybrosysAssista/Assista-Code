@@ -24,7 +24,7 @@
 <!-- <img src="https://media.githubusercontent.com/media/CybrosysAssista/Assista/main/src/assets/docs/demo.gif" width="100%" /> -->
 
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista" target="_blank"><img src="https://img.shields.io/badge/Tải%20từ%20VS%20Marketplace-blue?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Tải từ VS Marketplace"></a>
-<a href="https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Yêu%20cầu%20tính%20năng-yellow?style=for-the-badge" alt="Yêu cầu tính năng"></a>
+<a href="https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Yêu%20cầu%20tính%20năng-yellow?style=for-the-badge" alt="Yêu cầu tính năng"></a>
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista&ssr=false#review-details" target="_blank"><img src="https://img.shields.io/badge/Đánh%20giá%20%26%20Nhận%20xét-green?style=for-the-badge" alt="Đánh giá & Nhận xét"></a>
 <a href="https://docs.cybrosysassista.com" target="_blank"><img src="https://img.shields.io/badge/Tài%20liệu-6B46C1?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Tài liệu"></a>
 
@@ -102,7 +102,7 @@ Làm cho Cybrosys Assista hoạt động theo cách của bạn với:
 
 ### Cộng Đồng
 
-- **GitHub:** [Báo cáo vấn đề](https://github.com/CybrosysAssista/Assista/issues) hoặc [yêu cầu tính năng](https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
+- **GitHub:** [Báo cáo vấn đề](https://github.com/CybrosysAssista/Assista-Code/issues) hoặc [yêu cầu tính năng](https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
 
 ---
 

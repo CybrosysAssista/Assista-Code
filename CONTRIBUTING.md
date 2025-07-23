@@ -69,7 +69,7 @@ Mention alignment with these areas in your PRs.
 
 All contributions must begin with a GitHub Issue.
 
-- **Check existing issues**: Search [GitHub Issues](https://github.com/CybrosysAssista/Assista/issues).
+- **Check existing issues**: Search [GitHub Issues](https://github.com/CybrosysAssista/Assista-Code/issues).
 - **Create an issue**: Use appropriate templates:
     - **Bugs:** "Bug Report" template.
     - **Features:** "Detailed Feature Proposal" template. Approval required before starting.
@@ -80,13 +80,13 @@ All contributions must begin with a GitHub Issue.
 ### Deciding What to Work On
 
 - Check the [GitHub Project](https://github.com/orgs/CybrosysAssista/projects/1) for unassigned "Good First Issues."
-- For docs, visit [Cybrosys Assista Docs](https://github.com/CybrosysAssista/Assista-Docs).
+- For docs, visit [Cybrosys Assista Docs](https://github.com/CybrosysAssista/Assista-Code-Docs).
 
 ### Reporting Bugs
 
 - Check for existing reports first.
-- Create new bugs using the ["Bug Report" template](https://github.com/CybrosysAssista/Assista/issues/new/choose).
-- **Security issues**: Report privately via [security advisories](https://github.com/CybrosysAssista/Assista/security/advisories/new).
+- Create new bugs using the ["Bug Report" template](https://github.com/CybrosysAssista/Assista-Code/issues/new/choose).
+- **Security issues**: Report privately via [security advisories](https://github.com/CybrosysAssista/Assista-Code/security/advisories/new).
 
 ## Development & Submission Process
 

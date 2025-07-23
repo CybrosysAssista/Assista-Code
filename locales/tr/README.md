@@ -26,7 +26,7 @@
 </p>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista" target="_blank"><img src="https://img.shields.io/badge/VS%20Marketplace%27den%20İndir-blue?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Marketplace'den İndir"></a>
-<a href="https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Özellik%20İstekleri-yellow?style=for-the-badge" alt="Özellik İstekleri"></a>
+<a href="https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Özellik%20İstekleri-yellow?style=for-the-badge" alt="Özellik İstekleri"></a>
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista&ssr=false#review-details" target="_blank"><img src="https://img.shields.io/badge/Değerlendir%20%26%20İnceleme-green?style=for-the-badge" alt="Değerlendir & İnceleme"></a>
 <a href="https://docs.cybrosysassista.com" target="_blank"><img src="https://img.shields.io/badge/Dokümantasyon-6B46C1?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Dokümantasyon"></a>
 
@@ -106,7 +106,7 @@ Cybrosys Assista'u kendi tarzınıza göre çalıştırın:
 
 - **Discord:** Gerçek zamanlı yardım ve tartışmalar için [Discord sunucumuza katılın](https://discord.gg/cybrosysassista)
 - **Reddit:** Deneyimlerinizi ve ipuçlarınızı paylaşmak için [subreddit'imizi ziyaret edin](https://www.reddit.com/r/CybrosysAssista)
-- **GitHub:** [Sorunları bildirin](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues) veya [özellik talep edin](https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
+- **GitHub:** [Sorunları bildirin](https://github.com/CybrosysAssistaInc/Cybrosys-Assista/issues) veya [özellik talep edin](https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
 
 ---
 

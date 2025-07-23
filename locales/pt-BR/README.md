@@ -24,7 +24,7 @@
 <!-- <img src="https://media.githubusercontent.com/media/CybrosysAssista/Assista/main/src/assets/docs/demo.gif" width="100%" /> -->
 
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista" target="_blank"><img src="https://img.shields.io/badge/Baixar%20no%20VS%20Marketplace-blue?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Baixar no VS Marketplace"></a>
-<a href="https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Solicitar%20Recursos-yellow?style=for-the-badge" alt="Solicitar Recursos"></a>
+<a href="https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><img src="https://img.shields.io/badge/Solicitar%20Recursos-yellow?style=for-the-badge" alt="Solicitar Recursos"></a>
 <a href="https://marketplace.visualstudio.com/items?itemName=CybrosysTechnologiesOdooOfficialPartner.cybrosys-assista&ssr=false#review-details" target="_blank"><img src="https://img.shields.io/badge/Avaliar%20%26%20Comentar-green?style=for-the-badge" alt="Avaliar & Comentar"></a>
 <a href="https://docs.cybrosysassista.com" target="_blank"><img src="https://img.shields.io/badge/Documentação-6B46C1?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Documentação"></a>
 

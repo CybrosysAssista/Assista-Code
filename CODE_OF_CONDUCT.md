@@ -83,7 +83,7 @@ members of the project's leadership.
 This Code of Conduct is adapted from [Assista's version][assista_coc] of the [Contributor Covenant][homepage], version 1.4,
 available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-[assista_coc]: https://github.com/CybrosysAssista/Assista/blob/main/CODE_OF_CONDUCT.md
+[assista_coc]: https://github.com/CybrosysAssista/Assista-Code/blob/main/CODE_OF_CONDUCT.md
 [homepage]: https://www.contributor-covenant.org
 
 For answers to common questions about this code of conduct, see

@@ -98,7 +98,7 @@ Make Cybrosys Assista work your way with:
 
 ### Community
 
-- **GitHub:** Report [issues](https://github.com/CybrosysAssista/Assista/issues) or request [features](https://github.com/CybrosysAssista/Assista/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
+- **GitHub:** Report [issues](https://github.com/CybrosysAssista/Assista-Code/issues) or request [features](https://github.com/CybrosysAssista/Assista-Code/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop)
 
 ---
 
@@ -107,7 +107,7 @@ Make Cybrosys Assista work your way with:
 1. **Clone** the repo:
 
 ```sh
-git clone https://github.com/CybrosysAssista/Assista.git
+git clone https://github.com/CybrosysAssista/Assista-Code.git
 ```
 
 2. **Install dependencies**:
